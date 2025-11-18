@@ -1,0 +1,248 @@
+[
+    {
+        "name": "Run: theme0",
+        "texts": [
+            {
+                "label": "user",
+                "left": 0.652619409888825,
+                "top": 0.3326286672542639,
+                "fontSize": 20,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#FFFFFF",
+                "strokeWidth": 0,
+                "fill": "#FFFFFF",
+                "value": "Distance"
+            },
+            {
+                "label": "distance_value",
+                "left": 0.825,
+                "top": 0.49810819095104475,
+                "fontSize": 60,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 330.8194397771437,
+                "stroke": "#FFFFFF",
+                "strokeWidth": 0,
+                "fill": "#FFFFFF"
+            },
+            {
+                "label": "user",
+                "left": 0.5,
+                "top": 0.18154198377726083,
+                "fontSize": 20,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#fff",
+                "strokeWidth": 0,
+                "fill": "#fff",
+                "value": "Time"
+            },
+            {
+                "label": "time_value",
+                "left": 0.237052438558284,
+                "top": 0.25172347242990584,
+                "fontSize": 60,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#FFFFFF",
+                "strokeWidth": 0,
+                "fill": "#FFFFFF"
+            },
+            {
+                "label": "user",
+                "left": 0.5,
+                "top": 0.3310471468879463,
+                "fontSize": 20,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#fff",
+                "strokeWidth": 0,
+                "fill": "#fff",
+                "value": "Elevation"
+            },
+            {
+                "label": "elevation_value",
+                "left": 0.2665979880153542,
+                "top": 0.9101596851685483,
+                "fontSize": 60,
+                "fontFamily": "Arial",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#851818",
+                "strokeWidth": 0,
+                "fill": "#851818"
+            }
+        ],
+        "polys": [
+            {
+                "label": "track_profile",
+                "left": 0.4003200414139779,
+                "top": 0.17291368822027256,
+                "angle": 42.30100783796496,
+                "stroke": "#fc5200",
+                "strokeWidth": 4,
+                "fill": "#fc5200",
+                "scaleX": 0.4231896807906448,
+                "scaleY": 0.4316534744064577
+            },
+            {
+                "label": "elevation_profile",
+                "left": 0.24207941586638526,
+                "top": 0.4015648212451884,
+                "angle": 0,
+                "stroke": "#fc5200",
+                "strokeWidth": 2,
+                "fill": "rgba(0, 128, 255, 0.2)",
+                "scaleX": 0.5,
+                "scaleY": 0.5
+            }
+        ],
+        "svgs": [
+            {
+                "left": 0.5086763811902293,
+                "top": 0.7808659893864002,
+                "url": "/svgs/strava.svg",
+                "angle": 10.70109601948114,
+                "stroke": null,
+                "strokeWidth": 0,
+                "fill": "rgb(0,0,0)",
+                "scaleX": 0.15905930517952468,
+                "scaleY": 0.09005790686197473
+            },
+            {
+                "left": 0.13166666666666665,
+                "top": 0.7408776085970874,
+                "url": "/svgs/swim.svg",
+                "angle": 0,
+                "stroke": "#fff",
+                "strokeWidth": 2,
+                "fill": "#fff",
+                "scaleX": 3,
+                "scaleY": 3
+            }
+        ],
+        "height_percentage": 0.5565430185079423
+    },
+    {
+        "name": "Hike: theme1",
+        "texts": [
+            {
+                "label": "user",
+                "left": 0.652619409888825,
+                "top": 0.2726394146037731,
+                "fontSize": 16,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#FFFFFF",
+                "strokeWidth": 0,
+                "fill": "#FFFFFF",
+                "value": "Distance"
+            },
+            {
+                "label": "distance_value",
+                "left": 0.387,
+                "top": 0.40238905853482343,
+                "fontSize": 48,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 330.8194397771437,
+                "stroke": "#FFFFFF",
+                "strokeWidth": 0,
+                "fill": "#FFFFFF"
+            },
+            {
+                "label": "user",
+                "left": 0.5,
+                "top": 0.14880106573978885,
+                "fontSize": 16,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#fff",
+                "strokeWidth": 0,
+                "fill": "#fff",
+                "value": "Time"
+            },
+            {
+                "label": "user",
+                "left": 0.5,
+                "top": 0.27134311987843857,
+                "fontSize": 16,
+                "fontFamily": "Lobster",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#fff",
+                "strokeWidth": 0,
+                "fill": "#fff",
+                "value": "Elevation"
+            },
+            {
+                "label": "elevation_value",
+                "left": 0.6465979880153543,
+                "top": 0.7872139561706938,
+                "fontSize": 48,
+                "fontFamily": "Arial",
+                "scaleX": "1.75",
+                "scaleY": "1.75",
+                "angle": 0,
+                "stroke": "#851818",
+                "strokeWidth": 0,
+                "fill": "#851818"
+            }
+        ],
+        "polys": [
+            {
+                "label": "track_profile",
+                "left": 0.4003200414139779,
+                "top": 0.1417288747915342,
+                "angle": 42.30100783796496,
+                "stroke": "#fc5200",
+                "strokeWidth": 4,
+                "fill": "#fc5200",
+                "scaleX": 0.4231896807906448,
+                "scaleY": 0.4316534744064577
+            },
+            {
+                "label": "elevation_profile",
+                "left": 0.24207941586638526,
+                "top": 0.32914300109337175,
+                "angle": 0,
+                "stroke": "#fc5200",
+                "strokeWidth": 2,
+                "fill": "rgba(0, 128, 255, 0.2)",
+                "scaleX": 0.5,
+                "scaleY": 0.5
+            }
+        ],
+        "svgs": [
+            {
+                "left": 0.5086763811902293,
+                "top": 0.6400375770004388,
+                "url": "/svgs/strava.svg",
+                "angle": 10.70109601948114,
+                "stroke": null,
+                "strokeWidth": 0,
+                "fill": "rgb(0,0,0)",
+                "scaleX": 0.15905930517952468,
+                "scaleY": 0.09005790686197473
+            }
+        ],
+        "height_percentage": 0.879
+    }
+]
