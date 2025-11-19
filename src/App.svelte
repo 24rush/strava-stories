@@ -21,7 +21,7 @@
   }
 
   async function getStravaActivity(stravaActUrl: string) {
-    await fetch("strava-stories-taupe.vercel.app/api/strava", {
+    await fetch("https://strava-stories-taupe.vercel.app/api/strava", {
       method: "GET",
       headers: {
         url: stravaActUrl,
