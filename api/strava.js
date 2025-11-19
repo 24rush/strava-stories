@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         return;
     }
 
-    let strava_url = req.get('url');
+    let strava_url = req.headers['url'];
     if (!strava_url) {
         res.status(500).json({ error: 'No url header found' });
         return;
