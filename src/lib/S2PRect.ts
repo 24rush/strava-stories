@@ -7,6 +7,7 @@ export class S2PRect extends Rect implements S2PCanvasItem {
     constructor(...args: any[]) {
         super(...args);
 
+        this.strokeUniform = true;
         this.s2pType = S2PCanvasItemType.Rect;
     }
 }

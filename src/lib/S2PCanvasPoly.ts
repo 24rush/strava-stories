@@ -35,11 +35,17 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
     }
 
     get fill(): string {
-        return this.polygonObj ? this.polygonObj.get("fill") : "#fc5200";
+        if (this.s2pType == S2PCanvasItemType.FilledPolyline)
+            return this.polygonObj ? this.polygonObj.get("fill") : "#fc5200";
+        if (this.s2pType == S2PCanvasItemType.Polyline)
+            return this.polylineObj ? this.polylineObj.get("fill") : "#fc5200";
+
+        return "#fc5200";
     }
 
     set fill(color: string) {
-        if (this.polygonObj) this.polygonObj.set("fill", color);
+        if (this.polygonObj && this.s2pType == S2PCanvasItemType.FilledPolyline) this.polygonObj.set("fill", color);
+        if (this.polylineObj && this.s2pType == S2PCanvasItemType.Polyline) this.polylineObj.set("fill", color);
     }
 
     set strokeWidth(width: number) {
@@ -50,7 +56,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
     }
 
     get strokeWidth(): number {
-        return this.polylineObj ? this.polylineObj.get("strokeWidth") : 4;        
+        return this.polylineObj ? this.polylineObj.get("strokeWidth") : 4;
     }
 
     createPolyline(points: XYPoint[]) {
@@ -59,6 +65,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
         this.polylineObj = new Polyline(points, {
             stroke: "#fc5200",
             strokeWidth: 4,
+            fill: null,
         });
 
         this.add(this.polylineObj);

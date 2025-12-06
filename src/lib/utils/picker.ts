@@ -41,21 +41,22 @@ export function createPicker(pickerEl: HTMLDivElement, defaultColor: string | TF
 
         onChangeCbk(color);
     });
- 
-    // Reposition panel when it's shown
-    pickr.on("show", (instance, pickerInst) => {
-        const swatch = pickerInst.getRoot().button;
-        const panel = pickerInst.getRoot().app;
 
-        if (swatch && panel) {
-            const rect = swatch.getBoundingClientRect();
-
-            // Position to the right of the swatch
-            panel.style.position = "absolute";
-            panel.style.left = `${rect.left + 40}px`; // 10px padding
-            panel.style.top = `${rect.top}px`;
-        }
+    // When Pickr is open, block Backspace from bubbling out
+    pickr.on('show', () => {
+        document.addEventListener('keydown', stopBackspace, true);
     });
 
+    // When Pickr closes, remove the handler
+    pickr.on('hide', () => {
+        document.removeEventListener('keydown', stopBackspace, true);
+    });
+
+    function stopBackspace(e: any) {
+        if (e.key === 'Backspace') {            
+            e.stopPropagation();
+        }
+    }
+    
     return pickr;
 }

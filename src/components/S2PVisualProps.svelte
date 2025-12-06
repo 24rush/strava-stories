@@ -3,8 +3,9 @@
     import { createPicker } from "../lib/utils/picker";
     import type { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
     import { S2PCanvasText } from "../lib/S2PCanvasText";
-    import type { FabricObject } from "fabric";
+    import { type FabricObject } from "fabric";
     import S2PRangeControl from "./S2PRangeControl.svelte";
+    import { Fonts } from "../lib/utils/fonts";
 
     let {
         onRequestRedraw,
@@ -31,7 +32,6 @@
     let trackFillPickerEl: HTMLDivElement;
 
     let selectFontFamily: HTMLSelectElement;
-    let fontFamilies = ["Kanit", "Verdana", "Arial", "Roboto", "Lobster", "Lato"];
 
     onMount(() => {
         trackColorPicker = createPicker(
@@ -52,13 +52,15 @@
             },
         );
 
-        fontFamilies.forEach((font) => {
-            const option = document.createElement("option");
-            option.value = font;
-            option.textContent = font;
-            option.style.fontFamily = font; // 💡 apply font directly
-            selectFontFamily.appendChild(option);
-        });
+        Object.values(Fonts.fontFamilies)
+            .flat()
+            .forEach((font) => {
+                const option = document.createElement("option");
+                option.value = font;
+                option.textContent = font;
+                option.style.fontFamily = font;
+                selectFontFamily.appendChild(option);
+            });
     });
 
     onDestroy(() => {
@@ -69,6 +71,17 @@
     //@ts-ignore
     function trackStrokeChanged(newValue) {
         canvasItemSelected.set("strokeWidth", parseInt(newValue));
+        onRequestRedraw?.();
+    }
+
+    function fontWeightChanged(newValue: number) {
+        canvasItemSelected.set("fontWeight", newValue);
+
+        onRequestRedraw?.();
+    }
+
+    function charSpacingChanged(newValue: number) {
+        canvasItemSelected.set("charSpacing", newValue);
 
         onRequestRedraw?.();
     }
@@ -91,6 +104,16 @@
             "fontFamily",
             (event.target as HTMLSelectElement).value,
         );
+        onRequestRedraw?.();
+    }
+
+    function fireFontStyleChanged() {
+        let currFont = canvasItemSelected.get("fontStyle");
+        canvasItemSelected.set(
+            "fontStyle",
+            !currFont || currFont == "normal" ? "italic" : "normal",
+        );
+
         onRequestRedraw?.();
     }
 
@@ -127,6 +150,20 @@
         </div>
 
         <span
+            style="display: {canvasItemSelected instanceof S2PCanvasText
+                ? 'flex'
+                : 'none'}; white-space: nowrap;"
+            class="font-emp">Font weight</span
+        >
+
+        <span
+            style="display: {canvasItemSelected instanceof S2PCanvasText
+                ? 'flex'
+                : 'none'}; white-space: nowrap;"
+            class="font-emp">Letter spacing</span
+        >
+
+        <span
             style="display: {hasStrokeWidth
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
@@ -141,15 +178,26 @@
         <div
             style="display: {canvasItemSelected instanceof S2PCanvasText
                 ? 'flex'
-                : 'none'}"
+                : 'none'}; padding-bottom: 0.33em;"
         >
             <select
-                class="form-select"
+                class="form-select me-1"
                 bind:this={selectFontFamily}
                 value={canvasItemSelected.fontFamily}
                 onchange={fireFontFamilyChanged}
-            >           
+            >
             </select>
+            <button
+                type="button"
+                class="btn btn-outline-secondary {canvasItemSelected.fontStyle !=
+                'normal'
+                    ? 'active'
+                    : ''}"
+                data-bs-toggle="button"
+                onclick={fireFontStyleChanged}
+                aria-pressed={canvasItemSelected.fontStyle != "normal"}
+                ><i class="bi bi-type-italic"></i></button
+            >
         </div>
         <div
             id={`trackColorWrapper_${rndId}`}
@@ -160,6 +208,35 @@
             <div bind:this={trackColorPickerEl}></div>
             <label class="font-emp ms-1">Contour</label>
         </div>
+
+        <div
+            style="display: {canvasItemSelected instanceof S2PCanvasText
+                ? 'flex'
+                : 'none'};"
+        >
+            <S2PRangeControl
+                onValueChanged={fontWeightChanged}
+                value={canvasItemSelected.fontWeight}
+                min={100}
+                max={900}
+                step={100}
+            />
+        </div>
+
+        <div
+            style="display: {canvasItemSelected instanceof S2PCanvasText
+                ? 'flex'
+                : 'none'};"
+        >
+            <S2PRangeControl
+                onValueChanged={charSpacingChanged}
+                value={canvasItemSelected.charSpacing}
+                min={-100}
+                max={600}
+                step={50}
+            />
+        </div>
+
         <div style="display: {hasStrokeWidth ? 'flex' : 'none'};">
             <S2PRangeControl
                 onValueChanged={trackStrokeChanged}
@@ -185,6 +262,7 @@
     .container {
         display: flex;
         justify-content: center;
+        padding: 0;
     }
 
     .column {

@@ -6,6 +6,7 @@
         Pattern,
         Polyline,
         FabricImage,
+        ActiveSelection,
     } from "fabric";
     import {
         decodePolyline,
@@ -39,6 +40,7 @@
 
     let polys: Group[] = [];
     let texts: S2PCanvasText[] = [];
+    let rects: S2PRect[] = [];
     let svgs: FabricObject[] = [];
 
     let rndId = `${Math.random().toString(36).slice(2, 9)}`;
@@ -53,6 +55,8 @@
         canvasEl.id = `mapCanvas-${rndId}`;
         canvas = new Canvas(canvasEl.id, {
             backgroundColor: "#fff",
+            selection: false, // disable drag selection if you want ctrl-click only
+            preserveObjectStacking: true, // important for multi-selection
         });
 
         if (
@@ -69,6 +73,28 @@
         }
 
         setCheckeredBackground();
+
+        let selected: FabricObject[] = [];
+
+        canvas.on("mouse:down", function (opt) {
+            const target = opt.target;
+
+            if (opt.e.shiftKey && target) {
+                // Add to selection
+                if (!selected.includes(target)) selected.push(target);
+
+                const sel = new ActiveSelection(selected, { canvas });
+                canvas.setActiveObject(sel);
+            } else if (target) {
+                // New single selection
+                selected = [target];
+            } else {
+                // Clicked empty space
+                selected = [];
+            }
+
+            canvas.requestRenderAll();
+        });
 
         canvas.on("selection:created", (e) => {
             onSelectionChanged?.(e.selected[0]);
@@ -128,12 +154,44 @@
         document.fonts.ready.then(() => {
             canvas.requestRenderAll();
         });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Delete" || e.key === "Backspace") {
+                const obj = canvas.getActiveObject();
+                if (obj && obj.isEditing) return;
+
+                deleteActiveObjects();
+            }
+        });
+
+        window.addEventListener("beforeunload", function (e) {
+            e.preventDefault(); // required for some browsers
+            e.returnValue = ""; // triggers the browser's confirmation dialog
+        });
     });
 
     export function onFontScalingChanged(event: any) {
         texts.forEach((text: S2PCanvasText) => {
             text.scaling = event.target.value as number;
         });
+        canvas.requestRenderAll();
+    }
+
+    export function setFontFamily(fontFamily: string) {
+        texts.forEach((t) => t.set("fontFamily", fontFamily));
+        canvas.requestRenderAll();
+    }
+
+    export function setAccentColor(color: string) {
+        const active = canvas.getActiveObjects();
+
+        if (active.length) {
+            active.forEach((obj) => {
+                obj.set("fill", color);
+            });
+        } else {
+            texts.forEach((t) => t.set("fill", color));
+        }
+    
         canvas.requestRenderAll();
     }
 
@@ -151,7 +209,7 @@
         texts = [];
         polys = [];
         svgs = [];
-        lastPos = 0;        
+        lastPos = 0;
         canvas.requestRenderAll();
     }
 
@@ -179,20 +237,83 @@
         return s2pCanvasText;
     }
 
+    export function addTextAtPos(
+        text: string,
+        left: number,
+        top: number,
+        textPropsCopy?: S2PThemeText,
+    ): S2PCanvasText {
+        let textProps: S2PThemeText | undefined = textPropsCopy;
+
+        if (!textProps && texts.length > 0)
+            textProps = {
+                ...(texts[texts.length - 1]?.textProps ?? new S2PThemeText()),
+            };
+
+        if (!textProps) textProps = new S2PThemeText();
+
+        textProps.value = text;
+        textProps.left = left;
+        textProps.top = top;
+
+        return addText(textProps);
+    }
+
     export function addRect(...args: any[]) {
         let rect = new S2PRect(...args);
+        rect.on("scaling", function () {
+            const scaleX = rect.scaleX;
+            const scaleY = rect.scaleY;
+
+            // Resize the width/height permanently
+            rect.set({
+                width: rect.width * scaleX,
+                height: rect.height * scaleY,
+            });
+
+            // Reset scale so strokeUniform still works
+            rect.set({
+                scaleX: 1,
+                scaleY: 1,
+            });
+
+            // Restore rounded corners to stay visually constant
+            rect.set({
+                rx: rect.rx,
+                ry: rect.ry,
+            });
+
+            canvas.renderAll();
+        });
+
         canvas.add(rect);
         canvas.sendObjectToBack(rect);
         canvas.setActiveObject(rect);
+
+        rects.push(rect);
+    }
+
+    function deleteActiveObjects() {
+        const activeObjects = canvas.getActiveObjects();
+        if (activeObjects.length) {
+            activeObjects.forEach((obj) => remove(obj));
+            canvas.discardActiveObject();
+            canvas.requestRenderAll();
+        }
     }
 
     export function remove(
         delItem: S2PCanvasText | S2PCanvasPoly | FabricObject,
     ) {
-        canvas.remove(delItem);
-
-        if (delItem instanceof S2PCanvasText)
+        if ("id" in delItem)
             texts = texts.filter((text) => text.id !== delItem.id);
+
+        svgs = svgs.filter((svg) => svg != delItem);
+        polys = polys.filter((poly) => poly != delItem);
+        rects = rects.filter((rect) => rect != delItem);
+
+        canvas.remove(delItem);
+        canvas.requestRenderAll();
     }
 
     export async function loadBackground(fileUrl: any): Promise<boolean> {
@@ -228,15 +349,33 @@
     }
 
     export function exportToPng() {
-        canvas.lowerCanvasEl.toBlob((blob) => {
-            if (!blob) return;
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "canvas-export.png";
-            link.click();
-            URL.revokeObjectURL(url);
-        }, "image/png");
+        const originalBg = canvas.backgroundColor;
+        const originalBgImg = canvas.backgroundImage;
+
+        canvas.backgroundImage = null;
+        canvas.backgroundColor = "";
+
+        unselectAll();
+
+        setTimeout(() => {
+            canvas.lowerCanvasEl.toBlob((blob) => {
+                if (!blob) return;
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "canvas-export.png";
+                link.click();
+                URL.revokeObjectURL(url);
+            }, "image/png");
+
+            // restore
+            canvas.backgroundColor = originalBg;
+
+            if (originalBgImg) canvas.backgroundImage = originalBgImg;
+
+            canvas.renderAll.bind(canvas);
+            canvas.requestRenderAll();
+        }, 400);
     }
 
     export function dump() {
@@ -244,11 +383,15 @@
 
         texts.forEach((text) => {
             let text_meta: S2PThemeText = {
+                id: text.id,
                 label: text.label,
                 left: text.left / canvas.width,
                 top: text.top / canvas.height,
-                fontSize: text.fontSize,
+                fontSize: text.fontSize / window.devicePixelRatio,
                 fontFamily: text.fontFamily,
+                fontWeight: text.fontWeight,
+                charSpacing: text.charSpacing,
+                fontStyle: text.fontStyle,
                 scaleX: text.scaleX,
                 scaleY: text.scaleY,
 
@@ -295,6 +438,23 @@
             });
         });
 
+        rects.forEach(rect => {
+            theme.rects.push({
+                top: rect.top,
+                left: rect.left,
+                rx: rect.rx,
+                ry: rect.ry,
+                scaleX: rect.scaleX,
+                scaleY: rect.scaleY,
+                width: rect.width,
+                height: rect.height,
+                fill: rect.fill,
+                stroke: rect.stroke,
+                strokeWidth: rect.strokeWidth,
+                angle: rect.angle
+            });
+        });
+
         theme.height_percentage = canvas.height / canvas.width;
 
         console.log(JSON.stringify(theme));
@@ -302,7 +462,7 @@
 
     function setCheckeredBackground() {
         // Create checkered pattern tile using a temporary canvas
-        const tileSize = 120;
+        const tileSize = 32;
         const patternCanvas = document.createElement("canvas");
         patternCanvas.width = patternCanvas.height = tileSize;
         const ctx = patternCanvas.getContext("2d");
@@ -310,11 +470,11 @@
         if (!ctx) return;
 
         // Draw checker pattern (2 colors)
-        ctx.fillStyle = "#525252"; // light gray
-        ctx.fillRect(0, 0, tileSize, tileSize);
-        ctx.fillStyle = "#0000006B"; // lighter gray
-        ctx.fillRect(0, 0, tileSize / 2, tileSize / 2);
-        ctx.fillRect(tileSize / 2, tileSize / 2, tileSize / 2, tileSize / 2);
+        ctx.fillStyle = "#187AFF"; // grid color
+        ctx.fillRect(0, 0, tileSize + 1, tileSize + 1);
+        ctx.fillStyle = "#000104";
+        ctx.fillRect(0, 0, tileSize - 1, tileSize - 1);
+        //ctx.fillRect(tileSize / 2, tileSize / 2, tileSize / 2, tileSize / 2);
 
         // Create Fabric pattern from the tile
         const pattern = new Pattern({

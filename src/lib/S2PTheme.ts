@@ -1,4 +1,5 @@
 export class S2PThemeObject {
+    public id: string = "";
     public label: string = "user";
 
     public top: number = 0;
@@ -18,7 +19,11 @@ export class S2PThemeText extends S2PThemeObject {
     public value?: string = "";
 
     public fontSize: number = 30;
-    public fontFamily: string = "Kanit";  
+    public fontFamily: string = "Kanit"; 
+    public fontWeight: string | number = 400; 
+    public fontStyle: string = "normal";
+
+    public charSpacing: number = 0;
 }
 
 export class S2PThemePoly extends S2PThemeObject {    
@@ -40,6 +45,7 @@ export class S2PTheme {
     public name: string = "";
     public texts: S2PThemeText[] = [];
     public polys: S2PThemePoly[] = [];
+    public rects: S2PThemeRect[] = [];
     public svgs: S2PThemeSvg[] = [];
 
     public height_percentage: number = 1;

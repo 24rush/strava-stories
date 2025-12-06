@@ -22,6 +22,7 @@
         "/svgs/hike.svg",
         "/svgs/swim.svg",
         "/svgs/strava.svg",
+        "/svgs/strava_bo.svg"
     ];
 
     // State: track which SVGs are checked
@@ -121,15 +122,16 @@
     {#each svgUrls as url}
         <li>
             <img src={url} alt="SVG preview" />
-            <label>
-                <input
-                    type="checkbox"
-                    checked={$selected[url]}
-                    on:change={(e) => {
-                        toggleSVG(url, e.currentTarget.checked);
-                    }}
-                />
-            </label>
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-primary d-flex align-items-center"
+                style="width: 90%; height: 20px; justify-content: center; margin: 2px;"                             
+                onclick={(e) => {
+                    toggleSVG(url, true);
+                }}
+            >
+                <i class="bi bi-plus"></i>
+            </button>
         </li>
     {/each}
 </ul>
@@ -141,7 +143,7 @@
         margin: 0;
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 3px;
     }
 
     ul.svg-list li {
@@ -154,8 +156,7 @@
     ul.svg-list img {
         width: 60px;
         height: 60px;
-        display: block;
-        border: 1px solid #ccc;
+        display: block;       
         padding: 4px;
         background: white;
     }
