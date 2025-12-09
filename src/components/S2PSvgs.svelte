@@ -22,7 +22,7 @@
         "/svgs/hike.svg",
         "/svgs/swim.svg",
         "/svgs/strava.svg",
-        "/svgs/strava_bo.svg"
+        "/svgs/strava_bo.svg",
     ];
 
     // State: track which SVGs are checked
@@ -55,8 +55,8 @@
             loadSVGFromURL(url).then(({ objects, options }) => {
                 if (!objects) return;
 
-                const targetWidth = 60;
-                const targetHeight = 60;
+                const targetWidth = themeSvgProps?.width ?? 60;
+                const targetHeight = themeSvgProps?.height ?? 60;
 
                 objects.forEach((obj) => {
                     if (!obj) return;
@@ -71,15 +71,14 @@
                 });
                 var svgGroup = util.groupSVGElements(objects, options);
 
-                // Calculate scale factors for width and height
-                const scaleX = targetWidth / svgGroup.width;
-                const scaleY = targetHeight / svgGroup.height;
-
                 // Choose the smaller scale to maintain aspect ratio (no stretching)
-                const scale = Math.min(scaleX, scaleY);
+                const scale = Math.min(
+                    targetWidth / svgGroup.width,
+                    targetHeight / svgGroup.height,
+                );
 
-                svgGroup.scaleX = themeSvgProps?.scaleX ?? scale;
-                svgGroup.scaleY = themeSvgProps?.scaleY ?? scale;
+                svgGroup.scaleX = scale;
+                svgGroup.scaleY = scale;
 
                 const left = themeSvgProps ? themeSvgProps.left : 0;
                 const top = themeSvgProps ? themeSvgProps.top : 0;
@@ -91,7 +90,7 @@
                 const leftoverY =
                     top + (targetHeight - svgGroup.height * scale) / 2;
 
-                svgGroup.left = leftoverX;
+                svgGroup.left =leftoverX;
                 svgGroup.top = leftoverY;
                 svgGroup.angle = themeSvgProps ? themeSvgProps.angle : 0;
                 //@ts-ignore
@@ -125,7 +124,7 @@
             <button
                 type="button"
                 class="btn btn-sm btn-outline-primary d-flex align-items-center"
-                style="width: 90%; height: 20px; justify-content: center; margin: 2px;"                             
+                style="width: 90%; height: 20px; justify-content: center; margin: 2px;"
                 onclick={(e) => {
                     toggleSVG(url, true);
                 }}
@@ -156,7 +155,7 @@
     ul.svg-list img {
         width: 60px;
         height: 60px;
-        display: block;       
+        display: block;
         padding: 4px;
         background: white;
     }

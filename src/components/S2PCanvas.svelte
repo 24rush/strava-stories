@@ -51,6 +51,8 @@
     let resizer: HTMLButtonElement;
     let container: HTMLDivElement;
 
+    let shouldShowGuides: boolean = false;
+
     onMount(() => {
         canvasEl.id = `mapCanvas-${rndId}`;
         canvas = new Canvas(canvasEl.id, {
@@ -167,6 +169,42 @@
             e.preventDefault(); // required for some browsers
             e.returnValue = ""; // triggers the browser's confirmation dialog
         });
+
+        let MOVE_STEP = 1;
+
+        document.addEventListener("keydown", function (e) {
+            const obj = canvas.getActiveObject();
+            if (!obj) return;
+
+            let changed = false;
+
+            switch (e.key) {
+                case "ArrowLeft":
+                    obj.left -= MOVE_STEP;
+                    changed = true;
+                    break;
+                case "ArrowRight":
+                    obj.left += MOVE_STEP;
+                    changed = true;
+                    break;
+                case "ArrowUp":
+                    obj.top -= MOVE_STEP;
+                    changed = true;
+                    break;
+                case "ArrowDown":
+                    obj.top += MOVE_STEP;
+                    changed = true;
+                    break;
+            }
+
+            if (changed) {
+                obj.setCoords();
+                let textMoved = texts.find((t) => t == obj);
+                if (textMoved) textMoved.showGuides();
+                canvas.requestRenderAll();
+                e.preventDefault();
+            }
+        });
     });
 
     export function onFontScalingChanged(event: any) {
@@ -191,12 +229,28 @@
         } else {
             texts.forEach((t) => t.set("fill", color));
         }
-    
+
         canvas.requestRenderAll();
+    }
+
+    export function setShowGuides(checked: boolean) {
+        texts.forEach((t) => t.setShowGuides(checked));
     }
 
     export function unselectAll() {
         canvas.discardActiveObject();
+        canvas.requestRenderAll();
+    }
+
+    export function selectAll() {
+        canvas.discardActiveObject();
+        const objects = canvas.getObjects().filter(obj => obj.type != "line");
+
+        const selection = new ActiveSelection(objects, {
+            canvas: canvas,
+        });
+
+        canvas.setActiveObject(selection);
         canvas.requestRenderAll();
     }
 
@@ -208,8 +262,10 @@
         canvas.remove(...canvas.getObjects());
         texts = [];
         polys = [];
+        rects = [];
         svgs = [];
         lastPos = 0;
+
         canvas.requestRenderAll();
     }
 
@@ -224,17 +280,25 @@
     }
 
     export function addText(textProps: S2PThemeText): S2PCanvasText {
-        let s2pCanvasText = new S2PCanvasText(textProps);
+        let s2pCanvasText = new S2PCanvasText(textProps, canvas);
         s2pCanvasText.setPosition(textProps.left, textProps.top);
 
         texts.push(s2pCanvasText);
         canvas.add(s2pCanvasText);
+        s2pCanvasText.auxItems.forEach((ai) => canvas.add(ai));
+        s2pCanvasText.setShowGuides(shouldShowGuides);
+
         canvas.setActiveObject(s2pCanvasText);
 
         adjustCanvasSize();
         canvas.requestRenderAll();
 
         return s2pCanvasText;
+    }
+
+    export function onShowGuidesChanged(event: any) {
+        shouldShowGuides = event.target.checked;
+        setShowGuides(shouldShowGuides);
     }
 
     export function addTextAtPos(
@@ -293,7 +357,7 @@
         rects.push(rect);
     }
 
-    function deleteActiveObjects() {
+    export function deleteActiveObjects() {
         const activeObjects = canvas.getActiveObjects();
         if (activeObjects.length) {
             activeObjects.forEach((obj) => remove(obj));
@@ -387,7 +451,7 @@
                 label: text.label,
                 left: text.left / canvas.width,
                 top: text.top / canvas.height,
-                fontSize: text.fontSize / window.devicePixelRatio,
+                fontSize: text.fontSize / canvas.width,
                 fontFamily: text.fontFamily,
                 fontWeight: text.fontWeight,
                 charSpacing: text.charSpacing,
@@ -427,6 +491,8 @@
                 label: svgGroup.label,
                 left: svgGroup.left / canvas.width,
                 top: svgGroup.top / canvas.height,
+                width: (svgGroup.width * svgGroup.scaleX) / canvas.width,
+                height: (svgGroup.height * svgGroup.scaleY) / canvas.height,
                 //@ts-ignore
                 url: svgGroup.url,
                 angle: svgGroup.angle,
@@ -438,24 +504,25 @@
             });
         });
 
-        rects.forEach(rect => {
+        rects.forEach((rect) => {
             theme.rects.push({
-                top: rect.top,
-                left: rect.left,
+                left: rect.left / canvas.width,
+                top: rect.top / canvas.height,
                 rx: rect.rx,
                 ry: rect.ry,
                 scaleX: rect.scaleX,
                 scaleY: rect.scaleY,
-                width: rect.width,
-                height: rect.height,
+                width: (rect.width * rect.scaleX) / canvas.width,
+                height: (rect.height * rect.scaleY) / canvas.height,
                 fill: rect.fill,
                 stroke: rect.stroke,
                 strokeWidth: rect.strokeWidth,
-                angle: rect.angle
+                angle: rect.angle,
             });
         });
 
         theme.height_percentage = canvas.height / canvas.width;
+        theme.devicePixelRatio = window.devicePixelRatio;
 
         console.log(JSON.stringify(theme));
     }
@@ -471,9 +538,20 @@
 
         // Draw checker pattern (2 colors)
         ctx.fillStyle = "#187AFF"; // grid color
-        ctx.fillRect(0, 0, tileSize + 1, tileSize + 1);
-        ctx.fillStyle = "#000104";
-        ctx.fillRect(0, 0, tileSize - 1, tileSize - 1);
+        let gridStrokeWidth = 1;
+        ctx.fillRect(
+            0,
+            0,
+            tileSize + gridStrokeWidth / 2,
+            tileSize + gridStrokeWidth / 2,
+        );
+        ctx.fillStyle = "#3A3A3A";
+        ctx.fillRect(
+            0,
+            0,
+            tileSize - gridStrokeWidth / 2,
+            tileSize - gridStrokeWidth / 2,
+        );
         //ctx.fillRect(tileSize / 2, tileSize / 2, tileSize / 2, tileSize / 2);
 
         // Create Fabric pattern from the tile
@@ -488,12 +566,14 @@
     }
 
     function adjustCanvasSize() {
-        if (texts.length == 0) return;
+        let lastPos = 0;
+        [texts, polys, rects].forEach((col) => {
+            lastPos = Math.max(
+                lastPos,
+                Math.max(...col.map((u) => u.top + u.height)),
+            );
+        });
 
-        lastPos =
-            texts[texts.length - 1].top + texts[texts.length - 1].fontSize / 2;
-
-        //canvas.setDimensions({ height: desiredCanvasHeight });
         if (canvas.height < Math.max(lastPos, minCanvasHeight)) {
             canvas.setDimensions({
                 height: Math.max(lastPos, minCanvasHeight),
@@ -502,35 +582,7 @@
             canvas.renderAll();
         }
     }
-
-    function drawPolyline(polyline: string) {
-        const rawPoints = decodePolyline(polyline);
-
-        const { points, width, height } = mercatorProject(
-            rawPoints,
-            canvas.getWidth(),
-        );
-
-        // Resize canvas
-        canvas.width = width;
-        canvas.height = height;
-
-        // Draw polyline
-        if (points.length > 0) {
-            polylineObj = new Polyline(points, {
-                stroke: "#fc5200",
-                strokeWidth: 4,
-                fill: "",
-                strokeLineJoin: "round",
-                strokeLineCap: "round",
-            });
-
-            canvas.add(polylineObj);
-        }
-
-        canvas.renderAll();
-    }
-
+    
     export function addFilledPolyFromVector(
         label: string,
         elevations: number[],
@@ -556,6 +608,8 @@
         polys.push(filledPoly);
         canvas.add(filledPoly);
         canvas.renderAll();
+
+        return filledPoly;
     }
 
     export function addPolyFromLatLngs(
@@ -593,6 +647,8 @@
         polys.push(polyline);
         canvas.add(polyline);
         canvas.renderAll();
+
+        return polyline;
     }
 </script>
 

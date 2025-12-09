@@ -5,6 +5,9 @@ export class S2PThemeObject {
     public top: number = 0;
     public left: number = 0;
 
+    public width: number = 0;
+    public height: number = 0;    
+    
     public angle: number = 0;
 
     public fill: string = "#fff";
@@ -34,21 +37,20 @@ export class S2PThemeSvg extends S2PThemeObject {
 }
 
 export class S2PThemeRect extends S2PThemeObject {
-    public width: number = 0;
-    public height: number = 0;       
-
     public rx: number = 0;
     public ry: number = 0;
 }
 
 export class S2PTheme {
     public name: string = "";
+    public ignore: boolean = false;
     public texts: S2PThemeText[] = [];
     public polys: S2PThemePoly[] = [];
     public rects: S2PThemeRect[] = [];
     public svgs: S2PThemeSvg[] = [];
 
     public height_percentage: number = 1;
+    public devicePixelRatio: number = 1;
 
     constructor(name: string) {
         this.name = name;

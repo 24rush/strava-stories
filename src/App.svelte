@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import S2PImage from "./components/S2PImage.svelte";
+  import mounted from "./components/S2PImage.svelte";
 
   let s2pImage: S2PImage;
 
@@ -57,7 +58,7 @@
       const jsonData = JSON.parse(jsonText);
       data = jsonData.props.pageProps.activity;
       data_fetched = true;
-      s2pImage.reloadTheme();
+      reloadTheme();
 
       return;
     }
@@ -82,7 +83,7 @@
         data = strava_data["activity"];
         data_fetched = true;
 
-        s2pImage.reloadTheme();
+        reloadTheme();
       })
       .catch((err) => {
         console.error("Fetch error:", err);
@@ -112,16 +113,24 @@
 
     if (activityId) getStravaActivity(e.target.value);
   }
+
+  function reloadTheme() {
+    if (!s2pImage) {
+      setTimeout(reloadTheme, 100);
+    } else {
+      s2pImage.reloadTheme();
+    }
+  }
 </script>
 
 <main>
   <div
     class="container d-flex align-items-center"
-    style="flex-direction: column; max-width: 500px;"
+    style="flex-direction: column; max-width: 600px;"
   >
     <h1
       class="mb-2"
-      style="font-weight: 300;  font-size: clamp(2.5rem, 8vw, 6rem);"
+      style="font-weight: 300;  font-size: clamp(2.5rem, 8vw, 5rem);"
     >
       strava stories
     </h1>
@@ -139,7 +148,7 @@
         style="width: 100%; padding: 0px;"
       >
         <input
-          style="width: 100%; margin-right: 1vw;"
+          style="width: 100%; margin-right: 3px;"
           oninput={onStravaUrlChanged}
           placeholder={strava_default_url}
           value={strava_default_url}
@@ -159,14 +168,6 @@
     <div class="mb-4" style="width: 100%;">
       {#if theme_fetched}
         <S2PImage {data} {themes} bind:this={s2pImage} />
-      {/if}
-    </div>
-
-    <div class="d-flex justify-content-center">
-      {#if theme_fetched}
-        <button onclick={() => s2pImage.exportToPng()} class="btn btn-primary"
-          >Export as PNG</button
-        >
       {/if}
     </div>
   </div>

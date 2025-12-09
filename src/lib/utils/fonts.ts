@@ -1,6 +1,8 @@
 export class Fonts {
     static fontFamilies: Record<string, string[]> = {
         "Fonts": [
+            "Termina Test",
+            "PresicavHv",
             "Big Shoulders Inline",
             "Black Ops One",
             "Bungee Inline",

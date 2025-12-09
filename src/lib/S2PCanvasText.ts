@@ -1,4 +1,4 @@
-import { IText } from 'fabric'
+import { Canvas, FabricObject, IText, Line } from 'fabric'
 import { type S2PCanvasItem, S2PCanvasItemType } from './S2PCanvasItem';
 import { S2PThemeText } from './S2PTheme';
 
@@ -7,7 +7,12 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
 
     private id_ = `${Math.random().toString(36).slice(2, 9)}`;
 
-    constructor(textProps: S2PThemeText) {
+    private shouldShowGuides = false;
+    private vGuide: Line;
+    private hGuide: Line;
+    private canvasRef: Canvas;
+
+    constructor(textProps: S2PThemeText, canvasRef: Canvas) {
         super(textProps.value ?? "", {
             fontSize: textProps.fontSize,
             fontFamily: textProps.fontFamily,
@@ -25,11 +30,32 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
             scaleY: textProps.scaleY
         });
 
+        this.canvasRef = canvasRef;
+
         this.id_ = (!textProps.id || textProps.id == "") ? this.id_ : textProps.id;
         this.label_ = textProps.label;
         this.s2pType = S2PCanvasItemType.Text;
 
         this.objectCaching = false;
+
+        let self = this;
+        this.vGuide = new Line([0, 0, 0, 0], {
+            stroke: "red",
+            selectable: false,
+            evented: false,
+            visible: self.shouldShowGuides,
+        });
+
+        this.hGuide = new Line([0, 0, 0, 0], {
+            stroke: "red",
+            selectable: false,
+            evented: false,
+            visible: self.shouldShowGuides,
+        });
+
+        this.on("moving", function (e) {
+            self.showGuides();
+        });        
     }
 
     s2pType: S2PCanvasItemType = S2PCanvasItemType.Text;
@@ -38,7 +64,12 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
     set id(value: string) { this.id_ = value; }
 
     get label(): string { return this.label_; }
-    get textProps() : S2PThemeText {
+
+    get auxItems(): FabricObject[] {
+        return [this.vGuide, this.hGuide];
+    }
+
+    get textProps(): S2PThemeText {
         return {
             ...new S2PThemeText(),
             fontSize: this.fontSize,
@@ -60,9 +91,45 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
         };
     }
 
-    setPosition(left: number, top: number) {
+    private showGuides() {
+        let self = this;
+        const rect = this.getBoundingRect();        
+
+        const center = {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        };
+
+        this.vGuide.set({
+            visible: self.shouldShowGuides,
+            x1: center.x,
+            y1: 0,
+            x2: center.x,
+            y2: this.canvasRef.height,
+        });
+
+        this.hGuide.set({
+            visible: self.shouldShowGuides,
+            x1: 0,
+            y1: center.y,
+            x2: this.canvasRef.width,
+            y2: center.y,
+        });
+
+        this.canvasRef.requestRenderAll();
+    };
+
+    setShowGuides(showGuides: boolean) {        
+        this.shouldShowGuides = showGuides;                
+        this.showGuides();
+    }
+
+    setPosition(left: number, top: number) {        
         this.top = top;
         this.left = left;
+        
+        this.setCoords();
+        this.showGuides(); 
     }
 
     get strokeColor(): string {

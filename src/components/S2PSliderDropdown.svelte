@@ -6,49 +6,60 @@
     }: {
         dropdownData: Record<string, string[]>; // header, [values]
         selectedValue?: string;
-        onItemSelected: (value: string) => void;
+        onItemSelected: (header: string, value: string) => void;
     } = $props();
 
     let countItems = $derived(
         Object.values(dropdownData).reduce((sum, arr) => sum + arr.length, 0),
     );
-    let indexedValues: string[] = $derived(Object.values(dropdownData).flat());
+    let indexedValues: string[] = $derived(
+        Object.entries(dropdownData).flatMap(([key, values]) =>
+            values.map((value) => key + ": " + value),
+        ),
+    );
 
     let currentItemIdx = $derived(
         (() => {            
             const idx = indexedValues.findIndex(
-                (value) => value?.trim() == selectedValue?.trim()
+                (value) => value?.trim() == selectedValue?.trim(),
             );
-            
+
             return idx !== -1 ? idx : 0;
         })(),
     );
 
     let currentItem = $derived(indexedValues[currentItemIdx] ?? "");
 
-    function selectItem(selectedValue: string) {
-        currentItem = selectedValue;
+    function selectItem(header: string, selectedValue: string) {
+        currentItem = header + ": " + selectedValue;
         currentItemIdx = indexedValues.findIndex(
-            (value) => value == selectedValue,
+            (value) => value == header + ": " + selectedValue,
         );
-        onItemSelected(selectedValue);
+        onItemSelected(header, selectedValue);
+    }
+
+    function _selectItem(itemIdx: number) {
+        let tokens = indexedValues[itemIdx]?.split(":");
+
+        if (tokens && tokens.length > 1)
+            selectItem(tokens[0]?.trim() ?? "", tokens[1]?.trim() ?? "");
     }
 
     function prev() {
         currentItemIdx = (currentItemIdx - 1 + countItems) % countItems;
-        selectItem(indexedValues[currentItemIdx] ?? "");
+        _selectItem(currentItemIdx);
     }
 
     function next() {
         currentItemIdx = (currentItemIdx + 1) % countItems;
-        selectItem(indexedValues[currentItemIdx] ?? "");
+        _selectItem(currentItemIdx);
     }
 </script>
 
 <div class="d-flex justify-content-center mb-2" style="width: 100%;">
     <div
         class="btn-group d-flex align-items-center justify-content-center"
-        style="width: 100%; max-width: 500px;"
+        style="width: 100%; max-width: 600px;"
         role="group"
     >
         <button class="btn btn-primary btn-sm" style="flex: 2;" onclick={prev}>
@@ -73,7 +84,7 @@
                         <li>
                             <button
                                 class="dropdown-item"
-                                onclick={() => selectItem(currItem)}
+                                onclick={() => selectItem(header, currItem)}
                                 >{currItem}</button
                             >
                         </li>

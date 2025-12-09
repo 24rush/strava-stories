@@ -1,4 +1,4 @@
-import { Group, Polygon, Polyline } from "fabric";
+import { Gradient, Group, Polygon, Polyline } from "fabric";
 import type { XYPoint } from "./geometry/polyline";
 import { type S2PCanvasItem, S2PCanvasItemType } from "./S2PCanvasItem";
 
@@ -73,6 +73,17 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
         this.top = this.top_;
         this.left = this.left_;
         this.s2pType = S2PCanvasItemType.Polyline;
+
+        // this.polylineObj.set('stroke', new Gradient({
+        //     type: 'linear',
+        //     gradientUnits: 'pixels',       // or "percentage"
+        //     coords: { x1: 0, y1: 0, x2: this.maxWidth, y2: this.maxHeight },
+        //     colorStops: [
+        //         { offset: 0, color: 'red' },
+        //         { offset: 1, color: 'blue' }
+        //     ]
+        // })
+        // );
     }
 
     createFilledPolyline(points: XYPoint[]) {

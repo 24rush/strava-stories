@@ -6,12 +6,12 @@
   import { Converters } from "../lib/utils/converters";
   import S2PVisualProps from "./S2PVisualProps.svelte";
   import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
-  import { S2PTheme, S2PThemePoly, S2PThemeText } from "../lib/S2PTheme";
+  import { S2PTheme, S2PThemePoly } from "../lib/S2PTheme";
   import { S2PCanvasItemType } from "../lib/S2PCanvasItem";
   import type { FabricObject } from "fabric";
   import S2PSliderDropdown from "./S2PSliderDropdown.svelte";
   import { Fonts } from "../lib/utils/fonts";
-    import { createPicker } from "../lib/utils/picker";
+  import { createPicker } from "../lib/utils/picker";
 
   export let data: any = {};
   export let themes: S2PTheme[] = [];
@@ -47,10 +47,19 @@
 
   let fontScaling: number = 1;
 
+  let toggleSelectAll: boolean = false;
+
+  const isLocalhost = window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "::1";
+
   onMount(() => {
     if (!themes || !themes.length) return;
 
     themes.forEach((t) => {
+      if (t.ignore && !isLocalhost)
+        return;
+
       let themeTokens: string[] = t.name.split(":");
 
       let themeType = "Generic";
@@ -79,12 +88,15 @@
             s2pCanvas.setAccentColor(color.toHEXA().toString());            
         },
     );
+
+    s2pCanvas.getCanvas().on("mouse:down", (e) => {
+      toggleSelectAll = false;      
+    });
   });
 
   export function reloadTheme() {
-    if (themes && themes[currentThemeIdx]) {
-      loadTheme(themes[currentThemeIdx] ?? new S2PTheme(""));      
-      onRequestRedraw();
+    if (themes && themes[currentThemeIdx]) {           
+      loadTheme(themes[currentThemeIdx] ?? new S2PTheme(""));            
     }
   }
 
@@ -103,14 +115,24 @@
       if (t.texts)
         t.texts.forEach((text) => {
           text.left *= canvasWidth;
-          text.top *= canvasHeight;
-          text.fontSize *= window.devicePixelRatio;
+          text.top *= canvasHeight;          
+          text.fontSize *= canvasWidth;
+        });
+
+      if (t.rects)
+        t.rects.forEach((rect) => {
+          rect.left *= canvasWidth;
+          rect.top *= canvasHeight;   
+          rect.width *= canvasWidth;
+          rect.height *= canvasHeight;          
         });
 
       if (t.svgs)
         t.svgs.forEach((svgTheme) => {
-          svgTheme.left = svgTheme.left * canvasWidth;
-          svgTheme.top = svgTheme.top * canvasHeight;
+          svgTheme.left *= canvasWidth;
+          svgTheme.top *= canvasHeight;
+          svgTheme.width *= canvasWidth;
+          svgTheme.height *= canvasHeight;   
         });
     });
   }
@@ -118,6 +140,7 @@
   function loadTheme(theme_meta: S2PTheme | undefined) {
     s2pCanvas.clear();
     s2pSvgs.unselectAll();
+    accentColorPicker.setColor("#ffffff");
 
     if (!theme_meta) return;
 
@@ -147,7 +170,7 @@
 
     if (theme_meta.texts)
       if (theme_meta.texts.length > 0)
-        themeMainFont = theme_meta.texts[0]?.fontFamily ?? "";
+        themeMainFont = ("Fonts: " + theme_meta.texts[0]?.fontFamily) ?? "";
 
     theme_meta.texts.forEach((text) => {
       if (text.label == "user") {
@@ -172,7 +195,10 @@
                 : "N/A";
                 break;
             case "pace":
-              text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.movingTime / 60) / (data.scalars.distance / 1000)).toFixed(2).replace('.', '\'') + " /km" : "N/A";
+              text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.movingTime / 60) / (data.scalars.distance / 1000)).toFixed(2).replace('.', ':') + " /km" : "N/A";
+              break;
+            case "speed":
+            text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) + " km/h" : "N/A";
               break;
           }
           s2pCanvas.addText(text);
@@ -207,7 +233,8 @@
   ) {
     if (!canvasItem) return;
 
-    s2pCanvas.remove(canvasItem);
+    s2pCanvas.deleteActiveObjects();
+    toggleSelectAll = false;       
   }
 
   async function onSelectionChanged(selectedObj: FabricObject | undefined) {
@@ -273,21 +300,58 @@
     s2pCanvas.dump();
   }
 
-  function onThemeSelected(themeName: string) {
+  function onThemeSelected(themeType: string, themeName: string) {
     currentThemeIdx =
-      themes.findIndex((theme) => theme.name.includes(": " + themeName)) ?? 0;
+      themes.findIndex((theme) => theme.name.includes(themeType + ": " + themeName)) ?? 0;
 
-    if (themes[currentThemeIdx]) loadTheme(themes[currentThemeIdx]);
+    if (themes[currentThemeIdx]) {       
+      loadTheme(themes[currentThemeIdx]);
+    }
   }
 
-  function onFontFamilySelected(fontFamily: string) {
+  function onFontFamilySelected(fontType: string, fontFamily: string) {
     s2pCanvas.setFontFamily(fontFamily);
   }
+
+  function onAddTrackProfile() {
+    if (!data || !data.streams || !data.streams.location) 
+      return;    
+
+    s2pCanvas.addPolyFromLatLngs(
+      "track_profile",
+      data.streams.location,
+      {
+        ...new S2PThemePoly(),
+        scaleX: 0.5,
+        scaleY: 0.5,
+        top: s2pCanvas.getCanvas().height / 4,
+        left: s2pCanvas.getCanvas().width / 4,
+      }
+    );    
+  }
+
+  function onAddElevationChart() {
+    if (!data || !data.streams || !data.streams.elevation) 
+      return;
+
+    s2pCanvas.addFilledPolyFromVector(
+      "elevation_profile",
+      data.streams.elevation,
+      {
+        ...new S2PThemePoly(),
+        scaleX: 0.5,
+        scaleY: 0.5,
+        top: s2pCanvas.getCanvas().height / 4,
+        left: s2pCanvas.getCanvas().width / 4,
+      }
+    );
+  }
+
 </script>
 
 <div
   class="d-flex justify-content-center align-items-center mb-2"
-  style="flex-direction: column; max-width: 500px; width: 100%; margin: auto;"
+  style="flex-direction: column; max-width: 600px; width: 100%; margin: auto;"
 >
   <span class="me-1 mb-1" style="font-style: italic;">layout</span>
 
@@ -318,7 +382,7 @@
 
 <div
   class="image-container"
-  style="width: 100%; max-width: 500px; margin: auto;"
+  style="width: 100%; max-width: 600px; margin: auto;"
 >
   <S2PCanvas bind:this={s2pCanvas} {onSelectionChanged} />
 
@@ -367,32 +431,19 @@
 
     <button
       type="button"
-      onclick={() => s2pCanvas.unselectAll()}
-      class="btn btn-outline-primary"><i class="bi bi-bounding-box"></i></button
+      onclick={() => {
+          toggleSelectAll ? s2pCanvas.unselectAll() : s2pCanvas.selectAll();
+          toggleSelectAll = !toggleSelectAll;
+        }}
+      class="btn btn-outline-primary"><i class="bi {toggleSelectAll ? "bi-collection-fill" : "bi-collection"}"></i></button
     >
 
     <button
-      type="button"
-      class="btn btn-outline-primary"
-      onclick={() => {
-        if (backgroundImgAdded) {
-          s2pCanvas.removeBackground();
-          backgroundImgAdded = false;
-          return;
-        }
+    type="button"
+    onclick={() => exportToPng()}
+    class="btn btn-outline-primary"><i class="bi bi-download"></i></button
+  >
 
-        bgInput.click();
-      }}
-      ><i class="bi {backgroundImgAdded ? 'bi-x-diamond' : 'bi-image'}"></i>
-      <input
-        bind:this={bgInput}
-        onchange={onLoadBackground}
-        type="file"
-        id="file-input"
-        accept="image/*"
-        style="display: none;"
-      />
-    </button>
   </div>
 
   <div class="mb-2">
@@ -408,7 +459,14 @@
       />
     {/if}
   </div>
-
+  <div class="btn-group mb-2 d-flex" role="group">    
+      <button onclick={() => onAddTrackProfile()} class="btn btn-outline-primary"
+        >Track profile +</button
+      >
+      <button onclick={() => onAddElevationChart()} class="btn btn-outline-primary"
+        >Elevation chart +</button
+      >
+  </div>
   <div class="accordion" id="optionsBox">
     <div class="accordion-item">
       <h2 class="accordion-header">
@@ -457,6 +515,39 @@
         data-bs-parent="#optionsBox"
       >
         <div class="accordion-body">
+          <div class="d-flex mb-1" style="justify-content: space-between;">
+            <label class="me-1 font-emp" for="defaultCheck1">
+              Show text box guides
+            </label>
+            <input class="form-check-input" id="defaultCheck1" type="checkbox" onchange={s2pCanvas.onShowGuidesChanged}>
+          </div>
+
+          <span class="me-1 font-emp"
+          >Background</span><i class="me-1">(will not be exported in final PNG)</i>
+
+          <button
+          type="button"
+          class="btn btn-sm btn-primary"
+          onclick={() => {
+            if (backgroundImgAdded) {
+              s2pCanvas.removeBackground();
+              backgroundImgAdded = false;
+              return;
+            }
+    
+            bgInput.click();
+          }}
+          ><span>{backgroundImgAdded ? 'Remove' : 'Add'}</span>
+          <input
+            bind:this={bgInput}
+            onchange={onLoadBackground}
+            type="file"
+            id="file-input"
+            accept="image/*"
+            style="display: none;"
+          />
+        </button>
+        
           <div style="display: flex; width:100%;" class="mb-1">
             <span class="me-1 font-emp" style="white-space: nowrap;"
               >Text zoom</span
