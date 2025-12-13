@@ -5,8 +5,8 @@
         {
             "id": "es6pg72",
             "label": "user",
-            "top": 0.5266601656291381,
-            "left": 0.05659599103613163,
+            "top": 0.6477986466650576,
+            "left": 0.01666543548057607,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -31,8 +31,8 @@
         {
             "id": "k9nz39u",
             "label": "distance_value",
-            "top": 0.5923820401990662,
-            "left": 0.06336927031983247,
+            "top": 0.7210704493626754,
+            "left": 0.0592856613864248,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -45,8 +45,8 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.3541956570047957,
-            "scaleY": 1.513420587440903,
+            "scaleX": 0.9410526902169917,
+            "scaleY": 1.0517006961838145,
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
@@ -57,8 +57,8 @@
         {
             "id": "ucncncp",
             "label": "pace_value",
-            "top": 0.5955429494318837,
-            "left": 0.36805555555555536,
+            "top": 0.7230491732486487,
+            "left": 0.5743952942600927,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -71,8 +71,8 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.2883507821141547,
-            "scaleY": 1.4398337399853627,
+            "scaleX": 0.8952960107206998,
+            "scaleY": 1.0005639934448702,
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
@@ -83,8 +83,8 @@
         {
             "id": "tymvast",
             "label": "user",
-            "top": 0.5247539314595918,
-            "left": 0.4322916666666667,
+            "top": 0.6505268410228318,
+            "left": 0.5989583333333334,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -109,8 +109,8 @@
         {
             "id": "t925y03",
             "label": "user",
-            "top": 0.5248344084987245,
-            "left": 0.751736111111111,
+            "top": 0.6505993367878394,
+            "left": 0.8229166666666665,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -135,8 +135,8 @@
         {
             "id": "u5xj14e",
             "label": "time_value",
-            "top": 0.5904496494364975,
-            "left": 0.6979166666666665,
+            "top": 0.7198607759816021,
+            "left": 0.8064459820621734,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -149,8 +149,60 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.3243864237695542,
-            "scaleY": 1.480106415267419,
+            "scaleX": 0.9203377669455826,
+            "scaleY": 1.0285501335719467,
+            "value": "",
+            "fontSize": 0.04096638655462185,
+            "fontFamily": "Termina Test",
+            "fontWeight": 400,
+            "fontStyle": "normal",
+            "charSpacing": 0
+        },
+        {
+            "id": "namjal4",
+            "label": "user",
+            "top": 0.6479139326622496,
+            "left": 0.3107638888888889,
+            "width": 0,
+            "height": 0,
+            "angle": 0,
+            "fill": [
+                "#FFFFFF",
+                "#FFFFFF"
+            ],
+            "stroke": [
+                "#FFFFFF",
+                "#FFFFFF"
+            ],
+            "strokeWidth": 0,
+            "scaleX": 1.1030945004771593,
+            "scaleY": 1.071237996288427,
+            "value": "Elev gain",
+            "fontSize": 0.04096638655462185,
+            "fontFamily": "Termina Test",
+            "fontWeight": 600,
+            "fontStyle": "normal",
+            "charSpacing": -50
+        },
+        {
+            "id": "ceb9pcy",
+            "label": "elevation_value",
+            "top": 0.7213110813187879,
+            "left": 0.3472222222222222,
+            "width": 0,
+            "height": 0,
+            "angle": 0,
+            "fill": [
+                "#FFFFFF",
+                "#FFFFFF"
+            ],
+            "stroke": [
+                "#FFFFFF",
+                "#FFFFFF"
+            ],
+            "strokeWidth": 0,
+            "scaleX": 0.9410526902169917,
+            "scaleY": 1.0517006961838145,
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
@@ -163,8 +215,8 @@
         {
             "id": "",
             "label": "track_profile",
-            "top": 0.04148462946481318,
-            "left": 0.2881944444444444,
+            "top": 0.0618243925208246,
+            "left": 0.2725694444444444,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -173,30 +225,36 @@
                 null
             ],
             "stroke": [
-                "#fc5200",
-                "#fc5200"
+                "#3EC3FF",
+                "#FF3A75"
             ],
             "strokeWidth": 4,
             "scaleX": 0.5,
             "scaleY": 0.5
+        },
+        {
+            "id": "",
+            "label": "elevation_profile",
+            "top": 0.8979655552784037,
+            "left": 0.10243055555555575,
+            "width": 0,
+            "height": 0,
+            "angle": 0,
+            "fill": [
+                "#3D97F133",
+                "#731636"
+            ],
+            "stroke": [
+                "#FF236E",
+                "#FF776D"
+            ],
+            "strokeWidth": 2,
+            "scaleX": 0.7677596223332452,
+            "scaleY": 0.7677596223332452
         }
     ],
     "rects": [],
-    "svgs": [
-        {
-            "left": 0.4565972222222222,
-            "top": 0.7539965583466133,
-            "width": 0.10439884705978465,
-            "height": 0.11031308893617307,
-            "url": "/svgs/run-sport.svg",
-            "angle": 0,
-            "stroke": null,
-            "strokeWidth": 0,
-            "fill": "rgb(0,0,0)",
-            "scaleX": 1,
-            "scaleY": 1
-        }
-    ],
-    "height_percentage": 0.7036219903232511,
+    "svgs": [],
+    "height_percentage": 0.7810858254111674,
     "devicePixelRatio": 1
 }

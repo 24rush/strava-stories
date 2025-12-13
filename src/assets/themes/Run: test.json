@@ -15,9 +15,9 @@
             "scaleX": 1.5352781906428223,
             "scaleY": 1.5352781906428223,
             "angle": 89.36190510507419,
-            "stroke": "#FFFFFF",
+            "stroke": ["#FFFFFF",  "#FFFFFF"],
             "strokeWidth": 0,
-            "fill": "#FFFFFF",
+            "fill": ["#FFFFFF", "#FFFFFF"],
             "value": "time"
         },
         {
@@ -35,7 +35,7 @@
             "angle": 0,
             "stroke": "#F34949",
             "strokeWidth": 0,
-            "fill": "#FFFFFF"
+            "fill": ["#FFFFFF", "#FFFFFF"]
         },
         {
             "id": "3ryhywa",
@@ -52,7 +52,7 @@
             "angle": 0,
             "stroke": "#F34949",
             "strokeWidth": 0,
-            "fill": "#FFFFFF"
+            "fill": ["#FFFFFF", "#FFFFFF"]
         },
         {
             "id": "es6pg72",
@@ -67,9 +67,9 @@
             "scaleX": 2.3942824138436785,
             "scaleY": 2.3942824138436785,
             "angle": 0,
-            "stroke": "#FFFFFF",
+            "stroke": ["#FFFFFF",  "#FFFFFF"],
             "strokeWidth": 0,
-            "fill": "#FFFFFF",
+            "fill": ["#FFFFFF", "#FFFFFF"],
             "value": "distance"
         },
         {
@@ -87,7 +87,7 @@
             "angle": 0,
             "stroke": "#F34949",
             "strokeWidth": 0,
-            "fill": "#FFFFFF"
+            "fill": ["#FFFFFF", "#FFFFFF"]
         }
     ],
     "polys": [
@@ -96,7 +96,7 @@
             "left": 0.7814139994614101,
             "top": 0.6273655261352018,
             "angle": 89.9995637953198,
-            "stroke": "#fc5200",
+            "stroke": ["#fc5200", "#fc5200"],
             "strokeWidth": 4,
             "fill": null,
             "scaleX": 0.5006506778942225,
@@ -107,9 +107,9 @@
             "left": 0.2031249999999998,
             "top": 0.3725333027627663,
             "angle": 0,
-            "stroke": "#fc5200",
+            "stroke": ["#fc5200", "#fc5200"],
             "strokeWidth": 2,
-            "fill": "rgba(0, 128, 255, 0.2)",
+            "fill": ["rgba(0, 128, 255, 0.2)", "rgba(0, 128, 255, 0.2)"],
             "scaleX": 0.3799670157398505,
             "scaleY": 0.3799670157398505
         }
@@ -124,8 +124,8 @@
             "scaleY": 1,
             "width": 0.3900845325267078,
             "height": 0.48320148545243785,
-            "fill": "#FFFFFF00",
-            "stroke": "#00A4FF",
+            "fill": null,
+            "stroke": ["#00A4FF", "#00A4FF"],
             "strokeWidth": 2,
             "angle": 0
         },
@@ -138,8 +138,8 @@
             "scaleY": 1,
             "width": 0.26049676403027283,
             "height": 0.32267986254072495,
-            "fill": "#FFFFFF00",
-            "stroke": "#B4FF00",
+            "fill": null,
+            "stroke": ["#B4FF00", "#B4FF00"],
             "strokeWidth": 2,
             "angle": 0
         }
@@ -152,9 +152,9 @@
             "height": 0.21731748726655345,
             "url": "/svgs/strava_bo.svg",
             "angle": 0,
-            "stroke": "#fff",
+            "stroke": ["#FFFFFF",  "#FFFFFF"],
             "strokeWidth": 1,
-            "fill": "#fff",
+            "fill": ["#FFFFFF", "#FFFFFF"],
             "scaleX": 3.609022556390977,
             "scaleY": 3.609022556390977
         },
@@ -167,7 +167,7 @@
             "angle": 42.57594010568558,
             "stroke": null,
             "strokeWidth": 0,
-            "fill": "rgb(0,0,0)",
+            "fill": ["rgb(0,0,0)", "rgb(0,0,0)"],
             "scaleX": 0.34300362025454945,
             "scaleY": 0.34300362025454945
         }

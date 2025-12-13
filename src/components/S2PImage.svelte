@@ -6,12 +6,14 @@
   import { Converters } from "../lib/utils/converters";
   import S2PVisualProps from "./S2PVisualProps.svelte";
   import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
-  import { S2PTheme, S2PThemePoly } from "../lib/S2PTheme";
+  import { S2PTheme, S2PThemePoly, S2PThemeRect } from "../lib/S2PTheme";
   import { S2PCanvasItemType } from "../lib/S2PCanvasItem";
   import type { FabricObject } from "fabric";
   import S2PSliderDropdown from "./S2PSliderDropdown.svelte";
   import { Fonts } from "../lib/utils/fonts";
   import { createPicker } from "../lib/utils/picker";
+  import type { S2PSvg } from "../lib/S2PSvg";
+  import type { S2PRect } from "../lib/S2PRect";
 
   export let data: any = {};
   export let themes: S2PTheme[] = [];
@@ -30,8 +32,6 @@
   let s2pCanvas: S2PCanvas;
   let s2pSvgs: S2PSvgs;
 
-  let canvasText: S2PCanvasText | undefined;
-  let canvasPoly: S2PCanvasPoly | undefined;
   let canvasItemSelected:
     | S2PCanvasPoly
     | S2PCanvasText
@@ -48,6 +48,7 @@
   let fontScaling: number = 1;
 
   let toggleSelectAll: boolean = false;
+  let currentSelection: FabricObject[] = [];
 
   const isLocalhost = window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1" ||
@@ -138,8 +139,7 @@
   }
 
   function loadTheme(theme_meta: S2PTheme | undefined) {
-    s2pCanvas.clear();
-    s2pSvgs.unselectAll();
+    s2pCanvas.clear();    
     accentColorPicker.setColor("#ffffff");
 
     if (!theme_meta) return;
@@ -195,7 +195,7 @@
                 : "N/A";
                 break;
             case "pace":
-              text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.movingTime / 60) / (data.scalars.distance / 1000)).toFixed(2).replace('.', ':') + " /km" : "N/A";
+              text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.movingTime / 60) / (data.scalars.distance / 1000)).toFixed(2).replace('.', ':') + "/km" : "N/A";
               break;
             case "speed":
             text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) + " km/h" : "N/A";
@@ -211,7 +211,7 @@
 
     if (theme_meta.svgs) {
       theme_meta.svgs.forEach((svgTheme) => {
-        s2pSvgs.toggleSVG(svgTheme.url, true, svgTheme);
+        s2pSvgs.loadSvg(svgTheme.url, svgTheme);
       });
     }
 
@@ -224,7 +224,7 @@
     s2pCanvas.unselectAll();
   }
 
-  function onRequestRedraw() {
+  function onRequestRedraw() {    
     s2pCanvas.getCanvas().requestRenderAll();
   }
 
@@ -237,45 +237,49 @@
     toggleSelectAll = false;       
   }
 
-  async function onSelectionChanged(selectedObj: FabricObject | undefined) {
-    if (!selectedObj) {
-      canvasText = undefined;
-      canvasPoly = undefined;
+  async function onSelectionChanged(selectedObjs: FabricObject[]) { 
+    currentSelection = s2pCanvas.getCanvas().getActiveObjects();
+    
+    if (!selectedObjs || !selectedObjs.length) {
       canvasItemSelected = undefined;
-      return;
-    }
+      if (polyProp) polyProp.onChanged();
 
-    if ("s2pType" in selectedObj) {
-      switch (selectedObj.s2pType) {
+      return;
+    }    
+
+    if (selectedObjs[0] && "s2pType" in selectedObjs[0]) {
+      switch (selectedObjs[0].s2pType) {
         case S2PCanvasItemType.Text: {
           hasFill = hasStroke = hasStrokeWidth = true;
           hasRadius = false;
-          canvasText = selectedObj as S2PCanvasText;
-          canvasItemSelected = canvasText;
+          canvasItemSelected = selectedObjs[0] as S2PCanvasText;
           break;
         }
         case S2PCanvasItemType.Polyline:
         case S2PCanvasItemType.FilledPolyline: {
-          hasStroke = hasStrokeWidth = true;
-          hasFill = true; //selectedObj.s2pType == S2PCanvasItemType.FilledPolyline;
+          hasFill = hasStroke = hasStrokeWidth = true;          
           hasRadius = false;
-          canvasPoly = selectedObj as S2PCanvasPoly;
-          canvasItemSelected = canvasPoly;
+          canvasItemSelected = selectedObjs[0] as S2PCanvasPoly;
           break;
         }
         case S2PCanvasItemType.Svg: {
           hasFill = hasStroke = hasStrokeWidth = false;
           hasRadius = false;
-          canvasItemSelected = selectedObj as FabricObject;
+          canvasItemSelected = selectedObjs[0] as S2PSvg;
           break;
         }
         case S2PCanvasItemType.Rect: {
           hasFill = hasStroke = hasStrokeWidth = true;
           hasRadius = true;
-          canvasItemSelected = selectedObj as FabricObject;
+          canvasItemSelected = selectedObjs[0] as S2PRect;
           break;
         }
       }
+    }
+
+    if (s2pCanvas.getCanvas().getActiveObjects().length > 1) {
+      hasFill = hasStroke = hasStrokeWidth = true;
+      hasRadius = true;
     }
 
     await tick();
@@ -322,6 +326,8 @@
       data.streams.location,
       {
         ...new S2PThemePoly(),
+        stroke: ["#fc5200", "#fc5200"],
+        fill: [null, null],
         scaleX: 0.5,
         scaleY: 0.5,
         top: s2pCanvas.getCanvas().height / 4,
@@ -338,9 +344,11 @@
       "elevation_profile",
       data.streams.elevation,
       {
-        ...new S2PThemePoly(),
+        ...new S2PThemePoly(),        
         scaleX: 0.5,
         scaleY: 0.5,
+        stroke: ["#fc5200", "#fc5200"],
+        fill: ["rgba(0, 128, 255, 0.2)", "rgba(0, 128, 255, 0.2)"],
         top: s2pCanvas.getCanvas().height / 4,
         left: s2pCanvas.getCanvas().width / 4,
       }
@@ -404,12 +412,13 @@
       type="button"
       onclick={() =>
         s2pCanvas.addRect({
+          ...new S2PThemeRect(),
           left: 100,
           top: 100,
           width: 300,
-          height: 100,
-          fill: "rgba(255, 255, 255, 0.2)",
-          stroke: "rgba(255,0,255, 0.1)",
+          height: 100,          
+          fill: ["rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.2)"],
+          stroke: ["rgba(255,0,255, 0.1)", "rgba(255,0,255, 0.1)"],
           strokeWidth: 1,
           rx: 10,
           ry: 10,
@@ -446,11 +455,21 @@
 
   </div>
 
+  <div class="btn-group mb-2 d-flex" role="group">    
+    <button onclick={() => onAddTrackProfile()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
+      >Track profile +</button
+    >
+    <button onclick={() => onAddElevationChart()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
+      >Elevation chart +</button
+    >
+  </div>
+
   <div class="mb-2">
-    {#if canvasItemSelected}
+    {#if canvasItemSelected && canvasItemSelected.s2pType != S2PCanvasItemType.Svg}
       <S2PVisualProps
         bind:this={polyProp}
         {canvasItemSelected}
+        {currentSelection}
         {onRequestRedraw}
         {hasFill}
         {hasStroke}
@@ -459,14 +478,7 @@
       />
     {/if}
   </div>
-  <div class="btn-group mb-2 d-flex" role="group">    
-      <button onclick={() => onAddTrackProfile()} class="btn btn-outline-primary"
-        >Track profile +</button
-      >
-      <button onclick={() => onAddElevationChart()} class="btn btn-outline-primary"
-        >Elevation chart +</button
-      >
-  </div>
+
   <div class="accordion" id="optionsBox">
     <div class="accordion-item">
       <h2 class="accordion-header">
@@ -490,8 +502,7 @@
           <S2PSvgs
             bind:this={s2pSvgs}
             {onRequestRedraw}
-            onRequestAdd={s2pCanvas.addSvg}
-            onRequestRemove={s2pCanvas.removeSvg}
+            onRequestAdd={s2pCanvas.addSvg}            
           />
         </div>
       </div>
@@ -515,40 +526,40 @@
         data-bs-parent="#optionsBox"
       >
         <div class="accordion-body">
-          <div class="d-flex mb-1" style="justify-content: space-between;">
+          <div class="d-flex mb-2" style="justify-content: space-between; align-items: baseline;">
             <label class="me-1 font-emp" for="defaultCheck1">
               Show text box guides
             </label>
             <input class="form-check-input" id="defaultCheck1" type="checkbox" onchange={s2pCanvas.onShowGuidesChanged}>
           </div>
 
-          <span class="me-1 font-emp"
-          >Background</span><i class="me-1">(will not be exported in final PNG)</i>
+          <div class="d-flex mb-2" style="justify-content: space-between; align-items: baseline;">
+            <div><span class="me-1 font-emp">Background</span><i class="me-1">(will not be exported in final PNG)</i></div>
+            <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            onclick={() => {
+              if (backgroundImgAdded) {
+                s2pCanvas.removeBackground();
+                backgroundImgAdded = false;
+                return;
+              }
+      
+              bgInput.click();
+            }}
+            ><span>{backgroundImgAdded ? 'Remove' : 'Add'}</span>
+            <input
+              bind:this={bgInput}
+              onchange={onLoadBackground}
+              type="file"
+              id="file-input"
+              accept="image/*"
+              style="display: none;"
+            />
+            </button>
+          </div>
 
-          <button
-          type="button"
-          class="btn btn-sm btn-primary"
-          onclick={() => {
-            if (backgroundImgAdded) {
-              s2pCanvas.removeBackground();
-              backgroundImgAdded = false;
-              return;
-            }
-    
-            bgInput.click();
-          }}
-          ><span>{backgroundImgAdded ? 'Remove' : 'Add'}</span>
-          <input
-            bind:this={bgInput}
-            onchange={onLoadBackground}
-            type="file"
-            id="file-input"
-            accept="image/*"
-            style="display: none;"
-          />
-        </button>
-        
-          <div style="display: flex; width:100%;" class="mb-1">
+          <div class="d-flex mb-2" style="justify-content: space-between; align-items: center;">
             <span class="me-1 font-emp" style="white-space: nowrap;"
               >Text zoom</span
             >
@@ -558,19 +569,17 @@
               type="range"
               min="0.25"
               max="5"
-              step="0.25"
+              step="0.1"
               class="me-1 form-range"
               id="fontScale"
             />
             <span class="me-1">{fontScaling}x</span>
           </div>
 
-          <div>
-            <strong>You created a cool theme?</strong> Use the button below to
-            export it to the console then copy that text and send it to me.<br
-            />
+          <div class="d-flex mb-2" style="justify-content: space-between; align-items: baseline;">
+            <div><span class="me-1 font-emp">Export theme</span><i class="me-1">The theme will be dumped in the browser console</i></div>
             <button onclick={() => dump()} class="mb-2 btn btn-primary btn-sm"
-              >Export theme</button
+              >Export</button
             >
           </div>
         </div>

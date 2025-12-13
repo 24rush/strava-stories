@@ -4,44 +4,41 @@
         FabricObject,
         Group,
         Pattern,
-        Polyline,
         FabricImage,
         ActiveSelection,
     } from "fabric";
     import {
-        decodePolyline,
         generateXYFromLatLng,
         generateXYFromPoints,
-        mercatorProject,
     } from "../lib/geometry/polyline";
 
     import type { LatLng } from "../lib/geometry/LatLng";
     import { onMount } from "svelte";
     import { S2PCanvasText } from "../lib/S2PCanvasText";
     import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
-    import { S2PTheme, S2PThemePoly, S2PThemeText } from "../lib/S2PTheme";
+    import {
+        S2PTheme,
+        S2PThemePoly,
+        S2PThemeRect,
+        S2PThemeText,
+    } from "../lib/S2PTheme";
     import { S2PRect } from "../lib/S2PRect";
+    import type { S2PSvg } from "../lib/S2PSvg";
 
     let {
         onSelectionChanged,
     }: {
-        onSelectionChanged?: (
-            selectedObj:
-                | S2PCanvasText
-                | S2PCanvasPoly
-                | FabricObject
-                | undefined,
-        ) => void;
+        onSelectionChanged: (selectedObj: FabricObject[]) => void;
     } = $props();
 
     let canvasEl: HTMLCanvasElement;
     let canvas: Canvas;
     let canvasPadding = 20;
 
-    let polys: Group[] = [];
+    let polys: S2PCanvasPoly[] = [];
     let texts: S2PCanvasText[] = [];
     let rects: S2PRect[] = [];
-    let svgs: FabricObject[] = [];
+    let svgs: S2PSvg[] = [];
 
     let rndId = `${Math.random().toString(36).slice(2, 9)}`;
 
@@ -98,16 +95,16 @@
             canvas.requestRenderAll();
         });
 
-        canvas.on("selection:created", (e) => {
-            onSelectionChanged?.(e.selected[0]);
+        canvas.on("selection:created", (e) => {            
+            onSelectionChanged(e.selected);
         });
 
-        canvas.on("selection:updated", (e) => {
-            onSelectionChanged?.(e.selected[0]);
+        canvas.on("selection:updated", (e) => {            
+            onSelectionChanged(e.selected);
         });
 
         canvas.on("selection:cleared", () => {
-            onSelectionChanged?.(undefined);
+            onSelectionChanged([]);
         });
 
         // Disable Fabric's default touch-blocking
@@ -205,6 +202,18 @@
                 e.preventDefault();
             }
         });
+
+        canvas.on("object:moving", (e) => {
+            const target = e.target;
+            if (target && target.type === "activeselection") {
+                let selection = canvas.getActiveObjects();
+                selection.forEach((obj) => {
+                    if (obj instanceof S2PCanvasText) {
+                        obj.showGuides();
+                    }
+                });
+            }
+        });
     });
 
     export function onFontScalingChanged(event: any) {
@@ -224,10 +233,16 @@
 
         if (active.length) {
             active.forEach((obj) => {
-                obj.set("fill", color);
+                if (obj instanceof S2PCanvasText) {
+                    obj.setFillStop(0, color);
+                    obj.setFillStop(1, color);
+                }
             });
         } else {
-            texts.forEach((t) => t.set("fill", color));
+            texts.forEach((t) => {
+                t.setFillStop(0, color);
+                t.setFillStop(1, color);
+            });
         }
 
         canvas.requestRenderAll();
@@ -244,7 +259,7 @@
 
     export function selectAll() {
         canvas.discardActiveObject();
-        const objects = canvas.getObjects().filter(obj => obj.type != "line");
+        const objects = canvas.getObjects().filter((obj) => obj.type != "line");
 
         const selection = new ActiveSelection(objects, {
             canvas: canvas,
@@ -269,14 +284,9 @@
         canvas.requestRenderAll();
     }
 
-    export function addSvg(obj: FabricObject) {
+    export function addSvg(obj: S2PSvg) {
         canvas.add(obj);
         svgs.push(obj);
-    }
-
-    export function removeSvg(obj: FabricObject) {
-        canvas.remove(obj);
-        svgs = svgs.filter((svg) => svg != obj);
     }
 
     export function addText(textProps: S2PThemeText): S2PCanvasText {
@@ -287,8 +297,6 @@
         canvas.add(s2pCanvasText);
         s2pCanvasText.auxItems.forEach((ai) => canvas.add(ai));
         s2pCanvasText.setShowGuides(shouldShowGuides);
-
-        canvas.setActiveObject(s2pCanvasText);
 
         adjustCanvasSize();
         canvas.requestRenderAll();
@@ -320,11 +328,14 @@
         textProps.left = left;
         textProps.top = top;
 
-        return addText(textProps);
+        let textObj = addText(textProps);
+        canvas.setActiveObject(textObj);
+
+        return textObj;
     }
 
-    export function addRect(...args: any[]) {
-        let rect = new S2PRect(...args);
+    export function addRect(rectProps: S2PThemeRect) {
+        let rect = new S2PRect(rectProps);
         rect.on("scaling", function () {
             const scaleX = rect.scaleX;
             const scaleY = rect.scaleY;
@@ -350,11 +361,11 @@
             canvas.renderAll();
         });
 
+        rects.push(rect);
         canvas.add(rect);
         canvas.sendObjectToBack(rect);
         canvas.setActiveObject(rect);
-
-        rects.push(rect);
+        canvas.requestRenderAll();
     }
 
     export function deleteActiveObjects() {
@@ -367,7 +378,12 @@
     }
 
     export function remove(
-        delItem: S2PCanvasText | S2PCanvasPoly | FabricObject,
+        delItem:
+            | S2PCanvasText
+            | S2PCanvasPoly
+            | S2PSvg
+            | S2PRect
+            | FabricObject,
     ) {
         if ("id" in delItem)
             texts = texts.filter((text) => text.id !== delItem.id);
@@ -447,6 +463,7 @@
 
         texts.forEach((text) => {
             let text_meta: S2PThemeText = {
+                ...new S2PThemeText(),
                 id: text.id,
                 label: text.label,
                 left: text.left / canvas.width,
@@ -460,9 +477,9 @@
                 scaleY: text.scaleY,
 
                 angle: text.angle,
-                stroke: text.stroke,
+                stroke: [text.getStrokeStop(0), text.getStrokeStop(1)],
                 strokeWidth: text.strokeWidth,
-                fill: text.fill,
+                fill: [text.getFillStop(0), text.getFillStop(1)],
             };
 
             if (!text.label.includes("_value")) text_meta.value = text.text;
@@ -472,14 +489,14 @@
 
         polys.forEach((poly) => {
             theme.polys.push({
-                //@ts-ignore
+                ...new S2PThemePoly(),
                 label: poly.label,
                 left: poly.left / canvas.width,
                 top: poly.top / canvas.height,
                 angle: poly.angle,
-                stroke: poly.stroke,
+                stroke: [poly.getStrokeStop(0), poly.getStrokeStop(1)],
                 strokeWidth: poly.strokeWidth,
-                fill: poly.fill,
+                fill: [poly.getFillStop(0), poly.getFillStop(1)],
                 scaleX: poly.scaleX,
                 scaleY: poly.scaleY,
             });
@@ -487,8 +504,6 @@
 
         svgs.forEach((svgGroup) => {
             theme.svgs.push({
-                //@ts-ignore
-                label: svgGroup.label,
                 left: svgGroup.left / canvas.width,
                 top: svgGroup.top / canvas.height,
                 width: (svgGroup.width * svgGroup.scaleX) / canvas.width,
@@ -506,6 +521,7 @@
 
         rects.forEach((rect) => {
             theme.rects.push({
+                ...new S2PThemeRect(),
                 left: rect.left / canvas.width,
                 top: rect.top / canvas.height,
                 rx: rect.rx,
@@ -514,8 +530,8 @@
                 scaleY: rect.scaleY,
                 width: (rect.width * rect.scaleX) / canvas.width,
                 height: (rect.height * rect.scaleY) / canvas.height,
-                fill: rect.fill,
-                stroke: rect.stroke,
+                fill: [rect.getFillStop(0), rect.getFillStop(1)],
+                stroke: [rect.getStrokeStop(0), rect.getStrokeStop(1)],
                 strokeWidth: rect.strokeWidth,
                 angle: rect.angle,
             });
@@ -582,7 +598,7 @@
             canvas.renderAll();
         }
     }
-    
+
     export function addFilledPolyFromVector(
         label: string,
         elevations: number[],
@@ -596,8 +612,7 @@
             label,
             canvas.getWidth(),
             60 - canvasPadding,
-            poly.top,
-            poly.left,
+            poly,
         );
 
         filledPoly.createFilledPolyline(points);
@@ -635,8 +650,7 @@
             label,
             canvas.getWidth(),
             canvas.getHeight(),
-            poly.top,
-            poly.left,
+            poly,
         );
 
         polyline.createPolyline(projectedPoints.pts);

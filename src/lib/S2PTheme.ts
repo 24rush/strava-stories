@@ -10,8 +10,8 @@ export class S2PThemeObject {
     
     public angle: number = 0;
 
-    public fill: string = "#fff";
-    public stroke: string = "#fff";
+    public fill: (string|null)[] = ["#fff", "#fff"];
+    public stroke: (string|null)[] = ["#fff", "#fff"];
     public strokeWidth: number = 1;
 
     public scaleX: number = 1;

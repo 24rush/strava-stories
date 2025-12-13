@@ -1,5 +1,19 @@
 import type { TFiller } from "fabric";
 
+export class ColorCombos {
+    static colorCombos: [string, string][] = [
+        
+        ["#ffcd23", "#ff2768"],
+        ["#b80454", "#FBC704"],
+        ["#dcbcd0", "#b175ff"],
+        ["#F5E30A", "#0A9DF5"],
+        ["#3EC3FF", "#FF3A75"],
+        ["#FF236E", "#FF776D"],
+        ["#3D97F133", "#731636"],
+        ["#FFF", "#FFF"]
+        ];
+}
+
 export function createPicker(pickerEl: HTMLDivElement, defaultColor: string | TFiller | null, onChangeCbk) {
     const pickr = Pickr.create({
         el: pickerEl,
@@ -53,10 +67,10 @@ export function createPicker(pickerEl: HTMLDivElement, defaultColor: string | TF
     });
 
     function stopBackspace(e: any) {
-        if (e.key === 'Backspace') {            
+        if (e.key === 'Backspace') {
             e.stopPropagation();
         }
     }
-    
+
     return pickr;
 }

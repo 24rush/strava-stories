@@ -25,7 +25,7 @@
 </script>
 
 <div class="input-group" style="max-width: 200px; flex-wrap: nowrap;">
-    <button class="btn btn-outline-primary" onclick={decrement}>−</button
+    <button class="btn btn-outline-primary" onclick={decrement}><i class="bi bi-dash-lg"></i></button
     >
     <input
         style="width: 55px; height: 32px; display: none;"
@@ -37,7 +37,7 @@
         {max}
         {step}
     />
-    <button class="btn btn-outline-primary" onclick={increment}>+</button
+    <button class="btn btn-outline-primary" onclick={increment}><i class="bi bi-plus-lg"></i></button
     >
 </div>
 

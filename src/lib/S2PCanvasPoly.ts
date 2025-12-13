@@ -1,6 +1,8 @@
 import { Gradient, Group, Polygon, Polyline } from "fabric";
 import type { XYPoint } from "./geometry/polyline";
 import { type S2PCanvasItem, S2PCanvasItemType } from "./S2PCanvasItem";
+import { S2PGradient } from "./S2PGradient";
+import type { S2PThemePoly } from "./S2PTheme";
 
 export class S2PCanvasPoly extends Group implements S2PCanvasItem {
     private polylineObj: Polyline | undefined;
@@ -11,42 +13,47 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
     private left_: number = 0;
     private top_: number = 0;
     private label_: string = "";
+    private gradient: S2PGradient;
 
-    constructor(label: string, maxWidth: number, maxHeight: number, top: number, left: number) {
+    constructor(label: string, maxWidth: number, maxHeight: number, poly: S2PThemePoly) {
         super();
         this.label_ = label;
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
-        this.top_ = top;
-        this.left_ = left;
+        this.top_ = poly.top;
+        this.left_ = poly.left;        
+        this.gradient = new S2PGradient(poly.fill, poly.stroke);
     }
 
     s2pType: S2PCanvasItemType = S2PCanvasItemType.Polyline;
 
     get label(): string { return this.label_; }
 
-    get stroke(): string {
-        if (this.polylineObj) return this.polylineObj.get("stroke");
-        return "#fc5200";
+    public getStrokeStop(idx: number): string {
+        return this.gradient.getStrokeStop(idx);
     }
-
-    set stroke(color: string) {
-        if (this.polylineObj) this.polylineObj.set("stroke", color);
+    public getFillStop(idx: number): string {
+        return this.gradient.getFillStop(idx);
     }
+    public setStrokeStop(idx: number, color: string): void {
+        this.gradient.setStrokeStop(idx, color);
+        if (this.polylineObj) this.polylineObj.set('stroke', this.gradient.strokeGradient);
 
-    get fill(): string {
-        if (this.s2pType == S2PCanvasItemType.FilledPolyline)
-            return this.polygonObj ? this.polygonObj.get("fill") : "#fc5200";
-        if (this.s2pType == S2PCanvasItemType.Polyline)
-            return this.polylineObj ? this.polylineObj.get("fill") : "#fc5200";
-
-        return "#fc5200";
+        this.setDirty();
     }
+    public setFillStop(idx: number, color: string): void {
+        this.gradient.setFillStop(idx, color);
+        if (this.polygonObj && this.s2pType == S2PCanvasItemType.FilledPolyline) this.polygonObj.set("fill", this.gradient.fillGradient);
+        if (this.polylineObj && this.s2pType == S2PCanvasItemType.Polyline) this.polylineObj.set("fill", this.gradient.fillGradient);
 
-    set fill(color: string) {
-        if (this.polygonObj && this.s2pType == S2PCanvasItemType.FilledPolyline) this.polygonObj.set("fill", color);
-        if (this.polylineObj && this.s2pType == S2PCanvasItemType.Polyline) this.polylineObj.set("fill", color);
+        this.setDirty();
     }
+    get strokeGradient(): Gradient<unknown, "linear"> {
+        return this.gradient.strokeGradient;
+    }
+    get fillGradient(): Gradient<unknown, "linear"> {
+        return this.gradient.fillGradient;
+    } 
 
     set strokeWidth(width: number) {
         if (this.polylineObj) {
@@ -59,41 +66,43 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
         return this.polylineObj ? this.polylineObj.get("strokeWidth") : 4;
     }
 
+    setDirty() {
+        if (this.polygonObj) { 
+            this.polygonObj.dirty = true;
+            this.polygonObj.setCoords();
+        }
+        
+        if (this.polylineObj) { 
+            this.polylineObj.dirty = true;
+            this.polylineObj.setCoords();
+        } 
+    }
+
     createPolyline(points: XYPoint[]) {
         this.s2pType = S2PCanvasItemType.Polyline;
 
-        this.polylineObj = new Polyline(points, {
-            stroke: "#fc5200",
+        this.polylineObj = new Polyline(points, {            
             strokeWidth: 4,
             fill: null,
         });
+        this.polylineObj.set('stroke', this.gradient.strokeGradient);
+        this.polylineObj.set('fill', this.gradient.fillGradient);
 
         this.add(this.polylineObj);
 
         this.top = this.top_;
         this.left = this.left_;
-        this.s2pType = S2PCanvasItemType.Polyline;
-
-        // this.polylineObj.set('stroke', new Gradient({
-        //     type: 'linear',
-        //     gradientUnits: 'pixels',       // or "percentage"
-        //     coords: { x1: 0, y1: 0, x2: this.maxWidth, y2: this.maxHeight },
-        //     colorStops: [
-        //         { offset: 0, color: 'red' },
-        //         { offset: 1, color: 'blue' }
-        //     ]
-        // })
-        // );
+        this.s2pType = S2PCanvasItemType.Polyline;       
     }
 
     createFilledPolyline(points: XYPoint[]) {
         this.s2pType = S2PCanvasItemType.FilledPolyline;
 
         this.polylineObj = new Polyline(points, {
-            stroke: "#fc5200",
             strokeWidth: 2,
             fill: null,
         });
+        this.polylineObj.set('stroke', this.gradient.strokeGradient);
 
         let fillPoints = [...points];
         fillPoints.push(
@@ -106,9 +115,8 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
             { x: points[0].x, y: this.maxHeight }, // bottom left
         );
 
-        this.polygonObj = new Polygon(fillPoints, {
-            fill: "rgba(0, 128, 255, 0.2)", // Light blue fill                                   
-        });
+        this.polygonObj = new Polygon(fillPoints);
+        this.polygonObj.set('fill', this.gradient.fillGradient);
 
         this.add(this.polylineObj, this.polygonObj);
         this.top = this.top_;
