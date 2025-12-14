@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import S2PImage from "./components/S2PImage.svelte";
-  import mounted from "./components/S2PImage.svelte";
 
   let s2pImage: S2PImage;
 
@@ -14,10 +13,15 @@
   let themes: any = {};
   let theme_fetched = false;
 
+  const appLinkRe = /^(https:\/\/)*strava\.app\.link\/[A-Za-z0-9]+$/;
   const regex = /^https?:\/\/(www\.)?strava\.com\/activities\/(\d+)(\/.*)?$/;
   const localActivities: Record<string, string> = {
     "15174937862": "15174937862.txt",
   };
+
+  function isAppLinkUrl(url: string) {
+    return url.match(appLinkRe) != null;
+  }
 
   function getActivityIdFromUrl(url: string): string | undefined {
     const match = url.match(regex);
@@ -45,22 +49,24 @@
   async function getStravaActivity(stravaActUrl: string) {
     data_fetched = false;
 
-    const strava_data = await getActivityFromLocalCache(stravaActUrl);
+    if (!isAppLinkUrl(stravaActUrl)) {
+      const strava_data = await getActivityFromLocalCache(stravaActUrl);
 
-    if (strava_data) {
-      const jsonText = strava_data
-        .trim()
-        .replace(/&quot;/g, '"')
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&amp;/g, "&");
+      if (strava_data) {
+        const jsonText = strava_data
+          .trim()
+          .replace(/&quot;/g, '"')
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&amp;/g, "&");
 
-      const jsonData = JSON.parse(jsonText);
-      data = jsonData.props.pageProps.activity;
-      data_fetched = true;
-      reloadTheme();
+        const jsonData = JSON.parse(jsonText);
+        data = jsonData.props.pageProps.activity;
+        data_fetched = true;
+        reloadTheme();
 
-      return;
+        return;
+      }
     }
 
     await fetch("https://strava-stories-taupe.vercel.app/api/strava", {
@@ -108,10 +114,10 @@
   });
 
   function onStravaUrlChanged(e: any) {
-    let activityId = getActivityIdFromUrl(e.target.value);
-    url_ok = activityId != undefined;
+    let url = e.target.value;
+    url_ok = isAppLinkUrl(url) || (getActivityIdFromUrl(url) != undefined);
 
-    if (activityId) getStravaActivity(e.target.value);
+    if (url_ok) getStravaActivity(url);
   }
 
   function reloadTheme() {

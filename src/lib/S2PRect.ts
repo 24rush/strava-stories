@@ -21,6 +21,7 @@ export class S2PRect extends Rect implements S2PCanvasItem {
         this.rx = rect.rx;
         this.ry = rect.ry;
         this.strokeWidth = rect.strokeWidth;
+        this.objectCaching = false;
 
         this.gradient = new S2PGradient(rect.fill, rect.stroke);
         this.set("fill", this.fillGradient);
@@ -50,8 +51,8 @@ export class S2PRect extends Rect implements S2PCanvasItem {
         return this.gradient.fillGradient;
     }
 
-    setDirty() {
+    private setDirty() {
         this.dirty = true;
-        this.setCoords();
+        this.setCoords();                  
     }
 }

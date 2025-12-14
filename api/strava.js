@@ -1,8 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 
+const appLinkRe = /^(https:\/\/)*strava\.app\.link\/[A-Za-z0-9]+$/;
 const regex = /^https?:\/\/(www\.)?strava\.com\/activities\/(\d+)(\/.*)?$/;
 const localActivities = { '15174937862': '15174937862.txt' }
+
+function isAppLinkUrl(url) {
+    return url.match(appLinkRe) != null;
+}
 
 function getActivityIdFromUrl(url) {
     const match = url.match(regex);
@@ -35,18 +40,20 @@ export default async function handler(req, res) {
         return;
     }
 
-    let activityId = getActivityIdFromUrl(strava_url);
-    if (!activityId) {
-        res.status(500).json({ error: 'Invalid Strava URL' });
-        return;
-    }
-
     let actData = "";
 
-    if (activityId in localActivities) {
-        const filePath = path.join(process.cwd(), 'data', localActivities[activityId]);
-        if (fs.existsSync(filePath)) {
-            actData = extractStravaData(fs.readFileSync(filePath, 'utf8'));
+    if (!isAppLinkUrl(strava_url)) {
+        let activityId = getActivityIdFromUrl(strava_url);
+        if (!activityId) {
+            res.status(500).json({ error: 'Invalid Strava URL' });
+            return;
+        }
+
+        if (activityId in localActivities) {
+            const filePath = path.join(process.cwd(), 'data', localActivities[activityId]);
+            if (fs.existsSync(filePath)) {
+                actData = extractStravaData(fs.readFileSync(filePath, 'utf8'));
+            }
         }
     }
 

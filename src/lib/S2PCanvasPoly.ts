@@ -21,7 +21,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         this.top_ = poly.top;
-        this.left_ = poly.left;        
+        this.left_ = poly.left;
         this.gradient = new S2PGradient(poly.fill, poly.stroke);
     }
 
@@ -53,7 +53,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
     }
     get fillGradient(): Gradient<unknown, "linear"> {
         return this.gradient.fillGradient;
-    } 
+    }
 
     set strokeWidth(width: number) {
         if (this.polylineObj) {
@@ -61,29 +61,30 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
             this.polylineObj.setCoords();
         }
     }
-
+  
     get strokeWidth(): number {
         return this.polylineObj ? this.polylineObj.get("strokeWidth") : 4;
     }
 
     setDirty() {
-        if (this.polygonObj) { 
+        if (this.polygonObj) {
             this.polygonObj.dirty = true;
             this.polygonObj.setCoords();
         }
-        
-        if (this.polylineObj) { 
+
+        if (this.polylineObj) {
             this.polylineObj.dirty = true;
             this.polylineObj.setCoords();
-        } 
+        }
     }
 
     createPolyline(points: XYPoint[]) {
         this.s2pType = S2PCanvasItemType.Polyline;
 
-        this.polylineObj = new Polyline(points, {            
+        this.polylineObj = new Polyline(points, {
             strokeWidth: 4,
             fill: null,
+            objectCaching: false,
         });
         this.polylineObj.set('stroke', this.gradient.strokeGradient);
         this.polylineObj.set('fill', this.gradient.fillGradient);
@@ -92,7 +93,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
 
         this.top = this.top_;
         this.left = this.left_;
-        this.s2pType = S2PCanvasItemType.Polyline;       
+        this.s2pType = S2PCanvasItemType.Polyline;
     }
 
     createFilledPolyline(points: XYPoint[]) {
@@ -101,6 +102,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
         this.polylineObj = new Polyline(points, {
             strokeWidth: 2,
             fill: null,
+            objectCaching: false
         });
         this.polylineObj.set('stroke', this.gradient.strokeGradient);
 
@@ -116,6 +118,8 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
         );
 
         this.polygonObj = new Polygon(fillPoints);
+        this.polygonObj.objectCaching = false;
+
         this.polygonObj.set('fill', this.gradient.fillGradient);
 
         this.add(this.polylineObj, this.polygonObj);

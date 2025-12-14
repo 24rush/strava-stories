@@ -24,9 +24,9 @@
             "value": "Distance",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "k9nz39u",
@@ -102,9 +102,9 @@
             "value": "Pace",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "t925y03",
@@ -128,9 +128,9 @@
             "value": "Time",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "u5xj14e",
@@ -180,9 +180,9 @@
             "value": "Elev gain",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "ceb9pcy",

@@ -26,7 +26,7 @@
             "fontFamily": "Termina Test",
             "fontWeight": 600,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "k9nz39u",
@@ -104,7 +104,7 @@
             "fontFamily": "Termina Test",
             "fontWeight": 600,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "t925y03",
@@ -130,7 +130,7 @@
             "fontFamily": "Termina Test",
             "fontWeight": 600,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "u5xj14e",

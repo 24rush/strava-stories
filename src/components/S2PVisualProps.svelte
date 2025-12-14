@@ -43,7 +43,7 @@
     let fill2Picker: any = null;
     let fill2PickerEl: HTMLDivElement;
 
-    let selectFontFamily: HTMLSelectElement;    
+    let selectFontFamily: HTMLSelectElement;
 
     const Fill: number = 0;
     const Stroke: number = 1;
@@ -165,8 +165,6 @@
             }
         });
 
-        canvasItemSelected.set("fontWeight", newValue);
-
         onRequestRedraw?.();
     }
 
@@ -177,8 +175,6 @@
                 s2pObject.set("charSpacing", newValue);
             }
         });
-
-        canvasItemSelected.set("charSpacing", newValue);
 
         onRequestRedraw?.();
     }
@@ -343,27 +339,45 @@
         ? 'flex'
         : 'none'}"
 >
-    <div class="column" style="align-items: flex-end;">
+    <div class="column gap-2" style="align-items: flex-end; padding-right: 0.25rem;">
         <div
-            style="display: {canvasItemSelected instanceof S2PCanvasText || currentSelection.length > 1
+            style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            currentSelection.length > 1
                 ? 'flex'
-                : 'none'}"
+                : 'none'}; width: 100%;"
         >
             <input
                 value={canvasItemSelected.text}
                 oninput={fireTextChanged}
                 class="form-control"
             />
+
+            <button
+                type="button"
+                class="btn ms-2 btn-outline-secondary {canvasItemSelected.fontStyle !=
+                'normal'
+                    ? 'active'
+                    : ''}"
+                data-bs-toggle="button"
+                onclick={fireFontStyleChanged}
+                aria-pressed={canvasItemSelected.fontStyle != "normal"}
+                ><i class="bi bi-type-italic"></i></button
+            >
         </div>
-        <div
+        <div class=""
             style="display: flex; visibility: {hasFill
-                ? 'visible'
-                : 'hidden'}; padding-bottom: 8px;"
+                ? 'flex'
+                : 'hidden'}; flex-direction: column; width: 100%;"
         >
-            <label class="font-emp me-1">Fill</label>
-            <div class="btn-group" role="group">
+            <label
+                class="font-emp ms-1"
+                style="align-self: self-end;touch-action: none; pointer-events: none;"
+                >Fill</label
+            >
+
+            <div class="btn-group" role="group" style="width: 100%;">
                 <button
-                    class="btn btn-outline-primary"
+                    class="btn btn-sm btn-outline-primary"
                     onclick={() => colorFill(false)}
                 >
                     <i class="bi bi-caret-left-fill"></i>
@@ -376,7 +390,7 @@
                     <div bind:this={fill2PickerEl}></div></button
                 >
                 <button
-                    class="btn btn-outline-primary"
+                    class="btn btn-sm btn-outline-primary"
                     onclick={() => colorFill(true)}
                 >
                     <i class="bi bi-caret-right-fill"></i>
@@ -385,14 +399,16 @@
         </div>
 
         <span
-            style="display: {canvasItemSelected instanceof S2PCanvasText
+            style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
             class="font-emp">Font weight</span
         >
 
         <span
-            style="display: {canvasItemSelected instanceof S2PCanvasText
+            style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
             class="font-emp">Letter spacing</span
@@ -409,39 +425,35 @@
             class="me-1 font-emp">Radius</span
         >
     </div>
-    <div class="column">
+    <div class="column gap-2" style="padding-left: 0.25rem;">
         <div
-            style="display: {canvasItemSelected instanceof S2PCanvasText || currentSelection.length > 1
+            style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            currentSelection.length > 1
                 ? 'flex'
-                : 'none'}; padding-bottom: 0.33em;"
+                : 'none'}; width: 100%;"
         >
             <select
-                class="form-select me-1"
+                class="form-select"
                 bind:this={selectFontFamily}
                 value={canvasItemSelected.fontFamily}
                 onchange={fireFontFamilyChanged}
             >
             </select>
-            <button
-                type="button"
-                class="btn btn-outline-secondary {canvasItemSelected.fontStyle !=
-                'normal'
-                    ? 'active'
-                    : ''}"
-                data-bs-toggle="button"
-                onclick={fireFontStyleChanged}
-                aria-pressed={canvasItemSelected.fontStyle != "normal"}
-                ><i class="bi bi-type-italic"></i></button
-            >
         </div>
         <div
             style="display: flex; visibility: {hasStroke
                 ? 'flex'
-                : 'hidden'}; flex-direction: row;"
+                : 'hidden'}; flex-direction: column; width: 100%;"
         >
-            <div class="btn-group" role="group">
+            <label
+                class="font-emp ms-1"
+                style="align-self: self-start; touch-action: none; pointer-events: none;"
+                >Contour</label
+            >
+
+            <div class="btn-group" role="group" style="width: 100%;">
                 <button
-                    class="btn btn-outline-primary"
+                    class="btn btn-sm btn-outline-primary"
                     onclick={() => colorStroke(false)}
                 >
                     <i class="bi bi-caret-left-fill"></i>
@@ -454,18 +466,17 @@
                     <div bind:this={strokeColor2PickerEl}></div></button
                 >
                 <button
-                    class="btn btn-outline-primary"
+                    class="btn btn-sm btn-outline-primary"
                     onclick={() => colorStroke(true)}
                 >
                     <i class="bi bi-caret-right-fill"></i>
                 </button>
             </div>
-
-            <label class="font-emp ms-1">Contour</label>
         </div>
 
         <div
-            style="display: {canvasItemSelected instanceof S2PCanvasText
+            style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            currentSelection.length > 1
                 ? 'flex'
                 : 'none'};"
         >
@@ -479,16 +490,17 @@
         </div>
 
         <div
-            style="display: {canvasItemSelected instanceof S2PCanvasText
+            style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            currentSelection.length > 1
                 ? 'flex'
                 : 'none'};"
         >
             <S2PRangeControl
                 onValueChanged={charSpacingChanged}
-                value={canvasItemSelected.charSpacing}
-                min={-100}
+                value={canvasItemSelected.charSpacing ?? 0}
+                min={0}
                 max={600}
-                step={50}
+                step={25}
             />
         </div>
 
@@ -520,7 +532,7 @@
         padding: 0;
     }
 
-    .column {
+    .column{
         display: flex;
         width: 50%;
         flex-direction: column;
@@ -533,6 +545,5 @@
         flex: 1; /* makes each item equal height */
         display: flex;
         align-items: center;
-        padding: 0.25rem;
     }
 </style>

@@ -26,7 +26,7 @@
             "fontFamily": "Kanit",
             "fontWeight": 300,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "54daz6g",
@@ -104,7 +104,7 @@
             "fontFamily": "Kanit",
             "fontWeight": 300,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "es6pg72",
@@ -130,7 +130,7 @@
             "fontFamily": "Kanit",
             "fontWeight": 300,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "9zjl97s",

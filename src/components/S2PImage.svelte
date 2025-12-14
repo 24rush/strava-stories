@@ -139,6 +139,20 @@
   }
 
   function loadTheme(theme_meta: S2PTheme | undefined) {
+    if (!theme_meta) return;
+
+    Promise.all(theme_meta.texts.map(t => [t.fontFamily, t.fontWeight]).map(f => document.fonts.load(`${f[1]} 16px "${f[0]}"`)))
+        .then(() => document.fonts.ready)
+          .then(() =>            
+           requestAnimationFrame(() => {    
+             _loadTheme(theme_meta);
+             onRequestRedraw();
+            }
+           )
+          );
+  }
+
+  function _loadTheme(theme_meta: S2PTheme | undefined) {
     s2pCanvas.clear();    
     accentColorPicker.setColor("#ffffff");
 
@@ -247,37 +261,40 @@
       return;
     }    
 
-    if (selectedObjs[0] && "s2pType" in selectedObjs[0]) {
-      switch (selectedObjs[0].s2pType) {
+    let idxText = selectedObjs.findIndex(o => o instanceof S2PCanvasText);
+    idxText = idxText != -1 ? idxText : 0;
+
+    if (selectedObjs[idxText] && "s2pType" in selectedObjs[idxText]) {
+      switch (selectedObjs[idxText].s2pType) {
         case S2PCanvasItemType.Text: {
           hasFill = hasStroke = hasStrokeWidth = true;
           hasRadius = false;
-          canvasItemSelected = selectedObjs[0] as S2PCanvasText;
+          canvasItemSelected = selectedObjs[idxText] as S2PCanvasText;
           break;
         }
         case S2PCanvasItemType.Polyline:
         case S2PCanvasItemType.FilledPolyline: {
           hasFill = hasStroke = hasStrokeWidth = true;          
           hasRadius = false;
-          canvasItemSelected = selectedObjs[0] as S2PCanvasPoly;
+          canvasItemSelected = selectedObjs[idxText] as S2PCanvasPoly;
           break;
         }
         case S2PCanvasItemType.Svg: {
           hasFill = hasStroke = hasStrokeWidth = false;
           hasRadius = false;
-          canvasItemSelected = selectedObjs[0] as S2PSvg;
+          canvasItemSelected = selectedObjs[idxText] as S2PSvg;
           break;
         }
         case S2PCanvasItemType.Rect: {
           hasFill = hasStroke = hasStrokeWidth = true;
           hasRadius = true;
-          canvasItemSelected = selectedObjs[0] as S2PRect;
+          canvasItemSelected = selectedObjs[idxText] as S2PRect;
           break;
         }
       }
     }
 
-    if (s2pCanvas.getCanvas().getActiveObjects().length > 1) {
+    if (currentSelection.length > 1) {
       hasFill = hasStroke = hasStrokeWidth = true;
       hasRadius = true;
     }
@@ -304,17 +321,26 @@
     s2pCanvas.dump();
   }
 
-  function onThemeSelected(themeType: string, themeName: string) {
+  async function onThemeSelected(themeType: string, themeName: string) {
     currentThemeIdx =
       themes.findIndex((theme) => theme.name.includes(themeType + ": " + themeName)) ?? 0;
 
-    if (themes[currentThemeIdx]) {       
-      loadTheme(themes[currentThemeIdx]);
+    if (themes[currentThemeIdx]) {                          
+        loadTheme(themes[currentThemeIdx]) ;
+        onRequestRedraw();          
     }
   }
 
   function onFontFamilySelected(fontType: string, fontFamily: string) {
-    s2pCanvas.setFontFamily(fontFamily);
+    Promise.all([fontFamily].map(f => document.fonts.load(`16px "${f}"`)))
+        .then(() => document.fonts.ready)
+          .then(() =>            
+           requestAnimationFrame(() => {                     
+            s2pCanvas.setFontFamily(fontFamily);
+            onRequestRedraw();
+            }
+           )
+          );    
   }
 
   function onAddTrackProfile() {
@@ -557,24 +583,7 @@
               style="display: none;"
             />
             </button>
-          </div>
-
-          <div class="d-flex mb-2" style="justify-content: space-between; align-items: center;">
-            <span class="me-1 font-emp" style="white-space: nowrap;"
-              >Text zoom</span
-            >
-            <input
-              oninput={s2pCanvas.onFontScalingChanged}
-              bind:value={fontScaling}
-              type="range"
-              min="0.25"
-              max="5"
-              step="0.1"
-              class="me-1 form-range"
-              id="fontScale"
-            />
-            <span class="me-1">{fontScaling}x</span>
-          </div>
+          </div>        
 
           <div class="d-flex mb-2" style="justify-content: space-between; align-items: baseline;">
             <div><span class="me-1 font-emp">Export theme</span><i class="me-1">The theme will be dumped in the browser console</i></div>

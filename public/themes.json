@@ -6,8 +6,8 @@
       {
         "id": "k9nz39u",
         "label": "distance_value",
-        "top": 0.39256736488467114,
-        "left": 0.5894109369864995,
+        "top": 0.23695759894655666,
+        "left": 0.5688227016923818,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -27,13 +27,13 @@
         "fontFamily": "PresicavHv",
         "fontWeight": 600,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "rcc1nf0",
         "label": "user",
-        "top": 0.48213402557741053,
-        "left": 0.17013888888888884,
+        "top": 0.28653331664784293,
+        "left": 0.1495506535947712,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -51,15 +51,15 @@
         "value": "speed",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 400,
+        "fontWeight": 600,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "ucncncp",
         "label": "speed_value",
-        "top": 0.3955959080486829,
-        "left": 0.10069444444444445,
+        "top": 0.23863391689548935,
+        "left": 0.0801062091503268,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -79,13 +79,13 @@
         "fontFamily": "PresicavHv",
         "fontWeight": 600,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "5rz9n54",
         "label": "user",
-        "top": 0.4793959306796149,
-        "left": 0.5746527777777778,
+        "top": 0.2850177636659347,
+        "left": 0.5540645424836602,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -103,29 +103,29 @@
         "value": "distance",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 400,
+        "fontWeight": 600,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       }
     ],
     "polys": [
       {
         "id": "",
         "label": "track_profile",
-        "top": 0.0669855590296175,
-        "left": 0.607802888350299,
+        "top": 0.08078595569676766,
+        "left": 0.5989793589385344,
         "width": 0,
         "height": 0,
         "angle": 89.9995637953198,
         "fill": [
-          "#2196F3",
-          "#E9D312"
+          "#00000000",
+          "#FBC70400"
         ],
         "stroke": [
-          "#E91E63",
-          "#03A9F4"
+          "#B80454",
+          "#FBC704"
         ],
-        "strokeWidth": 4,
+        "strokeWidth": 2,
         "scaleX": 0.5006506778942225,
         "scaleY": 0.5106636914521069
       }
@@ -133,21 +133,21 @@
     "rects": [],
     "svgs": [
       {
-        "left": 0.452124047761623,
-        "top": 0.7923243049888765,
-        "width": 0.1049697586243009,
-        "height": 0.1753541420271352,
+        "left": 0.4445563718637675,
+        "top": 0.46146904950997164,
+        "width": 0.10358104931054087,
+        "height": 0.10530434077108101,
         "url": "/svgs/strava_bo.svg",
-        "angle": -11.144414180938938,
+        "angle": 359.98507332262255,
         "stroke": null,
         "strokeWidth": 0,
         "fill": "rgb(0,0,0)",
-        "scaleX": 1,
-        "scaleY": 1.0000000000000004
+        "scaleX": 1.6612667552679163,
+        "scaleY": 1.6612667552679163
       }
     ],
-    "height_percentage": 0.7447916666666666,
-    "devicePixelRatio": 1
+    "height_percentage": 1.3455882352941178,
+    "devicePixelRatio": 3.5
   },
   {
     "name": "Run: Garmin",
@@ -177,7 +177,7 @@
         "fontFamily": "Kanit",
         "fontWeight": 300,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "54daz6g",
@@ -255,7 +255,7 @@
         "fontFamily": "Kanit",
         "fontWeight": 300,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "es6pg72",
@@ -281,7 +281,7 @@
         "fontFamily": "Kanit",
         "fontWeight": 300,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "9zjl97s",
@@ -411,8 +411,8 @@
       {
         "id": "es6pg72",
         "label": "user",
-        "top": 0.15561920439124333,
-        "left": 0.3829848799250204,
+        "top": 0.10923371567187733,
+        "left": 0.3881932132583537,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -430,15 +430,15 @@
         "value": "Distance",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 600,
+        "fontWeight": 400,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "k9nz39u",
         "label": "distance_value",
-        "top": 0.2076214211353592,
-        "left": 0.37413315920872137,
+        "top": 0.1688426396524995,
+        "left": 0.3810776036531658,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -456,15 +456,15 @@
         "value": "",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 400,
+        "fontWeight": 600,
         "fontStyle": "normal",
         "charSpacing": 0
       },
       {
         "id": "ucncncp",
         "label": "pace_value",
-        "top": 0.39074606857215566,
-        "left": 0.35416666666666646,
+        "top": 0.3787541371132955,
+        "left": 0.36631944444444425,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -482,15 +482,15 @@
         "value": "",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 400,
+        "fontWeight": 600,
         "fontStyle": "normal",
         "charSpacing": 0
       },
       {
         "id": "u5xj14e",
         "label": "time_value",
-        "top": 0.5667276345264992,
-        "left": 0.36111111111111094,
+        "top": 0.5804776874492583,
+        "left": 0.37152777777777757,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -508,15 +508,15 @@
         "value": "",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 400,
+        "fontWeight": 600,
         "fontStyle": "normal",
         "charSpacing": 0
       },
       {
         "id": "ym5n7mr",
         "label": "user",
-        "top": 0.339907192575406,
-        "left": 0.421875,
+        "top": 0.3204787234042553,
+        "left": 0.4305555555555556,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -534,15 +534,15 @@
         "value": "Pace",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 600,
+        "fontWeight": 400,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "ap2c4vb",
         "label": "user",
-        "top": 0.5139211136890951,
-        "left": 0.4236111111111111,
+        "top": 0.5252659574468085,
+        "left": 0.4322916666666667,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -560,19 +560,19 @@
         "value": "Time",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 600,
+        "fontWeight": 400,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       }
     ],
     "polys": [],
     "rects": [],
     "svgs": [
       {
-        "left": 0.4375,
-        "top": 0.729795492018399,
-        "width": 0.10439884705978465,
-        "height": 0.10373174002988879,
+        "left": 0.4409722222222222,
+        "top": 0.7594655534386555,
+        "width": 0.10463154496715808,
+        "height": 0.11917029755723445,
         "url": "/svgs/run-sport.svg",
         "angle": 0,
         "stroke": null,
@@ -582,7 +582,7 @@
         "scaleY": 1
       }
     ],
-    "height_percentage": 0.7482638888888888,
+    "height_percentage": 0.6527777777777778,
     "devicePixelRatio": 1
   },
   {
@@ -613,7 +613,7 @@
         "fontFamily": "Termina Test",
         "fontWeight": 600,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "k9nz39u",
@@ -691,7 +691,7 @@
         "fontFamily": "Termina Test",
         "fontWeight": 600,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "t925y03",
@@ -717,7 +717,7 @@
         "fontFamily": "Termina Test",
         "fontWeight": 600,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "u5xj14e",
@@ -799,7 +799,7 @@
         "fontSize": 0.04096638655462185,
         "fontFamily": "Inter",
         "fontWeight": 300,
-        "charSpacing": -50,
+        "charSpacing": 0,
         "fontStyle": "normal",
         "scaleX": 1.5352781906428223,
         "scaleY": 1.5352781906428223,
@@ -863,7 +863,7 @@
         "fontSize": 0.04096638655462185,
         "fontFamily": "Goldman",
         "fontWeight": 300,
-        "charSpacing": -50,
+        "charSpacing": 0,
         "fontStyle": "normal",
         "scaleX": 2.3942824138436785,
         "scaleY": 2.3942824138436785,
@@ -1035,9 +1035,9 @@
         "value": "Distance",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 600,
+        "fontWeight": 400,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "k9nz39u",
@@ -1113,9 +1113,9 @@
         "value": "Pace",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 600,
+        "fontWeight": 400,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "t925y03",
@@ -1139,9 +1139,9 @@
         "value": "Time",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 600,
+        "fontWeight": 400,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "u5xj14e",
@@ -1191,9 +1191,9 @@
         "value": "Elev gain",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Termina Test",
-        "fontWeight": 600,
+        "fontWeight": 400,
         "fontStyle": "normal",
-        "charSpacing": -50
+        "charSpacing": 0
       },
       {
         "id": "ceb9pcy",

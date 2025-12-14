@@ -43,7 +43,7 @@
     let rndId = `${Math.random().toString(36).slice(2, 9)}`;
 
     let lastPos: number = 0;
-    const minCanvasHeight = Math.max(window.innerHeight * 0.5, 300);
+    const minCanvasHeight = Math.max(window.innerHeight * 0.5, 350);
 
     let resizer: HTMLButtonElement;
     let container: HTMLDivElement;
@@ -56,6 +56,7 @@
             backgroundColor: "#fff",
             selection: false, // disable drag selection if you want ctrl-click only
             preserveObjectStacking: true, // important for multi-selection
+            enableRetinaScaling: true,
         });
 
         if (
@@ -95,11 +96,11 @@
             canvas.requestRenderAll();
         });
 
-        canvas.on("selection:created", (e) => {            
+        canvas.on("selection:created", (e) => {
             onSelectionChanged(e.selected);
         });
 
-        canvas.on("selection:updated", (e) => {            
+        canvas.on("selection:updated", (e) => {
             onSelectionChanged(e.selected);
         });
 
@@ -108,7 +109,7 @@
         });
 
         // Disable Fabric's default touch-blocking
-        canvas.allowTouchScrolling = true;
+        canvas.allowTouchScrolling = false;
 
         // Fabric sets a touch-action CSS rule based on this flag
         canvas.upperCanvasEl.style.touchAction = "auto";
@@ -216,16 +217,10 @@
         });
     });
 
-    export function onFontScalingChanged(event: any) {
-        texts.forEach((text: S2PCanvasText) => {
-            text.scaling = event.target.value as number;
-        });
-        canvas.requestRenderAll();
-    }
-
     export function setFontFamily(fontFamily: string) {
-        texts.forEach((t) => t.set("fontFamily", fontFamily));
-        canvas.requestRenderAll();
+        texts.forEach((t) => {
+            t.set("fontFamily", fontFamily);
+        });
     }
 
     export function setAccentColor(color: string) {
@@ -287,6 +282,8 @@
     export function addSvg(obj: S2PSvg) {
         canvas.add(obj);
         svgs.push(obj);
+
+        adjustCanvasSize();
     }
 
     export function addText(textProps: S2PThemeText): S2PCanvasText {
@@ -471,7 +468,7 @@
                 fontSize: text.fontSize / canvas.width,
                 fontFamily: text.fontFamily,
                 fontWeight: text.fontWeight,
-                charSpacing: text.charSpacing,
+                charSpacing: text.charSpacing / (window.devicePixelRatio || 1),
                 fontStyle: text.fontStyle,
                 scaleX: text.scaleX,
                 scaleY: text.scaleY,
@@ -583,20 +580,24 @@
 
     function adjustCanvasSize() {
         let lastPos = 0;
-        [texts, polys, rects].forEach((col) => {
+        [texts, polys, rects, svgs].forEach((col) => {            
             lastPos = Math.max(
                 lastPos,
-                Math.max(...col.map((u) => u.top + u.height)),
+                Math.max(...col.map((u) => { 
+                    let bb = u.getBoundingRect();
+                    return bb.top + bb.height
+                })),
             );
         });
 
-        if (canvas.height < Math.max(lastPos, minCanvasHeight)) {
-            canvas.setDimensions({
-                height: Math.max(lastPos, minCanvasHeight),
-            });
-            setCheckeredBackground();
-            canvas.renderAll();
-        }
+        lastPos += canvasPadding;
+        
+        canvas.setDimensions({
+            height: lastPos,
+        });
+
+        setCheckeredBackground();
+        canvas.renderAll();
     }
 
     export function addFilledPolyFromVector(
@@ -622,6 +623,8 @@
 
         polys.push(filledPoly);
         canvas.add(filledPoly);
+
+        adjustCanvasSize();
         canvas.renderAll();
 
         return filledPoly;
@@ -640,12 +643,6 @@
             canvas.getHeight(),
         );
 
-        canvas.setDimensions({
-            height: projectedPoints.height + 20,
-            width: projectedPoints.width,
-        });
-        canvas.renderAll();
-
         let polyline = new S2PCanvasPoly(
             label,
             canvas.getWidth(),
@@ -654,12 +651,16 @@
         );
 
         polyline.createPolyline(projectedPoints.pts);
+
+        polyline.strokeWidth = poly.strokeWidth;
         polyline.scaleX = poly.scaleX;
         polyline.scaleY = poly.scaleY;
         polyline.angle = poly.angle;
 
         polys.push(polyline);
         canvas.add(polyline);
+
+        adjustCanvasSize();
         canvas.renderAll();
 
         return polyline;

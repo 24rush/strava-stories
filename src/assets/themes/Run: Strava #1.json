@@ -5,8 +5,8 @@
         {
             "id": "es6pg72",
             "label": "user",
-            "top": 0.15561920439124333,
-            "left": 0.3829848799250204,
+            "top": 0.10923371567187733,
+            "left": 0.3881932132583537,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -24,15 +24,15 @@
             "value": "Distance",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "k9nz39u",
             "label": "distance_value",
-            "top": 0.2076214211353592,
-            "left": 0.37413315920872137,
+            "top": 0.1688426396524995,
+            "left": 0.3810776036531658,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -50,15 +50,15 @@
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 400,
+            "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "ucncncp",
             "label": "pace_value",
-            "top": 0.39074606857215566,
-            "left": 0.35416666666666646,
+            "top": 0.3787541371132955,
+            "left": 0.36631944444444425,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -76,15 +76,15 @@
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 400,
+            "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "u5xj14e",
             "label": "time_value",
-            "top": 0.5667276345264992,
-            "left": 0.36111111111111094,
+            "top": 0.5804776874492583,
+            "left": 0.37152777777777757,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -102,15 +102,15 @@
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 400,
+            "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "ym5n7mr",
             "label": "user",
-            "top": 0.339907192575406,
-            "left": 0.421875,
+            "top": 0.3204787234042553,
+            "left": 0.4305555555555556,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -128,15 +128,15 @@
             "value": "Pace",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         },
         {
             "id": "ap2c4vb",
             "label": "user",
-            "top": 0.5139211136890951,
-            "left": 0.4236111111111111,
+            "top": 0.5252659574468085,
+            "left": 0.4322916666666667,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -154,19 +154,19 @@
             "value": "Time",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
-            "charSpacing": -50
+            "charSpacing": 0
         }
     ],
     "polys": [],
     "rects": [],
     "svgs": [
         {
-            "left": 0.4375,
-            "top": 0.729795492018399,
-            "width": 0.10439884705978465,
-            "height": 0.10373174002988879,
+            "left": 0.4409722222222222,
+            "top": 0.7594655534386555,
+            "width": 0.10463154496715808,
+            "height": 0.11917029755723445,
             "url": "/svgs/run-sport.svg",
             "angle": 0,
             "stroke": null,
@@ -176,6 +176,6 @@
             "scaleY": 1
         }
     ],
-    "height_percentage": 0.7482638888888888,
+    "height_percentage": 0.6527777777777778,
     "devicePixelRatio": 1
 }

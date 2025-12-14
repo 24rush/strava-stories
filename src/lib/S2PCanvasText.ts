@@ -7,26 +7,29 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
     private label_: string;
 
     private id_ = `${Math.random().toString(36).slice(2, 9)}`;
-    
+
     private shouldShowGuides = false;
     private vGuide: Line;
     private hGuide: Line;
 
     private canvasRef: Canvas;
     private gradient: S2PGradient;
-    
+
     constructor(textProps: S2PThemeText, canvasRef: Canvas) {
+        let originalCharSpacing = textProps.charSpacing ?? 0;
+        let dpr = window.devicePixelRatio;
+
         super(textProps.value ?? "", {
             fontSize: textProps.fontSize,
             fontFamily: textProps.fontFamily,
             fontWeight: textProps.fontWeight,
-            charSpacing: textProps.charSpacing ?? 0,
+            charSpacing: originalCharSpacing * dpr,
             fontStyle: textProps.fontStyle,
             strokeWidth: textProps.strokeWidth,
             angle: textProps.angle,
-            width: 200,
             originX: "left",
             originY: "top",
+            width: 2000,            
             scaleX: textProps.scaleX,
             scaleY: textProps.scaleY
         });
@@ -35,7 +38,6 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
         this.id_ = (!textProps.id || textProps.id == "") ? this.id_ : textProps.id;
         this.label_ = textProps.label;
         this.s2pType = S2PCanvasItemType.Text;
-
         this.objectCaching = false;
 
         let self = this;
@@ -58,14 +60,17 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
         });
 
         this.on("modified", function (e) {
-            self.showGuides();            
+            self.showGuides();
         });
-      
+
         this.gradient = new S2PGradient(textProps.fill, textProps.stroke);
-        this.set("fill", this.fillGradient);        
+        this.set("fill", this.fillGradient);
         this.set("stroke", this.strokeGradient);
+
+        this.set('width', this.calcTextHeight() + 5);
+        this.initDimensions();
     }
-    
+
     public getStrokeStop(idx: number): string | null {
         return this.gradient.getStrokeStop(idx);
     }
@@ -156,9 +161,5 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
 
         this.setCoords();
         this.showGuides();
-    }
-
-    set scaling(value: number) {
-        this.scale(value);
     }
 }

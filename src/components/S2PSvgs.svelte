@@ -1,6 +1,6 @@
 <script lang="ts">
     import { loadSVGFromURL } from "fabric";
-    import type { S2PThemeSvg } from "../lib/S2PTheme";    
+    import { S2PThemeSvg } from "../lib/S2PTheme";
     import { S2PSvg } from "../lib/S2PSvg";
 
     let {
@@ -41,7 +41,13 @@
                 class="btn btn-sm btn-outline-primary d-flex align-items-center"
                 style="width: 90%; height: 20px; justify-content: center; margin: 2px;"
                 onclick={(e) => {
-                    loadSvg(url);
+                    loadSvg(url, {
+                        ...new S2PThemeSvg(),
+                        top: 100,
+                        left: 100,
+                        width: 60,
+                        height: 60,
+                    });
                 }}
             >
                 <i class="bi bi-plus"></i>
