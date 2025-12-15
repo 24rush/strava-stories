@@ -10,7 +10,8 @@ export class ColorCombos {
         ["#3EC3FF", "#FF3A75"],
         ["#FF236E", "#FF776D"],
         ["#3D97F133", "#731636"],
-        ["#FFF", "#FFF"]
+        ["#FFF", "#FFF"],
+        ["#FFFFFF00", "#FFFFFF00"]
         ];
 }
 

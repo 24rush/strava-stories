@@ -339,7 +339,10 @@
         ? 'flex'
         : 'none'}"
 >
-    <div class="column gap-2" style="align-items: flex-end; padding-right: 0.25rem;">
+    <div
+        class="column gap-2"
+        style="align-items: flex-end; padding-right: 0.25rem;"
+    >
         <div
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
             currentSelection.length > 1
@@ -364,7 +367,7 @@
                 ><i class="bi bi-type-italic"></i></button
             >
         </div>
-        <div class=""
+        <div
             style="display: flex; visibility: {hasFill
                 ? 'flex'
                 : 'hidden'}; flex-direction: column; width: 100%;"
@@ -375,7 +378,7 @@
                 >Fill</label
             >
 
-            <div class="btn-group" role="group" style="width: 100%;">
+            <div class="btn-group me-mobile" role="group" style="width: 100%;">
                 <button
                     class="btn btn-sm btn-outline-primary"
                     onclick={() => colorFill(false)}
@@ -532,7 +535,7 @@
         padding: 0;
     }
 
-    .column{
+    .column {
         display: flex;
         width: 50%;
         flex-direction: column;
@@ -545,5 +548,11 @@
         flex: 1; /* makes each item equal height */
         display: flex;
         align-items: center;
+    }
+    
+    @media (max-width: 575.98px) {
+        .me-mobile {
+            margin-right: 1.25rem!important;
+        }
     }
 </style>

@@ -17,6 +17,7 @@
         "/svgs/hike.svg",
         "/svgs/swim.svg",
         "/svgs/strava.svg",
+        "/svgs/zwift.svg",
         "/svgs/strava_bo.svg",
     ];
 

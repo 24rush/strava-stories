@@ -18,14 +18,9 @@ export class S2PSvg extends Group implements S2PCanvasItem {
 
         objects.forEach((obj) => {
             if (!obj) return;
-            if (
-                obj.fill == "rgb(0,0,0)" ||
-                obj.stroke == "#000000" ||
-                obj.fill == "#000000"
-            ) {
-                obj.stroke = "#fff";
-                obj.fill = "#fff";
-            }
+            if (obj.stroke == "#000000") obj.stroke = "#fff";
+
+            if (obj.fill == "#000000" || obj.fill == "rgb(0,0,0)") obj.fill = "#fff";
         });
 
         var svgGroup = util.groupSVGElements(objects, options);
@@ -52,12 +47,12 @@ export class S2PSvg extends Group implements S2PCanvasItem {
         svgGroup.left = leftoverX;
         svgGroup.top = leftoverY;
         svgGroup.angle = themeSvgProps ? themeSvgProps.angle : 0;
-        
+
         svgGroup.setCoords();
 
         this.scaleX = svgGroup.scaleX;
         this.scaleY = svgGroup.scaleY;
-        this.angle = svgGroup.angle;        
+        this.angle = svgGroup.angle;
 
         super.add(svgGroup);
     }
@@ -83,5 +78,5 @@ export class S2PSvg extends Group implements S2PCanvasItem {
 
     get fillGradient(): Gradient<unknown, "linear"> | null {
         return null;
-    }   
+    }
 }

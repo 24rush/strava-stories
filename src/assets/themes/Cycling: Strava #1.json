@@ -3,15 +3,15 @@
     "ignore": false,
     "texts": [
         {
-            "id": "es6pg72",
-            "label": "user",
-            "top": 0.5897325699480396,
-            "left": 0.05833210214724274,
+            "id": "k9nz39u",
+            "label": "distance_value",
+            "top": 0.5707660930094122,
+            "left": 0.4082958889508422,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
+                "#D6D6D6",
                 "#FFFFFF"
             ],
             "stroke": [
@@ -19,25 +19,25 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1030945004771593,
-            "scaleY": 1.071237996288427,
-            "value": "Distance",
+            "scaleX": 1.147809459976029,
+            "scaleY": 1.2827677139574483,
+            "value": "",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Termina Test",
-            "fontWeight": 400,
+            "fontFamily": "Zen Dots",
+            "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
-            "id": "k9nz39u",
-            "label": "distance_value",
-            "top": 0.6616426066249979,
-            "left": 0.0651053814309436,
+            "id": "rcc1nf0",
+            "label": "user",
+            "top": 0.6336952237886465,
+            "left": 0.0884957775172754,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
+                "#919191",
                 "#FFFFFF"
             ],
             "stroke": [
@@ -45,25 +45,25 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.3541956570047957,
-            "scaleY": 1.513420587440903,
-            "value": "",
+            "scaleX": 1.0447057355173286,
+            "scaleY": 1.0145354530754302,
+            "value": "speed",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Termina Test",
+            "fontFamily": "Zen Dots",
             "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "ucncncp",
-            "label": "pace_value",
-            "top": 0.6651011369902965,
-            "left": 0.36979166666666646,
+            "label": "speed_value",
+            "top": 0.5733702702695758,
+            "left": 0.047120098039215685,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
+                "#D6D6D6",
                 "#FFFFFF"
             ],
             "stroke": [
@@ -71,25 +71,25 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.2883507821141547,
-            "scaleY": 1.4398337399853627,
+            "scaleX": 1.135797145541828,
+            "scaleY": 1.2693430039655833,
             "value": "",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Termina Test",
+            "fontFamily": "Zen Dots",
             "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
-            "id": "tymvast",
+            "id": "5rz9n54",
             "label": "user",
-            "top": 0.5876468508485168,
-            "left": 0.4340277777777778,
+            "top": 0.6305766137250568,
+            "left": 0.3859631004644557,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
+                "#919191",
                 "#FFFFFF"
             ],
             "stroke": [
@@ -97,25 +97,25 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1030945004771593,
-            "scaleY": 1.071237996288427,
-            "value": "Pace",
+            "scaleX": 1.0447057355173286,
+            "scaleY": 1.0145354530754302,
+            "value": "distance",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Termina Test",
-            "fontWeight": 400,
+            "fontFamily": "Zen Dots",
+            "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
-            "id": "t925y03",
+            "id": "5xu4j83",
             "label": "user",
-            "top": 0.5877349053489941,
-            "left": 0.7534722222222221,
+            "top": 0.6331098299757348,
+            "left": 0.7534722222222223,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
+                "#919191",
                 "#FFFFFF"
             ],
             "stroke": [
@@ -123,25 +123,25 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1030945004771593,
-            "scaleY": 1.071237996288427,
-            "value": "Time",
+            "scaleX": 1.0447057355173286,
+            "scaleY": 1.0145354530754302,
+            "value": "time",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Termina Test",
-            "fontWeight": 400,
+            "fontFamily": "Zen Dots",
+            "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
-            "id": "u5xj14e",
+            "id": "rlfai08",
             "label": "time_value",
-            "top": 0.6595282681110731,
-            "left": 0.6996527777777776,
+            "top": 0.5719755438229827,
+            "left": 0.7118055555555556,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
+                "#D6D6D6",
                 "#FFFFFF"
             ],
             "stroke": [
@@ -149,11 +149,11 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.3243864237695542,
-            "scaleY": 1.480106415267419,
+            "scaleX": 1.147809459976029,
+            "scaleY": 1.2827677139574483,
             "value": "",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Termina Test",
+            "fontFamily": "Zen Dots",
             "fontWeight": 600,
             "fontStyle": "normal",
             "charSpacing": 0
@@ -163,40 +163,40 @@
         {
             "id": "",
             "label": "track_profile",
-            "top": 0.04539068987100571,
-            "left": 0.2934027777777778,
+            "top": 0.08858081942816576,
+            "left": 0.609396025605201,
             "width": 0,
             "height": 0,
-            "angle": 0,
+            "angle": 89.9995637953198,
             "fill": [
-                null,
-                null
+                "#00000000",
+                "#FBC70400"
             ],
             "stroke": [
-                "#3EC3FF",
-                "#FF3A75"
+                "#F5E30A",
+                "#0A9DF5"
             ],
             "strokeWidth": 2,
-            "scaleX": 0.5,
-            "scaleY": 0.5
+            "scaleX": 0.5006506778942225,
+            "scaleY": 0.5106636914521069
         }
     ],
     "rects": [],
     "svgs": [
         {
-            "left": 0.4513888888888889,
-            "top": 0.8385206432388435,
-            "width": 0.10463154496715811,
-            "height": 0.12096884923458966,
-            "url": "/svgs/run-sport.svg",
-            "angle": 0,
+            "left": 0.46656351667136114,
+            "top": 0.8136175548306136,
+            "width": 0.07773511063924116,
+            "height": 0.14050462956092782,
+            "url": "/svgs/strava_bo.svg",
+            "angle": 359.98507332262255,
             "stroke": null,
             "strokeWidth": 0,
             "fill": "rgb(0,0,0)",
-            "scaleX": 0.1340339946471105,
-            "scaleY": 0.1340339946471105
+            "scaleX": 2.11212615877399,
+            "scaleY": 2.11212615877399
         }
     ],
-    "height_percentage": 0.6430723488628863,
+    "height_percentage": 0.7568411475797672,
     "devicePixelRatio": 1
 }

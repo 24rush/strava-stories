@@ -45,8 +45,6 @@
   let hasStrokeWidth: boolean;
   let hasRadius: boolean;
 
-  let fontScaling: number = 1;
-
   let toggleSelectAll: boolean = false;
   let currentSelection: FabricObject[] = [];
 
@@ -184,7 +182,7 @@
 
     if (theme_meta.texts)
       if (theme_meta.texts.length > 0)
-        themeMainFont = ("Fonts: " + theme_meta.texts[0]?.fontFamily) ?? "";
+        themeMainFont = ("Font: " + theme_meta.texts[0]?.fontFamily) ?? "";
 
     theme_meta.texts.forEach((text) => {
       if (text.label == "user") {
@@ -386,32 +384,13 @@
 <div
   class="d-flex justify-content-center align-items-center mb-2"
   style="flex-direction: column; max-width: 600px; width: 100%; margin: auto;"
->
-  <span class="me-1 mb-1" style="font-style: italic;">layout</span>
-
+> 
+  <i class="mb-2 bi bi-arrow-down" style="transform: scale(1.2);"></i>
+ 
   <S2PSliderDropdown
     dropdownData={themesByType}
     onItemSelected={onThemeSelected}
   />
-
-  <div class="d-flex gap-1" style="flex-direction: row; width: 100%;">
-    <div class="d-flex align-items-center" style="flex-direction: column; width: 90%;">
-      <span class="me-1 mb-1" style="font-style: italic;">font</span>
-      <div style="width: 100%; padding-top: 3px;">
-        <S2PSliderDropdown
-          selectedValue={themeMainFont}
-          dropdownData={Fonts.fontFamilies}
-          onItemSelected={onFontFamilySelected}
-        />
-      </div>
-    </div>
-
-    <div class="d-flex align-items-center" style="flex-direction: column; width: 10%;">
-      <span class="me-1 mb-1" style="font-style: italic;">color</span>
-      <div bind:this={accentColorPickerEl}></div>
-    </div>
-  </div>
-
 </div>
 
 <div
@@ -481,6 +460,22 @@
 
   </div>
 
+  <div class="d-flex gap-1" style="flex-direction: row; width: 100%;">
+    <div class="d-flex align-items-center" style="flex-direction: column; width: 90%;">
+      <div style="width: 100%; padding-top: 3px;">
+        <S2PSliderDropdown
+          selectedValue={themeMainFont}
+          dropdownData={Fonts.fontFamilies}
+          onItemSelected={onFontFamilySelected}
+        />
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center" style="flex-direction: column; width: 10%;">
+      <div bind:this={accentColorPickerEl}></div>
+    </div>
+  </div>
+
   <div class="btn-group mb-2 d-flex" role="group">    
     <button onclick={() => onAddTrackProfile()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
       >Track profile +</button
@@ -489,7 +484,6 @@
       >Elevation chart +</button
     >
   </div>
-
   <div class="mb-2">
     {#if canvasItemSelected && canvasItemSelected.s2pType != S2PCanvasItemType.Svg}
       <S2PVisualProps

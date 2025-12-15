@@ -115,7 +115,7 @@
 
   function onStravaUrlChanged(e: any) {
     let url = e.target.value;
-    url_ok = isAppLinkUrl(url) || (getActivityIdFromUrl(url) != undefined);
+    url_ok = isAppLinkUrl(url) || getActivityIdFromUrl(url) != undefined;
 
     if (url_ok) getStravaActivity(url);
   }
@@ -125,6 +125,15 @@
       setTimeout(reloadTheme, 100);
     } else {
       s2pImage.reloadTheme();
+    }
+  }
+
+  async function pasteFromClipboard() {
+    try {
+      strava_default_url = await navigator.clipboard.readText();
+      onStravaUrlChanged({ target: { value: strava_default_url } });
+    } catch (err) {
+      console.error("Clipboard access denied", err);
     }
   }
 </script>
@@ -143,29 +152,26 @@
 
     <div class="mb-1 step-header">
       <span
-        >Paste the URL of your Strava activity <i>(has to be set to Everyone)</i
-        ></span
+        >URL of your Strava activity (set to <i>Everyone</i
+        >)</span
       >
     </div>
 
     <div class="row mb-2" style="width: 100%">
       <div
-        class="col-md-4 mb-2 d-flex align-items-center"
+        class="col-md-4 d-flex align-items-center"
         style="width: 100%; padding: 0px;"
       >
+        <button class="btn btn-primary me-1" onclick={pasteFromClipboard}>Paste</button>
+
         <input
+          class="form-control {!url_ok ? 'is-invalid' : 'is-valid'}"
           style="width: 100%; margin-right: 3px;"
           oninput={onStravaUrlChanged}
           placeholder={strava_default_url}
           value={strava_default_url}
         />
-        {#if data_fetched}
-          <i
-            class="{url_ok ? 'url-ok-message' : 'url-error-message'} bi {url_ok
-              ? 'bi-check-lg'
-              : 'bi-exclamation-triangle'}"
-          ></i>
-        {:else}
+        {#if !data_fetched}
           <i class="bi spinner"></i>
         {/if}
       </div>
