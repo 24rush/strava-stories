@@ -30,7 +30,7 @@
         },
         {
             "id": "k9nz39u",
-            "label": "distance_value",
+            "label": "distance",
             "top": 0.1688426396524995,
             "left": 0.3810776036531658,
             "width": 0,
@@ -56,7 +56,7 @@
         },
         {
             "id": "ucncncp",
-            "label": "pace_value",
+            "label": "pace",
             "top": 0.3787541371132955,
             "left": 0.36631944444444425,
             "width": 0,
@@ -82,7 +82,7 @@
         },
         {
             "id": "u5xj14e",
-            "label": "time_value",
+            "label": "time",
             "top": 0.5804776874492583,
             "left": 0.37152777777777757,
             "width": 0,

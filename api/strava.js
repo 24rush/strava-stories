@@ -3,7 +3,7 @@ import path from 'path';
 
 const appLinkRe = /^(https:\/\/)*strava\.app\.link\/[A-Za-z0-9]+$/;
 const regex = /^https?:\/\/(www\.)?strava\.com\/activities\/(\d+)(\/.*)?$/;
-const localActivities = { '15174937862': '15174937862.txt' }
+const localActivities = { '15174937862': '15174937862.txt', '14134698093': '14134698093.txt' }
 
 function isAppLinkUrl(url) {
     return url.match(appLinkRe) != null;

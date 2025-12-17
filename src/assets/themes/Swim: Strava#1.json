@@ -5,8 +5,8 @@
         {
             "id": "es6pg72",
             "label": "user",
-            "top": 0.6161419308552739,
-            "left": 0.41406149563808997,
+            "top": 0.2649757383376219,
+            "left": 0.08460575897594798,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -15,24 +15,24 @@
                 "#FFFFFF"
             ],
             "stroke": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#3D97F100",
+                "#03A9F4D9"
             ],
-            "strokeWidth": 0,
-            "scaleX": 0.9470724363438824,
-            "scaleY": 0.9197217270235377,
+            "strokeWidth": 1,
+            "scaleX": 1.1030945004771593,
+            "scaleY": 1.071237996288427,
             "value": "Distance",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Kanit",
-            "fontWeight": 300,
+            "fontFamily": "Lato",
+            "fontWeight": 900,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "k9nz39u",
             "label": "distance",
-            "top": 0.5552935391648338,
-            "left": 0.4152082291769819,
+            "top": 0.3851807607762222,
+            "left": 0.11371649254205456,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -45,20 +45,20 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1688948116549986,
-            "scaleY": 1.3063322595674718,
+            "scaleX": 1.3541956570047957,
+            "scaleY": 1.513420587440903,
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Kanit",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "ucncncp",
             "label": "pace",
-            "top": 0.5575752484958841,
-            "left": 0.7777857389544415,
+            "top": 0.3902045768604605,
+            "left": 0.389756944444444,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -71,20 +71,20 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1067188387090068,
-            "scaleY": 1.2368456997680115,
+            "scaleX": 1.2883507821141547,
+            "scaleY": 1.4398337399853627,
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Kanit",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "tymvast",
             "label": "user",
-            "top": 0.6170044731898835,
-            "left": 0.7789631337902712,
+            "top": 0.2619460499866045,
+            "left": 0.4550931012731497,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -93,24 +93,24 @@
                 "#FFFFFF"
             ],
             "stroke": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#3D97F100",
+                "#03A9F4D9"
             ],
-            "strokeWidth": 0,
-            "scaleX": 0.9470724363438824,
-            "scaleY": 0.9197217270235377,
+            "strokeWidth": 1,
+            "scaleX": 1.1030945004771593,
+            "scaleY": 1.071237996288427,
             "value": "Pace",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Kanit",
-            "fontWeight": 300,
+            "fontFamily": "Lato",
+            "fontWeight": 900,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "t925y03",
             "label": "user",
-            "top": 0.6165538584475161,
-            "left": 0.041666666666666546,
+            "top": 0.2620739568051266,
+            "left": 0.7797458790509274,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -119,24 +119,24 @@
                 "#FFFFFF"
             ],
             "stroke": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#3D97F100",
+                "#03A9F4D9"
             ],
-            "strokeWidth": 0,
-            "scaleX": 0.9470724363438824,
-            "scaleY": 0.9197217270235377,
-            "value": "Duration",
+            "strokeWidth": 1,
+            "scaleX": 1.1030945004771593,
+            "scaleY": 1.071237996288427,
+            "value": "Time",
             "fontSize": 0.04096638655462185,
-            "fontFamily": "Kanit",
-            "fontWeight": 300,
+            "fontFamily": "Lato",
+            "fontWeight": 900,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "u5xj14e",
             "label": "time",
-            "top": 0.5558934999576544,
-            "left": 0.04166666666666625,
+            "top": 0.3821095002372498,
+            "left": 0.7482638888888887,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -149,60 +149,33 @@
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1431645134607515,
-            "scaleY": 1.2775766194155194,
+            "scaleX": 1.3243864237695542,
+            "scaleY": 1.480106415267419,
             "value": "",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Kanit",
-            "fontWeight": 600,
+            "fontWeight": 400,
             "fontStyle": "normal",
             "charSpacing": 0
         }
     ],
-    "polys": [
+    "polys": [],
+    "rects": [],
+    "svgs": [
         {
-            "id": "",
-            "label": "track_profile",
-            "top": 0.06047521101119987,
-            "left": 0.31790121949584704,
-            "width": 0,
-            "height": 0,
+            "left": 0.4461805555555556,
+            "top": 0.6134775036939626,
+            "width": 0.10302252841086715,
+            "height": 0.19039885464596606,
+            "url": "/svgs/swim.svg",
             "angle": 0,
-            "fill": [
-                null,
-                null
-            ],
-            "stroke": [
-                "#FFFFFF",
-                "#FFFFFF"
-            ],
-            "strokeWidth": 2,
-            "scaleX": 0.43010093498947616,
-            "scaleY": 0.43010093498947605
-        },
-        {
-            "id": "",
-            "label": "elevation_profile",
-            "top": 0.4572016328837625,
-            "left": 0.04340277777777768,
-            "width": 0,
-            "height": 0,
-            "angle": 0,
-            "fill": [
-                "#FFFFFF00",
-                "#FFF3F742"
-            ],
-            "stroke": [
-                "#FFFFFF00",
-                "#FFFFFF7D"
-            ],
-            "strokeWidth": 2,
-            "scaleX": 0.8907960435994312,
-            "scaleY": 0.8907960435994312
+            "stroke": null,
+            "strokeWidth": 0,
+            "fill": "rgb(0,0,0)",
+            "scaleX": 2.6973171074845217,
+            "scaleY": 2.6973171074845217
         }
     ],
-    "rects": [],
-    "svgs": [],
-    "height_percentage": 0.9409722222222222,
+    "height_percentage": 0.4427083333333333,
     "devicePixelRatio": 1
 }

@@ -4,7 +4,7 @@
     "texts": [
         {
             "id": "k9nz39u",
-            "label": "distance_value",
+            "label": "distance",
             "top": 0.5707660930094122,
             "left": 0.4082958889508422,
             "width": 0,
@@ -56,7 +56,7 @@
         },
         {
             "id": "ucncncp",
-            "label": "speed_value",
+            "label": "speed",
             "top": 0.5733702702695758,
             "left": 0.047120098039215685,
             "width": 0,
@@ -134,7 +134,7 @@
         },
         {
             "id": "rlfai08",
-            "label": "time_value",
+            "label": "time",
             "top": 0.5719755438229827,
             "left": 0.7118055555555556,
             "width": 0,

@@ -22,7 +22,7 @@
         },
         {
             "id": "54daz6g",
-            "label": "time_value",
+            "label": "time",
             "left": 0.2647058823529412,
             "top": 0.10339923156967303,
             "fontSize": 0.04096638655462185,
@@ -39,7 +39,7 @@
         },
         {
             "id": "3ryhywa",
-            "label": "pace_value",
+            "label": "pace",
             "left": 0.5357142857142855,
             "top": 0.5790302837121242,
             "fontSize": 0.04096638655462185,
@@ -74,7 +74,7 @@
         },
         {
             "id": "k9nz39u",
-            "label": "distance_value",
+            "label": "distance",
             "left": 0.007813714764277276,
             "top": 0.09891412473483419,
             "fontSize": 0.04096638655462185,

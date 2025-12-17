@@ -591,7 +591,7 @@
         });
 
         lastPos += canvasPadding;
-        
+
         canvas.setDimensions({
             height: lastPos,
         });
@@ -619,10 +619,12 @@
         filledPoly.createFilledPolyline(points);
         filledPoly.scaleX = poly.scaleX;
         filledPoly.scaleY = poly.scaleY;
+        filledPoly.strokeWidth = poly.strokeWidth;
         filledPoly.angle = poly.angle;
 
         polys.push(filledPoly);
         canvas.add(filledPoly);
+        canvas.sendObjectToBack(filledPoly);
 
         adjustCanvasSize();
         canvas.renderAll();
@@ -659,6 +661,7 @@
 
         polys.push(polyline);
         canvas.add(polyline);
+        canvas.sendObjectToBack(polyline);
 
         adjustCanvasSize();
         canvas.renderAll();

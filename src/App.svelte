@@ -7,7 +7,7 @@
   let data: any = {};
   let data_fetched = false;
 
-  let strava_default_url = "https://www.strava.com/activities/15174937862";
+  let strava_default_url = "https://www.strava.com/activities/14134698093";
   let url_ok: boolean = true;
 
   let themes: any = {};
@@ -17,6 +17,7 @@
   const regex = /^https?:\/\/(www\.)?strava\.com\/activities\/(\d+)(\/.*)?$/;
   const localActivities: Record<string, string> = {
     "15174937862": "15174937862.txt",
+    "14134698093": "14134698093.txt"
   };
 
   function isAppLinkUrl(url: string) {
@@ -86,10 +87,12 @@
         return res.json();
       })
       .then((strava_data) => {
-        data = strava_data["activity"];
+        data = strava_data["activity"];       
+        url_ok = data != null;
         data_fetched = true;
 
-        reloadTheme();
+        if (url_ok)
+          reloadTheme();
       })
       .catch((err) => {
         console.error("Fetch error:", err);

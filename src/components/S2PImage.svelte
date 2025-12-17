@@ -91,6 +91,8 @@
     s2pCanvas.getCanvas().on("mouse:down", (e) => {
       toggleSelectAll = false;      
     });
+
+    onThemeSelected("Trail", "Strava #1");
   });
 
   export function reloadTheme() {
@@ -190,35 +192,118 @@
         return;
       }
 
-      if (text.label.includes("_value"))
+      // Just units, e.g. m, min, km/h
+      if (text.label.includes("_value_unit"))
       {
-        if (data && data.scalars) {
-          let field = text.label.replace("_value", "");
-          switch (field) {
+        switch (text.label.replace("_value_unit", "")) {
             case "distance":
-              text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) + " km" : "N/A";
+            if (data.activityKind.sportType == "Swim")
+              text.value = " m";
+            else
+              text.value = " km";
               break;
             case "time":
-              text.value = data.scalars.movingTime ? Converters.secondsToHM(data.scalars.movingTime) : "N/A";
+              text.value = " min";
               break;
             case "elevation":
-              text.value = data.scalars.elevationGain
-                ? data.scalars.elevationGain.toFixed(0) + " m"
-                : "N/A";
-                break;
-            case "pace":
-              text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.movingTime / 60) / (data.scalars.distance / 1000)).toFixed(2).replace('.', ':') + "/km" : "N/A";
+              text.value = " m";                
+              break;
+            case "pace":              
+                if (data.activityKind.sportType == "Swim") {              
+                  text.value = " /100m";
+                }
+                else {                  
+                  text.value = " /km";
+                }              
               break;
             case "speed":
-            text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) + " km/h" : "N/A";
+              text.value = " km/h";
               break;
           }
-          s2pCanvas.addText(text);
-        } else {
-          text.value = "N/A";
-          s2pCanvas.addText(text);
+
+          if (text.value)
+            s2pCanvas.addText(text);
+          
+          return;
+      }
+
+      // Just value of measurement
+      if (text.label.includes("_value"))
+      {
+        switch (text.label.replace("_value", "")) {
+          case "distance":
+          if (data.activityKind.sportType == "Swim")
+            text.value = data.scalars.distance ? (data.scalars.distance) : "0";
+          else
+            text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) : "0";
+            break;
+          case "time":
+            text.value = data.scalars.movingTime ? Converters.secondsToHMS(data.scalars.movingTime) : "0";
+            break;
+          case "elevation":
+            text.value = data.scalars.elevationGain
+              ? data.scalars.elevationGain.toFixed(0)
+              : "0";
+              break;
+          case "pace":
+            if (data.scalars.movingTime && data.scalars.distance) {
+              if (data.activityKind.sportType == "Swim") {
+                let pace = (data.scalars.movingTime / data.scalars.distance * 100);                  
+                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}`;
+              }
+              else {
+                let pace = (data.scalars.movingTime) / (data.scalars.distance / 1000);
+                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}`;                  
+              }
+            } else {
+              text.value = "0";
+            }
+            break;
+          case "speed":
+            text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) : "0";
+            break;
         }
       }
+
+      if (data && data.scalars) {          
+        switch (text.label) {
+          case "distance":
+          if (data.activityKind.sportType == "Swim")
+            text.value = data.scalars.distance ? (data.scalars.distance) + "m" : "N/A";
+          else
+            text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) + " km" : "N/A";
+            break;
+          case "time":
+            text.value = data.scalars.movingTime ? Converters.secondsToHM(data.scalars.movingTime) : "N/A";
+            break;
+          case "elevation":
+            text.value = data.scalars.elevationGain
+              ? data.scalars.elevationGain.toFixed(0) + " m"
+              : "N/A";
+              break;
+          case "pace":
+            if (data.scalars.movingTime && data.scalars.distance) {
+              if (data.activityKind.sportType == "Swim") {
+                let pace = (data.scalars.movingTime / data.scalars.distance * 100);                  
+                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')} /100m`;
+              }
+              else {
+                let pace = (data.scalars.movingTime) / (data.scalars.distance / 1000);
+                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')} /km`;                  
+              }
+            } else {
+              text.value = "N/A";
+            }
+            break;
+          case "speed":
+            text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) + " km/h" : "N/A";
+            break;
+        }
+      }
+
+      if (text.value)
+        s2pCanvas.addText(text);
+      
     });
 
     if (theme_meta.svgs) {
@@ -390,6 +475,7 @@
   <S2PSliderDropdown
     dropdownData={themesByType}
     onItemSelected={onThemeSelected}
+    selectedValue="Trail: Strava #1"
   />
 </div>
 
