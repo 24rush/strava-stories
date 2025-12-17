@@ -5,8 +5,8 @@
         {
             "id": "k9nz39u",
             "label": "distance",
-            "top": 0.5707660930094122,
-            "left": 0.4082958889508422,
+            "top": 0.5205156989274331,
+            "left": 0.410648839103071,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -21,7 +21,7 @@
             "strokeWidth": 0,
             "scaleX": 1.147809459976029,
             "scaleY": 1.2827677139574483,
-            "value": "",
+            "value": "22km",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Zen Dots",
             "fontWeight": 600,
@@ -31,8 +31,8 @@
         {
             "id": "rcc1nf0",
             "label": "user",
-            "top": 0.6336952237886465,
-            "left": 0.0884957775172754,
+            "top": 0.5812075679733069,
+            "left": 0.0908487276695043,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -50,15 +50,15 @@
             "value": "speed",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Zen Dots",
-            "fontWeight": 600,
+            "fontWeight": 200,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "ucncncp",
             "label": "speed",
-            "top": 0.5733702702695758,
-            "left": 0.047120098039215685,
+            "top": 0.5230272922593127,
+            "left": 0.04947304819144455,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -73,7 +73,7 @@
             "strokeWidth": 0,
             "scaleX": 1.135797145541828,
             "scaleY": 1.2693430039655833,
-            "value": "",
+            "value": "10.7km/h",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Zen Dots",
             "fontWeight": 600,
@@ -83,8 +83,8 @@
         {
             "id": "5rz9n54",
             "label": "user",
-            "top": 0.6305766137250568,
-            "left": 0.3859631004644557,
+            "top": 0.5819477925429006,
+            "left": 0.38831605061668456,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -102,15 +102,15 @@
             "value": "distance",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Zen Dots",
-            "fontWeight": 600,
+            "fontWeight": 200,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "5xu4j83",
             "label": "user",
-            "top": 0.6331098299757348,
-            "left": 0.7534722222222223,
+            "top": 0.5806429861303105,
+            "left": 0.7558251723744512,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -128,15 +128,15 @@
             "value": "time",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Zen Dots",
-            "fontWeight": 600,
+            "fontWeight": 200,
             "fontStyle": "normal",
             "charSpacing": 0
         },
         {
             "id": "rlfai08",
             "label": "time",
-            "top": 0.5719755438229827,
-            "left": 0.7118055555555556,
+            "top": 0.5216821512442809,
+            "left": 0.7141585057077843,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -151,7 +151,7 @@
             "strokeWidth": 0,
             "scaleX": 1.147809459976029,
             "scaleY": 1.2827677139574483,
-            "value": "",
+            "value": "2h04m",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Zen Dots",
             "fontWeight": 600,
@@ -163,11 +163,11 @@
         {
             "id": "",
             "label": "track_profile",
-            "top": 0.08858081942816576,
-            "left": 0.609396025605201,
+            "top": 0.12113843353494821,
+            "left": 0.24507346668367744,
             "width": 0,
             "height": 0,
-            "angle": 89.9995637953198,
+            "angle": 0.30276165713715886,
             "fill": [
                 "#00000000",
                 "#FBC70400"
@@ -177,26 +177,26 @@
                 "#0A9DF5"
             ],
             "strokeWidth": 2,
-            "scaleX": 0.5006506778942225,
-            "scaleY": 0.5106636914521069
+            "scaleX": 0.5006506778942224,
+            "scaleY": 0.510663691452107
         }
     ],
     "rects": [],
     "svgs": [
         {
-            "left": 0.46656351667136114,
-            "top": 0.8136175548306136,
-            "width": 0.07773511063924116,
-            "height": 0.14050462956092782,
+            "left": 0.4482507563044271,
+            "top": 0.7127916556543102,
+            "width": 0.08051136459064263,
+            "height": 0.14034901851930212,
             "url": "/svgs/strava_bo.svg",
-            "angle": 359.98507332262255,
+            "angle": -0.014926677377437794,
             "stroke": null,
             "strokeWidth": 0,
             "fill": "rgb(0,0,0)",
-            "scaleX": 2.11212615877399,
-            "scaleY": 2.11212615877399
+            "scaleX": 1.2912676045084042,
+            "scaleY": 1.2912676045084037
         }
     ],
-    "height_percentage": 0.7568411475797672,
-    "devicePixelRatio": 1
+    "height_percentage": 0.7847403005360415,
+    "devicePixelRatio": 1.100000023841858
 }

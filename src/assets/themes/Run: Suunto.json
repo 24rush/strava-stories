@@ -5,8 +5,8 @@
         {
             "id": "es6pg72",
             "label": "user",
-            "top": 0.6161419308552739,
-            "left": 0.41406149563808997,
+            "top": 0.850126945269724,
+            "left": 0.41406149563809,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -31,8 +31,8 @@
         {
             "id": "k9nz39u",
             "label": "distance",
-            "top": 0.5552935391648338,
-            "left": 0.4152082291769819,
+            "top": 0.766170871576502,
+            "left": 0.41520822917698186,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -47,7 +47,7 @@
             "strokeWidth": 0,
             "scaleX": 1.1688948116549986,
             "scaleY": 1.3063322595674718,
-            "value": "",
+            "value": "22km",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Kanit",
             "fontWeight": 600,
@@ -57,7 +57,7 @@
         {
             "id": "ucncncp",
             "label": "pace",
-            "top": 0.5575752484958841,
+            "top": 0.7693190789723314,
             "left": 0.7777857389544415,
             "width": 0,
             "height": 0,
@@ -73,7 +73,7 @@
             "strokeWidth": 0,
             "scaleX": 1.1067188387090068,
             "scaleY": 1.2368456997680115,
-            "value": "",
+            "value": "05:37/km",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Kanit",
             "fontWeight": 600,
@@ -83,7 +83,7 @@
         {
             "id": "tymvast",
             "label": "user",
-            "top": 0.6170044731898835,
+            "top": 0.8513170452180745,
             "left": 0.7789631337902712,
             "width": 0,
             "height": 0,
@@ -109,7 +109,7 @@
         {
             "id": "t925y03",
             "label": "user",
-            "top": 0.6165538584475161,
+            "top": 0.850695305785586,
             "left": 0.041666666666666546,
             "width": 0,
             "height": 0,
@@ -135,7 +135,7 @@
         {
             "id": "u5xj14e",
             "label": "time",
-            "top": 0.5558934999576544,
+            "top": 0.7669986724622072,
             "left": 0.04166666666666625,
             "width": 0,
             "height": 0,
@@ -151,7 +151,7 @@
             "strokeWidth": 0,
             "scaleX": 1.1431645134607515,
             "scaleY": 1.2775766194155194,
-            "value": "",
+            "value": "2h04m",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Kanit",
             "fontWeight": 600,
@@ -163,8 +163,8 @@
         {
             "id": "",
             "label": "track_profile",
-            "top": 0.06047521101119987,
-            "left": 0.31790121949584704,
+            "top": 0.16619287943865418,
+            "left": 0.2708423959664353,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -176,15 +176,15 @@
                 "#FFFFFF",
                 "#FFFFFF"
             ],
-            "strokeWidth": 2,
+            "strokeWidth": 1,
             "scaleX": 0.43010093498947616,
             "scaleY": 0.43010093498947605
         },
         {
             "id": "",
             "label": "elevation_profile",
-            "top": 0.4572016328837625,
-            "left": 0.04340277777777768,
+            "top": 0.5963478942587834,
+            "left": 0.04575577280879787,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -196,13 +196,13 @@
                 "#FFFFFF00",
                 "#FFFFFF7D"
             ],
-            "strokeWidth": 2,
+            "strokeWidth": 1,
             "scaleX": 0.8907960435994312,
             "scaleY": 0.8907960435994312
         }
     ],
     "rects": [],
     "svgs": [],
-    "height_percentage": 0.9409722222222222,
-    "devicePixelRatio": 1
+    "height_percentage": 0.6819833733151824,
+    "devicePixelRatio": 1.100000023841858
 }

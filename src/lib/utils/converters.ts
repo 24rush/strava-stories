@@ -5,9 +5,9 @@ export class Converters {
     const s = Math.floor(seconds % 60);
 
     if (h == 0)
-      return `${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}s`;
+      return `${m.toString().padStart(2, "0")}m${s.toString().padStart(2, "0")}s`;
 
-    return `${h}h ${m.toString().padStart(2, "0")}m`;
+    return `${h}h${m.toString().padStart(2, "0")}m`;
   }
 
   static secondsToHMS(seconds: number): string {

@@ -20,6 +20,7 @@
 
   let themesByType: Record<string, string[]> = {};
   let themeMainFont = "";
+  let selectedTheme = "";
   let currentThemeIdx = 0;
   let countThemes = 0;
 
@@ -93,13 +94,7 @@
     });
 
     onThemeSelected("Trail", "Strava #1");
-  });
-
-  export function reloadTheme() {
-    if (themes && themes[currentThemeIdx]) {           
-      loadTheme(themes[currentThemeIdx] ?? new S2PTheme(""));            
-    }
-  }
+  });  
 
   function updateObjectPositions(themes: S2PTheme[]) {
     let canvasWidth = s2pCanvas.getCanvas().width;
@@ -198,26 +193,26 @@
         switch (text.label.replace("_value_unit", "")) {
             case "distance":
             if (data.activityKind.sportType == "Swim")
-              text.value = " m";
+              text.value = "m";
             else
-              text.value = " km";
+              text.value = "km";
               break;
             case "time":
-              text.value = " min";
+              text.value = "min";
               break;
             case "elevation":
-              text.value = " m";                
+              text.value = "m";                
               break;
             case "pace":              
                 if (data.activityKind.sportType == "Swim") {              
-                  text.value = " /100m";
+                  text.value = "/100m";
                 }
                 else {                  
-                  text.value = " /km";
+                  text.value = "/km";
                 }              
               break;
             case "speed":
-              text.value = " km/h";
+              text.value = "km/h";
               break;
           }
 
@@ -271,7 +266,7 @@
           if (data.activityKind.sportType == "Swim")
             text.value = data.scalars.distance ? (data.scalars.distance) + "m" : "N/A";
           else
-            text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) + " km" : "N/A";
+            text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) + "km" : "N/A";
             break;
           case "time":
             text.value = data.scalars.movingTime ? Converters.secondsToHM(data.scalars.movingTime) : "N/A";
@@ -285,18 +280,18 @@
             if (data.scalars.movingTime && data.scalars.distance) {
               if (data.activityKind.sportType == "Swim") {
                 let pace = (data.scalars.movingTime / data.scalars.distance * 100);                  
-                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')} /100m`;
+                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}/100m`;
               }
               else {
                 let pace = (data.scalars.movingTime) / (data.scalars.distance / 1000);
-                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')} /km`;                  
+                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}/km`;                  
               }
             } else {
               text.value = "N/A";
             }
             break;
           case "speed":
-            text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) + " km/h" : "N/A";
+            text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) + "km/h" : "N/A";
             break;
         }
       }
@@ -404,11 +399,19 @@
     s2pCanvas.dump();
   }
 
+  export function reloadTheme() {
+    if (themes && themes[currentThemeIdx]) {
+      selectedTheme = themes[currentThemeIdx]?.name;          
+      loadTheme(themes[currentThemeIdx] ?? new S2PTheme(""));            
+    }
+  }
+
   async function onThemeSelected(themeType: string, themeName: string) {
     currentThemeIdx =
       themes.findIndex((theme) => theme.name.includes(themeType + ": " + themeName)) ?? 0;
 
-    if (themes[currentThemeIdx]) {                          
+    if (themes[currentThemeIdx] && data.streams) {   
+        selectedTheme = themeType + ": " + themeName;
         loadTheme(themes[currentThemeIdx]) ;
         onRequestRedraw();          
     }
@@ -475,7 +478,7 @@
   <S2PSliderDropdown
     dropdownData={themesByType}
     onItemSelected={onThemeSelected}
-    selectedValue="Trail: Strava #1"
+    selectedValue={selectedTheme}
   />
 </div>
 
