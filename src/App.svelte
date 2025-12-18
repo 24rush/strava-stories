@@ -116,7 +116,7 @@
   });
 
   function parseStravaUrl(url: string): string {
-    return url.replace("Check out my run on Strava: ", "");
+    return url.replace("Check out my run on Strava: ", "").replace("Check out my activity on Strava: ", "");
   }
 
   function onStravaUrlChanged(e: any) {
