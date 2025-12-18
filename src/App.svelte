@@ -17,7 +17,7 @@
   const regex = /^https?:\/\/(www\.)?strava\.com\/activities\/(\d+)(\/.*)?$/;
   const localActivities: Record<string, string> = {
     "15174937862": "15174937862.txt",
-    "14134698093": "14134698093.txt"
+    "14134698093": "14134698093.txt",
   };
 
   function isAppLinkUrl(url: string) {
@@ -87,12 +87,11 @@
         return res.json();
       })
       .then((strava_data) => {
-        data = strava_data["activity"];       
+        data = strava_data["activity"];
         url_ok = data != null;
         data_fetched = true;
 
-        if (url_ok)
-          reloadTheme();
+        if (url_ok) reloadTheme();
       })
       .catch((err) => {
         console.error("Fetch error:", err);
@@ -116,11 +115,18 @@
     getStravaActivity(strava_default_url);
   });
 
+  function parseStravaUrl(url: string): string {
+    return url.replace("Check out my run on Strava: ", "");
+  }
+
   function onStravaUrlChanged(e: any) {
-    let url = e.target.value;
+    let url = parseStravaUrl(e.target.value);
     url_ok = isAppLinkUrl(url) || getActivityIdFromUrl(url) != undefined;
 
-    if (url_ok) getStravaActivity(url);
+    if (url_ok) {
+      strava_default_url = url;
+      getStravaActivity(url);
+    }
   }
 
   function reloadTheme() {
@@ -133,8 +139,9 @@
 
   async function pasteFromClipboard() {
     try {
-      strava_default_url = await navigator.clipboard.readText();
-      onStravaUrlChanged({ target: { value: strava_default_url } });
+      onStravaUrlChanged({
+        target: { value: await navigator.clipboard.readText() },
+      });
     } catch (err) {
       console.error("Clipboard access denied", err);
     }
@@ -154,10 +161,7 @@
     </h1>
 
     <div class="mb-1 step-header">
-      <span
-        >URL of your Strava activity (set to <i>Everyone</i
-        >)</span
-      >
+      <span>URL of your Strava activity (set to <i>Everyone</i>)</span>
     </div>
 
     <div class="row mb-2" style="width: 100%">
@@ -165,7 +169,9 @@
         class="col-md-4 d-flex align-items-center"
         style="width: 100%; padding: 0px;"
       >
-        <button class="btn btn-primary me-1" onclick={pasteFromClipboard}>Paste</button>
+        <button class="btn btn-primary me-1" onclick={pasteFromClipboard}
+          >Paste</button
+        >
 
         <input
           class="form-control {!url_ok ? 'is-invalid' : 'is-valid'}"
