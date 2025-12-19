@@ -425,6 +425,14 @@
         canvas.requestRenderAll();
     }
 
+    function formatTimeHMS(timestamp: number) {
+        return new Date(timestamp).toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+        });
+    }
+
     export function exportToPng() {
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
@@ -440,7 +448,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
                 link.href = url;
-                link.download = "canvas-export.png";
+                link.download = "strava-stories-" + formatTimeHMS(Date.now()) + ".png";
                 link.click();
                 URL.revokeObjectURL(url);
             }, "image/png");
@@ -580,13 +588,15 @@
 
     function adjustCanvasSize() {
         let lastPos = 0;
-        [texts, polys, rects, svgs].forEach((col) => {            
+        [texts, polys, rects, svgs].forEach((col) => {
             lastPos = Math.max(
                 lastPos,
-                Math.max(...col.map((u) => { 
-                    let bb = u.getBoundingRect();
-                    return bb.top + bb.height
-                })),
+                Math.max(
+                    ...col.map((u) => {
+                        let bb = u.getBoundingRect();
+                        return bb.top + bb.height;
+                    }),
+                ),
             );
         });
 

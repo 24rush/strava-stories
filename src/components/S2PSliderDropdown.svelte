@@ -68,7 +68,7 @@
 
         <div class="dropdown-center" style="flex: 16;">
             <button
-                class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                class="btn btn-outline-primary btn-sm dropdown-toggle"
                 style="border-radius: 0px; width: 100%;"
                 type="button"
                 data-bs-toggle="dropdown"
