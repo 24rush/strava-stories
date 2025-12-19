@@ -13,26 +13,25 @@
   let themes: any = {};
   let theme_fetched = false;
 
-  const appLinkRe = /^(https:\/\/)*strava\.app\.link\/[A-Za-z0-9]+$/;
-  const regex = /^https?:\/\/(www\.)?strava\.com\/activities\/(\d+)(\/.*)?$/;
+  const appLinkRegex = /[https:\/\/]*strava\.app\.link\/[A-Za-z0-9]+$/;
+  const actRegex = /https?:\/\/[www\.]*strava\.com\/activities\/(\d+)(\/.*)?/;
   const localActivities: Record<string, string> = {
     "15174937862": "15174937862.txt",
     "14134698093": "14134698093.txt",
   };
 
-  function isAppLinkUrl(url: string) {
-    return url.match(appLinkRe) != null;
-  }
-
-  function getActivityIdFromUrl(url: string): string | undefined {
-    const match = url.match(regex);
-    return match ? match[2] : undefined;
+  function extractStravaUrl(url: string): string | undefined {
+    for (let regex of [actRegex, appLinkRegex]) {
+      let match = url.match(regex);
+      if (match) return match[0];
+    }
   }
 
   async function getActivityFromLocalCache(
     stravaActUrl: string,
   ): Promise<string | undefined> {
-    let activityId = getActivityIdFromUrl(stravaActUrl);
+    const match = stravaActUrl.match(actRegex);
+    let activityId = match ? match[1] : undefined;
 
     if (activityId && activityId in localActivities) {
       const response = await fetch("data/" + localActivities[activityId]);
@@ -50,24 +49,22 @@
   async function getStravaActivity(stravaActUrl: string) {
     data_fetched = false;
 
-    if (!isAppLinkUrl(stravaActUrl)) {
-      const strava_data = await getActivityFromLocalCache(stravaActUrl);
+    const strava_data = await getActivityFromLocalCache(stravaActUrl);
 
-      if (strava_data) {
-        const jsonText = strava_data
-          .trim()
-          .replace(/&quot;/g, '"')
-          .replace(/&lt;/g, "<")
-          .replace(/&gt;/g, ">")
-          .replace(/&amp;/g, "&");
+    if (strava_data) {
+      const jsonText = strava_data
+        .trim()
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&amp;/g, "&");
 
-        const jsonData = JSON.parse(jsonText);
-        data = jsonData.props.pageProps.activity;
-        data_fetched = true;
-        reloadTheme();
+      const jsonData = JSON.parse(jsonText);
+      data = jsonData.props.pageProps.activity;
+      data_fetched = true;
+      reloadTheme();
 
-        return;
-      }
+      return;
     }
 
     await fetch("https://strava-stories-taupe.vercel.app/api/strava", {
@@ -112,19 +109,25 @@
 
   onMount(() => {
     getThemes();
+
+    const url = new URL(window.location.href);
+    const act = url.searchParams.get("act");
+
+    if (act && act.match(/^\d*$/)) {
+      strava_default_url = "https://www.strava.com/activities/" + act;
+    }
+
     getStravaActivity(strava_default_url);
   });
 
-  function parseStravaUrl(url: string): string {
-    return url.replace("Check out my run on Strava: ", "").replace("Check out my activity on Strava: ", "");
-  }
-
   function onStravaUrlChanged(e: any) {
-    let url = parseStravaUrl(e.target.value);
-    url_ok = isAppLinkUrl(url) || getActivityIdFromUrl(url) != undefined;
+    strava_default_url = e.target.value;
 
-    if (url_ok) {
-      strava_default_url = url;
+    let url = extractStravaUrl(e.target.value);
+    url_ok = (url != undefined);
+
+    if (url_ok && url) { 
+      strava_default_url = url;   
       getStravaActivity(url);
     }
   }
