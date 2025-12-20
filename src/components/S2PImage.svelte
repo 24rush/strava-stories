@@ -177,129 +177,140 @@
           );
       });
 
-    if (theme_meta.texts)
+    if (theme_meta.texts) {
       if (theme_meta.texts.length > 0)
         themeMainFont = ("Font: " + theme_meta.texts[0]?.fontFamily) ?? "";
 
-    theme_meta.texts.forEach((text) => {
-      if (text.label == "user") {
-        s2pCanvas.addText(text);
-        return;
-      }
+      let labelToObj: Record<string, S2PCanvasText> = {};
 
-      // Just units, e.g. m, min, km/h
-      if (text.label.includes("_value_unit"))
-      {
-        switch (text.label.replace("_value_unit", "")) {
+      theme_meta.texts.forEach((text) => {
+        if (text.label == "user") {
+          s2pCanvas.addText(text);
+          return;
+        }
+
+        // Just units, e.g. m, min, km/h
+        if (text.label.includes("_value_unit"))
+        {
+          switch (text.label.replace("_value_unit", "")) {
+              case "distance":
+              if (data.activityKind.sportType == "Swim")
+                text.value = "m";
+              else
+                text.value = "km";
+                break;
+              case "time":
+                text.value = "min";
+                break;
+              case "elevation":
+                text.value = "m";                
+                break;
+              case "pace":              
+                  if (data.activityKind.sportType == "Swim") {              
+                    text.value = "/100m";
+                  }
+                  else {                  
+                    text.value = "/km";
+                  }              
+                break;
+              case "speed":
+                text.value = "km/h";
+                break;
+            }       
+        }
+        else    
+        if (text.label.includes("_value"))
+        {
+          switch (text.label.replace("_value", "")) {
             case "distance":
             if (data.activityKind.sportType == "Swim")
-              text.value = "m";
+              text.value = data.scalars.distance ? (data.scalars.distance) : "0";
             else
-              text.value = "km";
+              text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) : "0";
               break;
             case "time":
-              text.value = "min";
+              text.value = data.scalars.movingTime ? Converters.secondsToHMS(data.scalars.movingTime) : "0";
               break;
             case "elevation":
-              text.value = "m";                
-              break;
-            case "pace":              
-                if (data.activityKind.sportType == "Swim") {              
-                  text.value = "/100m";
+              text.value = data.scalars.elevationGain
+                ? data.scalars.elevationGain.toFixed(0)
+                : "0";
+                break;
+            case "pace":
+              if (data.scalars.movingTime && data.scalars.distance) {
+                if (data.activityKind.sportType == "Swim") {
+                  let pace = (data.scalars.movingTime / data.scalars.distance * 100);                  
+                  text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}`;
                 }
-                else {                  
-                  text.value = "/km";
-                }              
+                else {
+                  let pace = (data.scalars.movingTime) / (data.scalars.distance / 1000);
+                  text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}`;                  
+                }
+              } else {
+                text.value = "0";
+              }
               break;
             case "speed":
-              text.value = "km/h";
+              text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) : "0";
               break;
           }
-
-          if (text.value)
-            s2pCanvas.addText(text);
-          
-          return;
-      }
-
-      // Just value of measurement
-      if (text.label.includes("_value"))
-      {
-        switch (text.label.replace("_value", "")) {
-          case "distance":
-          if (data.activityKind.sportType == "Swim")
-            text.value = data.scalars.distance ? (data.scalars.distance) : "0";
-          else
-            text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) : "0";
-            break;
-          case "time":
-            text.value = data.scalars.movingTime ? Converters.secondsToHMS(data.scalars.movingTime) : "0";
-            break;
-          case "elevation":
-            text.value = data.scalars.elevationGain
-              ? data.scalars.elevationGain.toFixed(0)
-              : "0";
-              break;
-          case "pace":
-            if (data.scalars.movingTime && data.scalars.distance) {
-              if (data.activityKind.sportType == "Swim") {
-                let pace = (data.scalars.movingTime / data.scalars.distance * 100);                  
-                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}`;
-              }
-              else {
-                let pace = (data.scalars.movingTime) / (data.scalars.distance / 1000);
-                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}`;                  
-              }
-            } else {
-              text.value = "0";
-            }
-            break;
-          case "speed":
-            text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) : "0";
-            break;
         }
-      }
 
-      if (data && data.scalars) {          
-        switch (text.label) {
-          case "distance":
-          if (data.activityKind.sportType == "Swim")
-            text.value = data.scalars.distance ? (data.scalars.distance) + "m" : "N/A";
-          else
-            text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) + "km" : "N/A";
-            break;
-          case "time":
-            text.value = data.scalars.movingTime ? Converters.secondsToHM(data.scalars.movingTime) : "N/A";
-            break;
-          case "elevation":
-            text.value = data.scalars.elevationGain
-              ? data.scalars.elevationGain.toFixed(0) + " m"
-              : "N/A";
+        if (data && data.scalars) {          
+          switch (text.label) {
+            case "distance":
+            if (data.activityKind.sportType == "Swim")
+              text.value = data.scalars.distance ? (data.scalars.distance) + "m" : "N/A";
+            else
+              text.value = data.scalars.distance ? (data.scalars.distance / 1000).toFixed(0) + "km" : "N/A";
               break;
-          case "pace":
-            if (data.scalars.movingTime && data.scalars.distance) {
-              if (data.activityKind.sportType == "Swim") {
-                let pace = (data.scalars.movingTime / data.scalars.distance * 100);                  
-                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}/100m`;
+            case "time":
+              text.value = data.scalars.movingTime ? Converters.secondsToHM(data.scalars.movingTime) : "N/A";
+              break;
+            case "elevation":
+              text.value = data.scalars.elevationGain
+                ? data.scalars.elevationGain.toFixed(0) + " m"
+                : "N/A";
+                break;
+            case "pace":
+              if (data.scalars.movingTime && data.scalars.distance) {
+                if (data.activityKind.sportType == "Swim") {
+                  let pace = (data.scalars.movingTime / data.scalars.distance * 100);                  
+                  text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}/100m`;
+                }
+                else {
+                  let pace = (data.scalars.movingTime) / (data.scalars.distance / 1000);
+                  text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}/km`;                  
+                }
+              } else {
+                text.value = "N/A";
               }
-              else {
-                let pace = (data.scalars.movingTime) / (data.scalars.distance / 1000);
-                text.value = `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}/km`;                  
-              }
-            } else {
-              text.value = "N/A";
-            }
-            break;
-          case "speed":
-            text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) + "km/h" : "N/A";
-            break;
+              break;
+            case "speed":
+              text.value = (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) + "km/h" : "N/A";
+              break;
+          }
         }
-      }
 
-      if (text.value)
-        s2pCanvas.addText(text);
+        if (text.value)
+          labelToObj[text.label] = s2pCanvas.addText(text);      
+      });
+
+      // Find all value_unit and align them to value
+      let unitTextObjs = Object.entries(labelToObj).filter(([key]) => key.includes("_value_unit"));
       
-    });
+      unitTextObjs.forEach(kv => {
+        let typeValueUnit = kv[0].replace("_value_unit", "");
+
+        // Find value text box and get it's right
+        let valueTextObj = labelToObj[typeValueUnit + "_value"];
+
+        if (valueTextObj) {
+          let right = valueTextObj.left + valueTextObj.width;
+          kv[1].left = right + 3.5;
+        }
+      });
+    }
 
     if (theme_meta.svgs) {
       theme_meta.svgs.forEach((svgTheme) => {
@@ -311,7 +322,7 @@
       theme_meta.rects.forEach(rect => {
         s2pCanvas.addRect(rect);
       });
-    }
+    }   
 
     s2pCanvas.unselectAll();
   }

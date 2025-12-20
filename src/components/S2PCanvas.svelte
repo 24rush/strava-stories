@@ -157,9 +157,7 @@
         document.addEventListener("keydown", function (e) {
             if (e.key === "Delete" || e.key === "Backspace") {
                 const obj = canvas.getActiveObject();
-                if (obj && obj.isEditing) return;
-
-                deleteActiveObjects();
+                if (obj && obj.isEditing) return;               
             }
         });
 
