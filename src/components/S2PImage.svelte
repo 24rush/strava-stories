@@ -156,9 +156,10 @@
     let canvasWidth = s2pCanvas.getCanvas().width;
     let canvasHeight = canvasWidth * theme_meta.height_percentage;
 
-    s2pCanvas.getCanvas().setDimensions({
-      height: canvasHeight,
-    });
+    if (!s2pCanvas.getCanvas().backgroundImage)
+      s2pCanvas.getCanvas().setDimensions({
+        height: canvasHeight,
+      });
 
     if (theme_meta.polys && data && data.streams)
       theme_meta.polys.forEach((poly: S2PThemePoly) => {

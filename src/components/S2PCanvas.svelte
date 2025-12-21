@@ -129,6 +129,8 @@
             canvas.setDimensions({
                 height: newHeight,
             });
+
+            scaleBackground();
         };
 
         const stopDrag = () => {
@@ -157,7 +159,7 @@
         document.addEventListener("keydown", function (e) {
             if (e.key === "Delete" || e.key === "Backspace") {
                 const obj = canvas.getActiveObject();
-                if (obj && obj.isEditing) return;               
+                if (obj && obj.isEditing) return;
             }
         });
 
@@ -405,21 +407,33 @@
 
         if (!img) return false;
 
-        const scale = Math.min(
-            canvas.width / img.width,
-            canvas.height / img.height,
-        );
-
-        img.scaleX = scale;
-        img.scaleY = scale;
         canvas.backgroundImage = img;
-        canvas.requestRenderAll();
+
+        scaleBackground();
 
         return true;
     }
 
+    function scaleBackground() {
+        if (!canvas.backgroundImage) return;
+
+        const scale = Math.min(
+            canvas.width / canvas.backgroundImage.width,
+            canvas.height / canvas.backgroundImage.height,
+        );
+
+        canvas.backgroundImage.scaleX = scale;
+        canvas.backgroundImage.scaleY = scale;
+
+        canvas.backgroundImage.left = canvas.width / 2;
+        canvas.backgroundImage.top = canvas.height / 2;
+
+        canvas.requestRenderAll();
+    }
+
     export function removeBackground() {
         canvas.backgroundImage = null;
+        adjustCanvasSize();
         canvas.requestRenderAll();
     }
 
@@ -446,7 +460,8 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
                 link.href = url;
-                link.download = "strava-stories-" + formatTimeHMS(Date.now()) + ".png";
+                link.download =
+                    "strava-stories-" + formatTimeHMS(Date.now()) + ".png";
                 link.click();
                 URL.revokeObjectURL(url);
             }, "image/png");
@@ -585,6 +600,8 @@
     }
 
     function adjustCanvasSize() {
+        if (canvas.backgroundImage) return;
+        
         let lastPos = 0;
         [texts, polys, rects, svgs].forEach((col) => {
             lastPos = Math.max(
@@ -637,6 +654,8 @@
         adjustCanvasSize();
         canvas.renderAll();
 
+        sendAllRectsToBack();
+
         return filledPoly;
     }
 
@@ -674,7 +693,13 @@
         adjustCanvasSize();
         canvas.renderAll();
 
+        sendAllRectsToBack();
+
         return polyline;
+    }
+
+    function sendAllRectsToBack() {
+        rects.forEach((r) => canvas.sendObjectBackwards(r));
     }
 </script>
 
