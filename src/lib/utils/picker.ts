@@ -1,8 +1,7 @@
 import type { TFiller } from "fabric";
 
 export class ColorCombos {
-    static colorCombos: [string, string][] = [
-        
+    static colorCombos: [string, string][] = [        
         ["#ffcd23", "#ff2768"],
         ["#b80454", "#FBC704"],
         ["#dcbcd0", "#b175ff"],

@@ -43,14 +43,17 @@
     let fill2Picker: any = null;
     let fill2PickerEl: HTMLDivElement;
 
+    let gradientStroke = $state(true);
+    let gradientFill = $state(true);
+
     let selectFontFamily: HTMLSelectElement;
 
     const Fill: number = 0;
     const Stroke: number = 1;
 
     onMount(() => {
-        canvasItemSelected.fillColorComboIdx = -1;
-        canvasItemSelected.strokeColorComboIdx = -1;
+        canvasItemSelected.fillColorComboIdx = 0;
+        canvasItemSelected.strokeColorComboIdx = 0;
 
         let setColorToSelectedItems = (
             color: string,
@@ -78,7 +81,10 @@
             strokeColor1PickerEl,
             canvasItemSelected.getStrokeStop(0),
             (color: any) => {
-                if (canvasItemSelected.getStrokeStop(1) == null) {
+                if (
+                    canvasItemSelected.getStrokeStop(1) == null ||
+                    !gradientStroke
+                ) {
                     strokeColor2Picker.setColor(color.toHEXA().toString());
                 }
                 canvasItemSelected.setStrokeStop(0, color.toHEXA().toString());
@@ -92,7 +98,10 @@
             strokeColor2PickerEl,
             canvasItemSelected.getStrokeStop(1),
             (color: any) => {
-                if (canvasItemSelected.getStrokeStop(0) == null) {
+                if (
+                    canvasItemSelected.getStrokeStop(0) == null ||
+                    !gradientStroke
+                ) {
                     strokeColor1Picker.setColor(color.toHEXA().toString());
                 }
                 canvasItemSelected.setStrokeStop(1, color.toHEXA().toString());
@@ -106,7 +115,10 @@
             fill1PickerEl,
             canvasItemSelected.getFillStop(0),
             (color: any) => {
-                if (canvasItemSelected.getFillStop(1) == null) {
+                if (
+                    canvasItemSelected.getFillStop(1) == null ||
+                    !gradientFill
+                ) {
                     fill2Picker.setColor(color.toHEXA().toString());
                 }
                 canvasItemSelected.setFillStop(0, color.toHEXA().toString());
@@ -119,7 +131,10 @@
             fill2PickerEl,
             canvasItemSelected.getFillStop(1),
             (color: any) => {
-                if (canvasItemSelected.getFillStop(0) == null) {
+                if (
+                    canvasItemSelected.getFillStop(0) == null ||
+                    !gradientFill
+                ) {
                     fill1Picker.setColor(color.toHEXA().toString());
                 }
                 canvasItemSelected.setFillStop(1, color.toHEXA().toString());
@@ -238,53 +253,106 @@
         onRequestRedraw?.();
     }
 
+    function onFillTypeChanged(event: any) {
+        // true => gradient
+        canvasItemSelected.fillColorComboIdx = Math.floor(
+            canvasItemSelected.fillColorComboIdx,
+        );
+
+        gradientFill = event.target.checked;
+        setPickersToCurrColor(Fill, gradientFill);
+    }
+
+    function onStrokeTypeChanged(event: any) {
+        // true => gradient
+        canvasItemSelected.strokeColorComboIdx = Math.floor(
+            canvasItemSelected.strokeColorComboIdx,
+        );
+
+        gradientStroke = event.target.checked;
+        setPickersToCurrColor(Stroke, gradientStroke);
+    }
+
+    function getColorCombos(type: number, isGradient: boolean): [string, string] {
+        let index =
+            type == Fill
+                ? canvasItemSelected.fillColorComboIdx
+                : canvasItemSelected.strokeColorComboIdx;           
+
+        let colorCombo = ColorCombos.colorCombos[Math.floor(index)];
+
+        let isMiddle =
+            Math.abs((index % 1) - 0.5) <
+            Number.EPSILON;
+
+        let fCIdx = 0,
+            sCIdx = 1;
+        if (!isGradient) {
+            if (isMiddle) {
+                fCIdx = 1;
+                sCIdx = 1;
+            } else {
+                fCIdx = 0;
+                sCIdx = 0;
+            }
+        }
+
+        return [colorCombo[fCIdx], colorCombo[sCIdx]]
+    }
+
+    function setPickersToCurrColor(type: number, isGradient: boolean) {
+        let colorCombos = getColorCombos(type, isGradient);
+
+        if (type == Fill) {
+            canvasItemSelected.setFillStop(0, colorCombos[0]);
+            canvasItemSelected.setFillStop(1, colorCombos[1]);
+
+            fill1Picker?.setColor(canvasItemSelected.getFillStop(0));
+            fill2Picker?.setColor(canvasItemSelected.getFillStop(1));
+        } else {
+            canvasItemSelected.setStrokeStop(0, colorCombos[0]);
+            canvasItemSelected.setStrokeStop(1, colorCombos[1]);
+
+            strokeColor1Picker?.setColor(canvasItemSelected.getStrokeStop(0));
+            strokeColor2Picker?.setColor(canvasItemSelected.getStrokeStop(1));
+        }        
+    }
+
     function colorFill(direction: boolean) {
+        let incr = gradientFill ? 1 : 0.5;        
+
         if (direction) {
             canvasItemSelected.fillColorComboIdx =
-                ((canvasItemSelected.fillColorComboIdx ?? -1) + 1) %
+                ((canvasItemSelected.fillColorComboIdx ?? 0) + incr) %
                 ColorCombos.colorCombos.length;
         } else {
             canvasItemSelected.fillColorComboIdx =
-                ((canvasItemSelected.fillColorComboIdx ?? -1) -
-                    1 +
+                ((canvasItemSelected.fillColorComboIdx ?? 0) -
+                    incr +
                     ColorCombos.colorCombos.length) %
                 ColorCombos.colorCombos.length;
         }
-
-        let colorCombo =
-            ColorCombos.colorCombos[canvasItemSelected.fillColorComboIdx];
-
-        canvasItemSelected.setFillStop(0, colorCombo[0]);
-        canvasItemSelected.setFillStop(1, colorCombo[1]);
-
-        fill1Picker?.setColor(canvasItemSelected.getFillStop(0));
-        fill2Picker?.setColor(canvasItemSelected.getFillStop(1));
-
+        
+        setPickersToCurrColor(Fill, gradientFill);
         onRequestRedraw?.();
     }
 
     function colorStroke(direction: boolean) {
+        let incr = gradientStroke ? 1 : 0.5;
+
         if (direction) {
             canvasItemSelected.strokeColorComboIdx =
-                ((canvasItemSelected.strokeColorComboIdx ?? -1) + 1) %
+                ((canvasItemSelected.strokeColorComboIdx ?? -1) + incr) %
                 ColorCombos.colorCombos.length;
         } else {
             canvasItemSelected.strokeColorComboIdx =
                 ((canvasItemSelected.strokeColorComboIdx ?? -1) -
-                    1 +
+                    incr +
                     ColorCombos.colorCombos.length) %
                 ColorCombos.colorCombos.length;
         }
 
-        let colorCombo =
-            ColorCombos.colorCombos[canvasItemSelected.strokeColorComboIdx];
-
-        canvasItemSelected.setStrokeStop(0, colorCombo[0]);
-        canvasItemSelected.setStrokeStop(1, colorCombo[1]);
-
-        strokeColor1Picker?.setColor(canvasItemSelected.getStrokeStop(0));
-        strokeColor2Picker?.setColor(canvasItemSelected.getStrokeStop(1));
-
+        setPickersToCurrColor(Stroke, gradientStroke);    
         onRequestRedraw?.();
     }
 
@@ -378,6 +446,21 @@
                 >Fill</label
             >
 
+            <div class="d-flex gap-2">
+                <label for="switchCheckChecked">solid</label>
+                <div class="form-check form-switch">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id="switchCheckChecked"
+                        checked
+                        oninput={onFillTypeChanged}
+                    />
+                    <label for="switchCheckChecked">gradient</label>
+                </div>
+            </div>
+
             <div class="btn-group me-mobile" role="group" style="width: 100%;">
                 <button
                     class="btn btn-sm btn-outline-primary"
@@ -388,10 +471,10 @@
                 <button class="btn btn-outline-primary">
                     <div bind:this={fill1PickerEl}></div></button
                 >
-
                 <button class="btn btn-outline-primary">
                     <div bind:this={fill2PickerEl}></div></button
                 >
+
                 <button
                     class="btn btn-sm btn-outline-primary"
                     onclick={() => colorFill(true)}
@@ -453,6 +536,22 @@
                 style="align-self: self-start; touch-action: none; pointer-events: none;"
                 >Contour</label
             >
+
+
+            <div class="d-flex gap-2">
+                <label for="switchStrokeCheckChecked">solid</label>
+                <div class="form-check form-switch">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id="switchStrokeCheckChecked"
+                        checked
+                        oninput={onStrokeTypeChanged}
+                    />
+                    <label for="switchStrokeCheckChecked">gradient</label>
+                </div>
+            </div>
 
             <div class="btn-group" role="group" style="width: 100%;">
                 <button
@@ -549,10 +648,10 @@
         display: flex;
         align-items: center;
     }
-    
+
     @media (max-width: 575.98px) {
         .me-mobile {
-            margin-right: 1.25rem!important;
+            margin-right: 1.25rem !important;
         }
     }
 </style>
