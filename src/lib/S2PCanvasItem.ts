@@ -22,6 +22,8 @@ export interface S2PCanvasItem {
 
     setStrokeStop(idx: number, color: string): void;
     setFillStop(idx: number, color: string): void;
+
+    resetColor(): void;
     
     get strokeGradient(): Gradient<unknown, "linear">;
     get fillGradient(): Gradient<unknown, "linear">;

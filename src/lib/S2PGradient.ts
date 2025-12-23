@@ -22,8 +22,8 @@ export class S2PGradient {
     defNullStops = [null, null];
 
     constructor(fill: NullOrColor[], stroke: NullOrColor[]) {
-        this.fill_ = [...fill ?? this.defNullStops];
-        this.stroke_ = [...stroke ?? this.defNullStops];
+        this.fill_ = [...(fill ?? this.defNullStops)];
+        this.stroke_ = [...(stroke ?? this.defNullStops)];
         if (!this.stroke_[0]) this.stroke_[0] = "#fff";
         if (!this.stroke_[1]) this.stroke_[1] = "#fff";
 
@@ -46,6 +46,10 @@ export class S2PGradient {
                 { offset: 1, color: this.stroke_[1] }
             ]
         })
+    }
+
+    clone(): S2PGradient {
+        return new S2PGradient(this.fill_, this.stroke_);
     }
 
     get strokeGradient(): Gradient<unknown, "linear"> { return this.strokeGradient_; }

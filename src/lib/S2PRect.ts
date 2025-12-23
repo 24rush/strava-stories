@@ -6,6 +6,7 @@ import type { S2PThemeRect } from "./S2PTheme";
 export class S2PRect extends Rect implements S2PCanvasItem {
     s2pType: S2PCanvasItemType;
     private gradient: S2PGradient;
+    private origGradient: S2PGradient;
 
     constructor(rect: S2PThemeRect) {
         super();
@@ -24,6 +25,14 @@ export class S2PRect extends Rect implements S2PCanvasItem {
         this.objectCaching = false;
 
         this.gradient = new S2PGradient(rect.fill, rect.stroke);
+        this.set("fill", this.fillGradient);
+        this.set("stroke", this.strokeGradient);
+
+        this.origGradient = new S2PGradient(rect.fill, rect.stroke);
+    }
+
+    public resetColor(): void {
+        this.gradient = this.origGradient.clone();
         this.set("fill", this.fillGradient);
         this.set("stroke", this.strokeGradient);
     }

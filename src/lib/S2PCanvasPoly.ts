@@ -14,6 +14,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
     private top_: number = 0;
     private label_: string = "";
     private gradient: S2PGradient;
+    private origGradient: S2PGradient;
 
     constructor(label: string, maxWidth: number, maxHeight: number, poly: S2PThemePoly) {
         super();
@@ -23,11 +24,25 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
         this.top_ = poly.top;
         this.left_ = poly.left;
         this.gradient = new S2PGradient(poly.fill, poly.stroke);
+        this.origGradient = new S2PGradient(poly.fill, poly.stroke);
     }
 
     s2pType: S2PCanvasItemType = S2PCanvasItemType.Polyline;
 
     get label(): string { return this.label_; }
+    get isPolyline(): boolean { return this.s2pType == S2PCanvasItemType.Polyline; }
+
+    public resetColor(): void {
+        this.gradient = this.origGradient.clone();
+
+        if (this.s2pType == S2PCanvasItemType.Polyline) {
+            this.polylineObj?.set('stroke', this.gradient.strokeGradient);
+            this.polylineObj?.set('fill', this.gradient.fillGradient);
+        } else {
+            this.polylineObj?.set('stroke', this.gradient.strokeGradient);
+            this.polygonObj?.set('fill', this.gradient.fillGradient);
+        }
+    }
 
     public getStrokeStop(idx: number): string {
         return this.gradient.getStrokeStop(idx);

@@ -217,6 +217,12 @@
         });
     });
 
+    type S2PCanvasObjects = { texts: S2PCanvasText[], rects: S2PRect[], polys: S2PCanvasPoly[], svgs: S2PSvg[]};
+
+    export function getObjects(): S2PCanvasObjects {
+        return { texts: texts, rects: rects, polys: polys, svgs: svgs};
+    }
+
     export function setFontFamily(fontFamily: string) {
         texts.forEach((t) => {
             t.set("fontFamily", fontFamily);
@@ -393,7 +399,7 @@
         canvas.requestRenderAll();
     }
 
-    export async function loadBackground(fileUrl: any): Promise<boolean> {
+    export async function loadBackground(fileUrl: any): Promise<FabricImage | null> {
         let img = await FabricImage.fromURL(
             fileUrl,
             {},
@@ -405,22 +411,25 @@
             },
         );
 
-        if (!img) return false;
+        if (!img) return null;
 
         canvas.backgroundImage = img;
-
         scaleBackground();
 
-        return true;
+        return img;
     }
 
     function scaleBackground() {
         if (!canvas.backgroundImage) return;
 
-        const scale = Math.min(
+        let scale = Math.min(
             canvas.width / canvas.backgroundImage.width,
             canvas.height / canvas.backgroundImage.height,
         );
+        
+        scale = canvas.width / canvas.backgroundImage.width;
+
+        canvas.setDimensions({height: canvas.backgroundImage.height *scale});
 
         canvas.backgroundImage.scaleX = scale;
         canvas.backgroundImage.scaleY = scale;
@@ -601,7 +610,7 @@
 
     function adjustCanvasSize() {
         if (canvas.backgroundImage) return;
-        
+
         let lastPos = 0;
         [texts, polys, rects, svgs].forEach((col) => {
             lastPos = Math.max(

@@ -14,6 +14,7 @@
   import { createPicker } from "../lib/utils/picker";
   import type { S2PSvg } from "../lib/S2PSvg";
   import type { S2PRect } from "../lib/S2PRect";
+  import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
 
   export let data: any = {};
   export let themes: S2PTheme[] = [];
@@ -24,14 +25,12 @@
   let currentThemeIdx = 0;
   let countThemes = 0;
 
-  let bgInput: HTMLInputElement;
-  let backgroundImgAdded = false;
-
   let accentColorPicker: any = null;
   let accentColorPickerEl: HTMLDivElement;
 
   let s2pCanvas: S2PCanvas;
   let s2pSvgs: S2PSvgs;
+  let s2pSuggestedColors: S2PSuggestedColors;
 
   let canvasItemSelected:
     | S2PCanvasPoly
@@ -326,6 +325,7 @@
     }   
 
     s2pCanvas.unselectAll();
+    s2pSuggestedColors.setPickerColors();
   }
 
   function onRequestRedraw() {    
@@ -392,15 +392,6 @@
     await tick();
     if (polyProp)
       polyProp.onChanged();
-  }
-
-  async function onLoadBackground(event: any) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    backgroundImgAdded = await s2pCanvas.loadBackground(
-      URL.createObjectURL(file),
-    );
   }
 
   export function exportToPng() {
@@ -479,6 +470,22 @@
     );
   }
 
+  function onSuggestedColorsChangedEvent(showSuggestedColors: boolean) {
+    if (!showSuggestedColors) {
+      reloadTheme();
+    }
+  }
+
+  function onBackgroundRemoved() {
+    let objects = s2pCanvas.getObjects();
+
+    objects.texts.forEach(t => t.resetColor());
+    objects.rects.forEach(r => r.resetColor());
+    objects.polys.forEach(p => p.resetColor());
+
+    onRequestRedraw();
+  }
+
 </script>
 
 <div
@@ -487,6 +494,13 @@
 > 
   <i class="mb-2 bi bi-arrow-down" style="transform: scale(1.2);"></i>
  
+  <div class="mb-2">
+    <S2PSuggestedColors bind:this={s2pSuggestedColors} {s2pCanvas} {onRequestRedraw} {onSuggestedColorsChangedEvent} 
+    {onBackgroundRemoved}/>
+  </div>
+
+  <i class="mb-2 bi bi-arrow-down" style="transform: scale(1.2);"></i>
+
   <S2PSliderDropdown
     dropdownData={themesByType}
     onItemSelected={onThemeSelected}
@@ -653,33 +667,7 @@
             </label>
             <input class="form-check-input" id="defaultCheck1" type="checkbox" onchange={s2pCanvas.onShowGuidesChanged}>
           </div>
-
-          <div class="d-flex mb-2" style="justify-content: space-between; align-items: baseline;">
-            <div><span class="me-1 font-emp">Background</span><i class="me-1">(will not be exported in final PNG)</i></div>
-            <button
-            type="button"
-            class="btn btn-sm btn-primary"
-            onclick={() => {
-              if (backgroundImgAdded) {
-                s2pCanvas.removeBackground();
-                backgroundImgAdded = false;
-                return;
-              }
-      
-              bgInput.click();
-            }}
-            ><span>{backgroundImgAdded ? 'Remove' : 'Add'}</span>
-            <input
-              bind:this={bgInput}
-              onchange={onLoadBackground}
-              type="file"
-              id="file-input"
-              accept="image/*"
-              style="display: none;"
-            />
-            </button>
-          </div>        
-
+       
           <div class="d-flex mb-2" style="justify-content: space-between; align-items: baseline;">
             <div><span class="me-1 font-emp">Export theme</span><i class="me-1">The theme will be dumped in the browser console</i></div>
             <button onclick={() => dump()} class="mb-2 btn btn-primary btn-sm"

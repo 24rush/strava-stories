@@ -19,6 +19,7 @@
         "/svgs/strava.svg",
         "/svgs/zwift.svg",
         "/svgs/strava_bo.svg",
+        "/svgs/strava_logo.svg"
     ];
 
     export async function loadSvg(url: string, themeSvgProps?: S2PThemeSvg) {

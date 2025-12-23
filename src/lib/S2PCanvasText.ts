@@ -14,6 +14,7 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
 
     private canvasRef: Canvas;
     private gradient: S2PGradient;
+    private origGradient: S2PGradient;
 
     constructor(textProps: S2PThemeText, canvasRef: Canvas) {
         let originalCharSpacing = textProps.charSpacing ?? 0;
@@ -67,8 +68,16 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
         this.set("fill", this.fillGradient);
         this.set("stroke", this.strokeGradient);
 
+        this.origGradient = new S2PGradient(textProps.fill, textProps.stroke);
+
         this.set('width', this.calcTextHeight() + 5);
         this.initDimensions();
+    }
+
+    public resetColor(): void {
+        this.gradient = this.origGradient.clone();
+        this.set("fill", this.fillGradient);
+        this.set("stroke", this.strokeGradient);
     }
 
     public getStrokeStop(idx: number): string | null {
