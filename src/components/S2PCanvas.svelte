@@ -130,7 +130,7 @@
                 height: newHeight,
             });
 
-            scaleBackground();
+            //scaleBackground();
         };
 
         const stopDrag = () => {
@@ -426,7 +426,7 @@
             canvas.width / canvas.backgroundImage.width,
             canvas.height / canvas.backgroundImage.height,
         );
-        
+
         scale = canvas.width / canvas.backgroundImage.width;
 
         canvas.setDimensions({height: canvas.backgroundImage.height *scale});
