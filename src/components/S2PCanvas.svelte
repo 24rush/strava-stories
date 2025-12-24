@@ -34,6 +34,7 @@
     let canvasEl: HTMLCanvasElement;
     let canvas: Canvas;
     let canvasPadding = 20;
+    let sliderHeight = $state(0);
 
     let polys: S2PCanvasPoly[] = [];
     let texts: S2PCanvasText[] = [];
@@ -42,11 +43,14 @@
 
     let rndId = `${Math.random().toString(36).slice(2, 9)}`;
 
-    let lastPos: number = 0;
+    let selected: FabricObject[] = $state([]);
+
     const minCanvasHeight = Math.max(window.innerHeight * 0.5, 350);
 
     let resizer: HTMLButtonElement;
     let container: HTMLDivElement;
+
+    let rangeX: HTMLInputElement, rangeY: HTMLInputElement;
 
     let shouldShowGuides: boolean = false;
 
@@ -65,16 +69,12 @@
         ) {
             let container =
                 canvas.lowerCanvasEl.parentElement.parentElement.parentElement;
-            canvas.setDimensions({
-                width: container.clientWidth,
-                height: minCanvasHeight,
-            });
+
+            setCanvasSize(container.clientWidth, minCanvasHeight);
             canvas.requestRenderAll();
         }
 
         setCheckeredBackground();
-
-        let selected: FabricObject[] = [];
 
         canvas.on("mouse:down", function (opt) {
             const target = opt.target;
@@ -88,9 +88,16 @@
             } else if (target) {
                 // New single selection
                 selected = [target];
+
+                let bb = target.getBoundingRect();
+                rangeY.value = (bb.top + bb.height / 2).toString();
+                rangeY.lastValue = rangeY.value;
+                rangeX.value = (bb.left + bb.width / 2).toString();     
+                rangeX.lastValue = rangeX.value
             } else {
                 // Clicked empty space
                 selected = [];
+                resetSlidersToMedian();
             }
 
             canvas.requestRenderAll();
@@ -123,14 +130,10 @@
 
         const doDrag = (clientY: number) => {
             if (!isDragging) return;
-            const rect = container.getBoundingClientRect();
-            const newHeight = clientY - rect.top;
-
-            canvas.setDimensions({
-                height: newHeight,
-            });
-
-            //scaleBackground();
+            setCanvasSize(
+                undefined,
+                clientY - container.getBoundingClientRect().top,
+            );
         };
 
         const stopDrag = () => {
@@ -213,14 +216,28 @@
                         obj.showGuides();
                     }
                 });
+            } else {
+                let bb = target.getBoundingRect();
+
+                rangeY.value = (bb.top + bb.height / 2).toString();
+                rangeX.value = (bb.left + bb.width / 2).toString();
             }
         });
+
+        sliderHeight = canvas.height;
+        rangeY.max = canvas.height.toString();
+        rangeX.max = canvas.width.toString();
     });
 
-    type S2PCanvasObjects = { texts: S2PCanvasText[], rects: S2PRect[], polys: S2PCanvasPoly[], svgs: S2PSvg[]};
+    type S2PCanvasObjects = {
+        texts: S2PCanvasText[];
+        rects: S2PRect[];
+        polys: S2PCanvasPoly[];
+        svgs: S2PSvg[];
+    };
 
     export function getObjects(): S2PCanvasObjects {
-        return { texts: texts, rects: rects, polys: polys, svgs: svgs};
+        return { texts: texts, rects: rects, polys: polys, svgs: svgs };
     }
 
     export function setFontFamily(fontFamily: string) {
@@ -280,7 +297,7 @@
         polys = [];
         rects = [];
         svgs = [];
-        lastPos = 0;
+        selected = [];
 
         canvas.requestRenderAll();
     }
@@ -399,7 +416,9 @@
         canvas.requestRenderAll();
     }
 
-    export async function loadBackground(fileUrl: any): Promise<FabricImage | null> {
+    export async function loadBackground(
+        fileUrl: any,
+    ): Promise<FabricImage | null> {
         let img = await FabricImage.fromURL(
             fileUrl,
             {},
@@ -429,7 +448,7 @@
 
         scale = canvas.width / canvas.backgroundImage.width;
 
-        canvas.setDimensions({height: canvas.backgroundImage.height *scale});
+        setCanvasSize(undefined, canvas.backgroundImage.height * scale);
 
         canvas.backgroundImage.scaleX = scale;
         canvas.backgroundImage.scaleY = scale;
@@ -626,12 +645,44 @@
 
         lastPos += canvasPadding;
 
-        canvas.setDimensions({
-            height: lastPos,
-        });
-
+        setCanvasSize(undefined, lastPos);
         setCheckeredBackground();
         canvas.renderAll();
+    }
+
+    function resetSlidersToMedian() {
+        let medPos = getMedianPosition();
+        if (medPos) {
+            rangeX.value = medPos?.x.toString();
+            rangeY.value = medPos?.y.toString();
+
+            rangeX.lastValue = rangeX.value;
+            rangeY.lastValue = rangeY.value;
+        }
+    }
+
+    function setCanvasSize(width?: number, height?: number) {
+        canvas.setDimensions({
+            width: width ?? canvas.width,
+            height: height ?? canvas.height,
+        });
+
+        sliderHeight = canvas.height;
+
+        rangeY.max = canvas.height.toString();
+        rangeX.max = canvas.width.toString();
+
+        resetSlidersToMedian();
+    }
+
+    function moveObjects(objects: FabricObject[], dx: number, dy: number) {
+        objects.forEach((obj) => {
+            obj.left = (obj.left ?? 0) + dx;
+            obj.top = (obj.top ?? 0) + dy;
+            obj.setCoords();
+        });
+
+        canvas.requestRenderAll();
     }
 
     export function addFilledPolyFromVector(
@@ -710,22 +761,90 @@
     function sendAllRectsToBack() {
         rects.forEach((r) => canvas.sendObjectBackwards(r));
     }
+
+    function getMedianPosition(): { x: number; y: number } | null {
+        let median = (numbers: number[]): number => {
+            const sorted = [...numbers].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+
+            return sorted.length % 2 === 0
+                ? (sorted[mid - 1] + sorted[mid]) / 2
+                : sorted[mid];
+        }
+
+        const objects = canvas.getObjects();
+
+        if (objects.length === 0) return null;
+
+        const xs = objects.map((obj) => obj.getCenterPoint().x);
+        const ys = objects.map((obj) => obj.getCenterPoint().y);
+
+        return {
+            x: median(xs),
+            y: median(ys),
+        };
+    }
 </script>
 
 <div
     bind:this={container}
-    class="mb-2"
+    class="mb-1 canvas-wrapper"
     style="display: flex; flex-direction: column; align-items: center; justify-content: center;"
 >
     <canvas bind:this={canvasEl}></canvas>
+    <input
+        type="range"
+        min="0"
+        bind:this={rangeY}
+        class="form-range vertical-slider"
+        style="touch-action: none; width: {sliderHeight}px;"
+        oninput={(event: any) => {
+            if (!event || !event.target) return;
+            const value = Number(event.target.value);
+
+            moveObjects(selected.length == 0 ? canvas.getObjects() : selected, 0, value - rangeY.lastValue);                        
+            rangeY.lastValue = value;
+
+            unselectAll();
+        }}
+        onchange={(event) => {
+            rangeY.lastValue = Number(event.target.value);
+
+            canvas.setActiveObject(selected[0]);
+            canvas.requestRenderAll();
+        }}
+    />
+    <input
+        type="range"
+        min="0"
+        bind:this={rangeX}
+        class="form-range horizontal-slider mb-2"
+        style="touch-action: none; "
+        oninput={(event) => {
+          if (!event || !event.target) return;
+            const value = Number(event.target.value);
+
+            moveObjects(selected.length == 0 ? canvas.getObjects() : selected, value - rangeX.lastValue, 0);                        
+            rangeX.lastValue = value;
+
+            unselectAll();
+        }}
+        onchange={(event) => {
+            rangeX.lastValue = Number(event.target.value);
+
+            canvas.setActiveObject(selected[0]);
+            canvas.requestRenderAll();
+        }}
+    />
+
     <button
-        class="btn btn-sm btn-primary"
+        class="btn btn-sm btn-primary mb-1"
         id="resizer"
         bind:this={resizer}
-        style="text-align: center;"
-    >
+        style="text-align: center;">
         <i class="bi bi-arrows-vertical"></i>
     </button>
+
 </div>
 
 <style>
@@ -735,5 +854,63 @@
         width: 100%;
         padding: 0px;
         touch-action: none; /* prevent scrolling while dragging */
+    }
+
+    .canvas-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .horizontal-slider {
+        z-index: 10;
+
+        margin-top: -12px;
+    }
+
+    .vertical-slider {
+        position: absolute;
+        z-index: 10;
+
+        transform-origin: top left;
+        transform: rotate(90deg) translateY(-100%);
+
+        top: 0;        
+        left: -10px;
+    }
+
+    /* Chrome, Safari, Edge */
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none; /* remove default style */
+        appearance: none;
+        width: 24px; /* thumb width */
+        height: 12px; /* thumb height */
+        background: #007bff;
+        border: none;
+        border-radius: 2px; /* small rounding or 0 for perfect rectangle */
+        cursor: pointer;
+        margin-top: -3px; /* align with track */
+    }
+
+    /* Firefox */
+    input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 12px;
+        background: #007bff;
+        border: none;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+
+    /* Optional: style track */
+    input[type="range"]::-webkit-slider-runnable-track {
+        height: 6px;
+        background: #dee2e6;
+        border-radius: 3px;
+    }
+
+    input[type="range"]::-moz-range-track {
+        height: 6px;
+        background: #dee2e6;
+        border-radius: 3px;
     }
 </style>
