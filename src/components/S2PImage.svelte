@@ -402,13 +402,30 @@
     s2pCanvas.dump();
   }
 
-  export function reloadTheme() {
-    if (themes && themes[currentThemeIdx]) {
-      selectedTheme = themes[currentThemeIdx]?.name;          
-      loadTheme(themes[currentThemeIdx] ?? new S2PTheme(""));            
+  export function reloadTheme(themeIdx?: number) {
+    if (!themeIdx) {
+      let keyworkToSearch = "";
+      if (data.activityKind.sportType.includes("Swim"))
+        keyworkToSearch = "Swim";
+      
+      if (data.activityKind.sportType.includes("Run"))
+        keyworkToSearch = "Run";
+
+      if (data.activityKind.sportType.includes("Ride"))
+        keyworkToSearch = "Cycling";
+
+      themeIdx = themes.findIndex(t => t.name.includes(keyworkToSearch));
+
+      if (themeIdx == -1)
+        themeIdx = currentThemeIdx;
+    }
+
+    if (themes && themes[themeIdx]) {
+      selectedTheme = themes[themeIdx]?.name ?? "";   
+      loadTheme(themes[themeIdx] ?? new S2PTheme(""));            
     }
   }
-
+  
   async function onThemeSelected(themeType: string, themeName: string) {
     currentThemeIdx =
       themes.findIndex((theme) => theme.name.includes(themeType + ": " + themeName)) ?? 0;
@@ -472,7 +489,7 @@
 
   function onSuggestedColorsChangedEvent(showSuggestedColors: boolean) {
     if (!showSuggestedColors) {
-      reloadTheme();
+      reloadTheme(currentThemeIdx);
     }
   }
 

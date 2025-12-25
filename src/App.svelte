@@ -36,11 +36,11 @@
     if (activityId && activityId in localActivities) {
       const response = await fetch("data/" + localActivities[activityId]);
       const strava_data = await response.text();
-      const match = strava_data.match(
+      const dataMatch = strava_data.match(
         /<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/,
       );
 
-      return match ? match[1] : "";
+      return dataMatch ? dataMatch[1] : "";
     }
 
     return undefined;
@@ -160,7 +160,7 @@
       class="mb-2"
       style="font-weight: 300;  font-size: clamp(2.5rem, 8vw, 5rem);"
     >
-      strava stories
+      strava story
     </h1>
 
     <div class="mb-1 step-header">

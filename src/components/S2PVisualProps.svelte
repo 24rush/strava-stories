@@ -447,17 +447,17 @@
             >
 
             <div class="d-flex gap-2">
-                <label for="switchCheckChecked">solid</label>
+                <label for="switchFillType">solid</label>
                 <div class="form-check form-switch">
                     <input
                         class="form-check-input"
                         type="checkbox"
                         role="switch"
-                        id="switchCheckChecked"
+                        id="switchFillType"
                         checked
                         oninput={onFillTypeChanged}
                     />
-                    <label for="switchCheckChecked">gradient</label>
+                    <label for="switchFillType">gradient</label>
                 </div>
             </div>
 
