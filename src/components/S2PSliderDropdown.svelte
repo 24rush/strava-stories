@@ -39,10 +39,16 @@
     }
 
     function _selectItem(itemIdx: number) {
-        let tokens = indexedValues[itemIdx]?.split(":");
+        let itemValue = indexedValues[itemIdx];
 
-        if (tokens && tokens.length > 1)
-            selectItem(tokens[0]?.trim() ?? "", tokens[1]?.trim() ?? "");
+        let posComma = itemValue?.indexOf(":") ?? -1;
+        if (posComma != -1 && itemValue) {
+            selectItem(
+                itemValue.substring(0, posComma).trim() ?? "",
+                itemValue.substring(posComma + 1, itemValue.length).trim() ??
+                    "",
+            );
+        }
     }
 
     function prev() {

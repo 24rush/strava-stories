@@ -20,4 +20,18 @@ export class Converters {
 
     return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   }
+
+  static timeToSeconds(time: string): number {
+    const parts = time.split(':').map(Number);
+    let seconds = 0;
+
+    for (let i = 0; i < parts.length; i++) {
+      if (isNaN(parts[i] ?? NaN)) 
+        continue;
+
+      seconds += parts[i] * Math.pow(60, parts.length - 1 - i);
+    }
+
+    return seconds;
+  }
 }

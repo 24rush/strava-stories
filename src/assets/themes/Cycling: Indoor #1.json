@@ -186,7 +186,7 @@
         },
         {
             "id": "29cpc4z",
-            "label": "user",
+            "label": "calories",
             "top": 0.6004432095019828,
             "left": 0.33974673202614386,
             "width": 0,
@@ -264,7 +264,7 @@
         },
         {
             "id": "cayr47r",
-            "label": "user",
+            "label": "maxpower",
             "top": 0.6050829543075317,
             "left": 0.6550163219177645,
             "width": 0,
@@ -290,7 +290,7 @@
         },
         {
             "id": "27uylsy",
-            "label": "user",
+            "label": "avgpower",
             "top": 0.2994032874471253,
             "left": 0.6585171568627451,
             "width": 0,

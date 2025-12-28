@@ -1,17 +1,22 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import S2PImage from "./components/S2PImage.svelte";
+  import S2PFieldData from "./components/S2PFieldData.svelte";
+  import { FieldMappings, StravaData } from "./lib/utils/fieldmappings";
+    import { Converters } from "./lib/utils/converters";
 
   let s2pImage: S2PImage;
+  let s2pFieldData: S2PFieldData;
 
-  let data: any = {};
-  let data_fetched = false;
+  let data: StravaData;
+  let origData: StravaData;
+  let data_fetched = $state(false);
 
   let strava_default_url = "https://www.strava.com/activities/14134698093";
   let url_ok: boolean = true;
 
   let themes: any = {};
-  let theme_fetched = false;
+  let theme_fetched = $state(false);
 
   const appLinkRegex = /[https:\/\/]*strava\.app\.link\/[A-Za-z0-9]+$/;
   const actRegex = /https?:\/\/[www\.]*strava\.com\/activities\/(\d+)(\/.*)?/;
@@ -19,6 +24,9 @@
     "15174937862": "15174937862.txt",
     "14134698093": "14134698093.txt",
   };
+
+  let field_data_is_open = true;
+  let fieldValuesStorage: FieldMappings = new FieldMappings();
 
   function extractStravaUrl(url: string): string | undefined {
     for (let regex of [actRegex, appLinkRegex]) {
@@ -60,7 +68,9 @@
         .replace(/&amp;/g, "&");
 
       const jsonData = JSON.parse(jsonText);
-      data = jsonData.props.pageProps.activity;
+      data = StravaData.loadFromRaw(jsonData.props.pageProps.activity);
+      origData = structuredClone(data);
+      s2pFieldData.refresh();
       data_fetched = true;
       reloadTheme();
 
@@ -84,11 +94,16 @@
         return res.json();
       })
       .then((strava_data) => {
-        data = strava_data["activity"];
-        url_ok = data != null;
+        let raw_data = strava_data["activity"];        
+        url_ok = raw_data != null;
         data_fetched = true;
 
-        if (url_ok) reloadTheme();
+        if (url_ok) {
+          data = StravaData.loadFromRaw(raw_data);
+          origData = structuredClone(data);
+          s2pFieldData.refresh();
+          reloadTheme();
+        }
       })
       .catch((err) => {
         console.error("Fetch error:", err);
@@ -124,10 +139,10 @@
     strava_default_url = e.target.value;
 
     let url = extractStravaUrl(e.target.value);
-    url_ok = (url != undefined);
+    url_ok = url != undefined;
 
-    if (url_ok && url) { 
-      strava_default_url = url;   
+    if (url_ok && url) {
+      strava_default_url = url;
       getStravaActivity(url);
     }
   }
@@ -149,12 +164,47 @@
       console.error("Clipboard access denied", err);
     }
   }
+
+  function getFieldValueFromOriginalData(fieldName: string): number | undefined {   
+    if (!origData) return undefined;
+
+    switch (FieldMappings.fieldNameToId(fieldName)) {
+      case "distance":
+        return origData.scalars.distance;        
+      case "time":
+        return origData.scalars.movingTime;        
+      default:
+        return undefined;
+    }
+  }
+
+  function setFieldValueInData(fieldName: string, value: string) {    
+    switch (FieldMappings.fieldNameToId(fieldName)) {
+      case "distance":
+        data.scalars.distance = parseInt(value);
+        break;
+      case "time":
+        data.scalars.movingTime = parseInt(value);
+        break;
+
+      case "calories":
+        data.scalars.calories = parseInt(value);
+        break;
+      case "avgpower":
+        data.scalars.avgpower = parseInt(value);
+        break;
+      case "maxpower":
+        data.scalars.maxpower = parseInt(value);        
+        break;
+    }      
+  }
+
 </script>
 
 <main>
   <div
     class="container d-flex align-items-center"
-    style="flex-direction: column; max-width: 600px;"
+    style="flex-direction: column; max-width: 600px; justify-content: center"
   >
     <h1
       class="mb-2"
@@ -163,35 +213,88 @@
       strava story
     </h1>
 
-    <div class="mb-1 step-header">
-      <span>URL of your Strava activity (set to <i>Everyone</i>)</span>
-    </div>
-
-    <div class="row mb-2" style="width: 100%">
+    <div class="row mb-2" style="width: 100%;">
       <div
-        class="col-md-4 d-flex align-items-center"
-        style="width: 100%; padding: 0px;"
-      >
-        <button class="btn btn-primary me-1" onclick={pasteFromClipboard}
-          >Paste</button
-        >
+        class="col-md-4 mb-1 d-flex gap-1 align-items-center"
+        style="width: 100%; padding: 0px;justify-content: center; flex-direction: column;"
+      >      
+      <span class="mb-1">URL of your Strava activity (set to <i>Everyone</i>)</span>
+        <div class="d-flex gap-1 align-items-center" style="width: 100%;">
+          <button
+            class="btn btn-primary"
+            type="button"
+            onclick={pasteFromClipboard}>Paste</button
+          >
+          <input
+            class="form-control {!url_ok ? 'is-invalid' : 'is-valid'}"
+            style="width: 100%; margin-right: 3px;"
+            oninput={onStravaUrlChanged}
+            placeholder={strava_default_url}
+            value={strava_default_url}
+          />
+            {#if !data_fetched}              
+              <i
+              style="visibility: {data_fetched ? 'hidden' : 'visible'}"
+              class="bi spinner"
+              ></i>
+            {/if}
+        </div>
+        
+        <i>or</i>
 
-        <input
-          class="form-control {!url_ok ? 'is-invalid' : 'is-valid'}"
-          style="width: 100%; margin-right: 3px;"
-          oninput={onStravaUrlChanged}
-          placeholder={strava_default_url}
-          value={strava_default_url}
-        />
-        {#if !data_fetched}
-          <i class="bi spinner"></i>
-        {/if}
+        <button
+          class="btn btn-sm btn-primary"
+          class:active={field_data_is_open}
+          data-bs-toggle="collapse"
+          data-bs-target="#fieldData"
+          aria-expanded={field_data_is_open}
+          onclick={() => (field_data_is_open = !field_data_is_open)}
+          aria-controls="fieldData"
+          type="button">Enter values</button
+        >
       </div>
+
+      <S2PFieldData
+        bind:this={s2pFieldData}
+        id={"fieldData"}
+        selectedField={FieldMappings.FieldNames[0] ?? ""}
+        fieldMappings={FieldMappings.getFieldMapping()}
+        getValueForField={(fieldName: string) => {
+            let storageValue = fieldValuesStorage.getValue(fieldName);
+            if (!storageValue) {
+              storageValue = getFieldValueFromOriginalData(fieldName);
+            }
+
+            if (storageValue && fieldName == FieldMappings.FieldNames[0]) {
+              return Converters.secondsToHMS(parseInt(storageValue.toString()));
+            }
+
+            return storageValue ? storageValue.toString() : "";
+          }
+        }
+        setValueForField={(fieldName: string, value: string) => {
+            let nrValue = parseInt(value);
+            fieldValuesStorage.setValue(fieldName, nrValue);            
+
+            if (!value || value === "") {
+              value = getFieldValueFromOriginalData(fieldName)?.toString() ?? "";
+            }
+
+            if (fieldName == FieldMappings.FieldNames[0]) {
+                // Convert hh:mm:ss to seconds
+                value = Converters.timeToSeconds(value.toString()).toString();
+            }
+
+            setFieldValueInData(fieldName, value);
+            s2pImage.updateTextsValue();
+          }
+        }        
+      />
     </div>
 
     <div class="mb-4" style="width: 100%;">
       {#if theme_fetched}
-        <S2PImage {data} {themes} bind:this={s2pImage} />
+        <S2PImage data={data} themes={themes} bind:this={s2pImage} />
       {/if}
     </div>
   </div>
