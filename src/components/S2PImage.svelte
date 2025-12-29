@@ -15,18 +15,20 @@
   import type { S2PSvg } from "../lib/S2PSvg";
   import type { S2PRect } from "../lib/S2PRect";
   import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
-  import type { StravaData } from "../lib/utils/fieldmappings";
+  import type { FieldMappings, StravaData } from "../lib/utils/fieldmappings";
   
   let {
         data,
+        fieldMappings,
         themes,
   }: {
         data: StravaData;
+        fieldMappings: FieldMappings;
         themes: S2PTheme[];
   } = $props();  
 
   let themesByType: Record<string, string[]> = $state({});
-  let themeMainFont = "";
+  let themeMainFont = $state("");
   let selectedTheme = $state("");
   let currentThemeIdx = 0;
   let countThemes = 0;
@@ -150,7 +152,7 @@
           );
   }
 
-  function getUnitMeasurementForType(type: string): string {
+  function getUnitMeasurementForType(type: string): string | undefined {
     type = type.replace("_value_unit", "");
 
     switch (type) {
@@ -165,15 +167,28 @@
         if (data.activityKind.sportType == "Swim")             
           return "/100m";        
         else
-          return"/km";                      
+          return"/km";
+      case "calories":
+        return "kcal";
+      case "avgpower":
+      case "maxpower":
+        return "W";
       case "speed":
-        return"km/h";
-      default:
+        return "km/h";
+      case "total_active_days":
         return "";
+      case "total_distance":
+        return "km";
+      case "total_time":
+        return "hrs";
+      case "total_elevation":
+        return "m";
+      default:
+        return undefined;
     }
   }
 
-  function getValueForType(type: string): string | number {
+  function getValueForType(type: string): string | number | undefined {
     type = type.replace("_value", "");
 
     switch (type) {
@@ -207,14 +222,19 @@
         return (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) : 0;
       
       case "calories":
-          return data.scalars.calories ?? "N/A";
+          return data.scalars.calories;
       case "avgpower":
-        return data.scalars.avgpower ?? "N/A";
+        return data.scalars.avgpower;
       case "maxpower":
-       return data.scalars.maxpower ?? "N/A";
+       return data.scalars.maxpower;
           
-      default:
-        return "";
+      case "total_active_days":
+      case "total_distance":
+      case "total_time":
+      case "total_elevation":
+        return fieldMappings.getValue(type);
+      default:        
+        return undefined;
     }
   }
 
@@ -263,24 +283,36 @@
 
         // Just units, e.g. m, min, km/h
         if (text.label.includes("_value_unit"))        
-          text.value = getUnitMeasurementForType(text.label.replace("_value_unit", ""));                 
+          text.value = getUnitMeasurementForType(text.label);                 
         else    
           if (text.label.includes("_value"))                  
-            text.value = getValueForType(text.label.replace("_value", "")).toString();        
+            text.value = (getValueForType(text.label) ?? text.value).toString();        
+        
+        switch (text.label) {
+          case "distance": 
+          case "time":            
+          case "elevation":             
+          case "pace":          
+          case "speed":
 
-        if (data && data.scalars) {
-          switch (text.label) {
-            case "distance": 
-            case "time":            
-            case "elevation":             
-            case "pace":          
-            case "speed":
-
-            case "calories":
-            case "avgpower":
-            case "maxpower":
-              text.value = getValueForType(text.label) + getUnitMeasurementForType(text.label);
+          case "calories":
+          case "avgpower":
+          case "maxpower":
+          if (data && data.scalars) {
+            let value = getValueForType(text.label);
+            if (!value)
+              text.value = "N/A";
+            else
+              text.value = value + (getUnitMeasurementForType(text.label) ?? "");
           }
+
+          case "total_active_days": {
+            let value = getValueForType(text.label);
+            if (!value)
+              text.value = "N/A";
+            else
+              text.value = value + (getUnitMeasurementForType(text.label) ?? "");
+          }            
         }
 
         if (text.value)
@@ -495,18 +527,23 @@
     onRequestRedraw();
   }
 
-  export function updateTextsValue() {
+  export function updateTextsValue(label: string, newValue: string) {
     s2pCanvas.getObjects().texts.forEach(text => {
       if (text.label === "user") 
         return;
       
-      if (text.label.includes("_value_unit"))       
-        text.set('text', getUnitMeasurementForType(text.label));      
+      let value = getValueForType(text.label);
+      let unit = getUnitMeasurementForType(text.label);
+      
+      if (text.label.includes("_value_unit")) {
+        text.set('text', unit ?? "");
+      }
       else
-        if (text.label.includes("_value"))
-          text.set('text', getValueForType(text.label));
+        if (text.label.includes("_value")) {
+          text.set('text', (value ?? "N/A") + ((value && unit) ? unit : ""));
+        }
         else
-          text.set('text', getValueForType(text.label) + getUnitMeasurementForType(text.label));        
+          text.set('text', (value ?? "N/A") + ((value && unit) ? unit : ""));
     });
 
     alignUnitsWithValues();

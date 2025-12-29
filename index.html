@@ -29,7 +29,11 @@
         rel="stylesheet">
 
     <link href="https://fonts.cdnfonts.com/css/termina-test" rel="stylesheet">
-    
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&family=Archivo:ital,wght@0,100..900;1,100..900&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+
     <!-- Pickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
 
@@ -41,6 +45,50 @@
 
     <script src="https://unpkg.com/colorthief/dist/color-thief.umd.js"></script>
 
+    <style>
+        :root {
+            /* Core Primary Color */
+            --bs-primary: #4f39f6;
+            --bs-primary-rgb: 79, 57, 246;
+        }
+
+        /* Primary Button Solid */
+        .btn-primary {
+            --bs-btn-bg: #4f39f6;
+            --bs-btn-border-color: #4f39f6;
+            --bs-btn-hover-bg: #3f2ed3;
+            /* Slightly darker for hover */
+            --bs-btn-hover-border-color: #3f2ed3;
+            --bs-btn-active-bg: #3728ba;
+            --bs-btn-active-border-color: #3728ba;
+        }
+
+        /* Primary Button Outline */
+        .btn-outline-primary {
+            --bs-btn-color: #4f39f6;
+            --bs-btn-border-color: #4f39f6;
+            --bs-btn-hover-bg: #4f39f6;
+            --bs-btn-hover-border-color: #4f39f6;
+            --bs-btn-active-bg: #4f39f6;
+            --bs-btn-active-border-color: #4f39f6;
+        }
+
+        .accordion {
+            /* Active (Open) State */
+            --bs-accordion-active-color: #4f39f6;
+            --bs-accordion-active-bg: rgba(79, 57, 246, 0.1);
+            /* Light purple tint */
+
+            /* Focus/Blue Ring State */
+            --bs-accordion-btn-focus-border-color: #4f39f6;
+            --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(79, 57, 246, 0.25);
+        }
+
+        /* Customizing the Chevron Icon color when open */
+        .accordion-button:not(.collapsed)::after {
+            filter: invert(27%) sepia(91%) rotate(241deg) brightness(94%) contrast(106%);
+        }
+    </style>
 </head>
 
 <script type="module" src="/src/main.js"></script>

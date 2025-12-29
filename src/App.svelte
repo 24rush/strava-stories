@@ -25,7 +25,7 @@
     "14134698093": "14134698093.txt",
   };
 
-  let field_data_is_open = true;
+  let field_data_is_open = $state(false);
   let fieldValuesStorage: FieldMappings = new FieldMappings();
 
   function extractStravaUrl(url: string): string | undefined {
@@ -172,29 +172,30 @@
       case "distance":
         return origData.scalars.distance;        
       case "time":
-        return origData.scalars.movingTime;        
+        return origData.scalars.movingTime;   
+      //case "elevationGain":
       default:
         return undefined;
     }
   }
 
-  function setFieldValueInData(fieldName: string, value: string) {    
+  function setFieldValueInData(fieldName: string, value: string | undefined) {    
     switch (FieldMappings.fieldNameToId(fieldName)) {
       case "distance":
-        data.scalars.distance = parseInt(value);
+        data.scalars.distance = value ? parseInt(value) : 0;
         break;
       case "time":
-        data.scalars.movingTime = parseInt(value);
+        data.scalars.movingTime = value ? parseInt(value) : 0;
         break;
 
       case "calories":
-        data.scalars.calories = parseInt(value);
+        data.scalars.calories = value ? parseInt(value) : undefined;
         break;
       case "avgpower":
-        data.scalars.avgpower = parseInt(value);
+        data.scalars.avgpower = value ? parseInt(value) : undefined;
         break;
       case "maxpower":
-        data.scalars.maxpower = parseInt(value);        
+        data.scalars.maxpower = value ? parseInt(value) : undefined;
         break;
     }      
   }
@@ -272,21 +273,24 @@
             return storageValue ? storageValue.toString() : "";
           }
         }
-        setValueForField={(fieldName: string, value: string) => {
-            let nrValue = parseInt(value);
-            fieldValuesStorage.setValue(fieldName, nrValue);            
+        setValueForField={(fieldName: string, value: string | undefined) => {
+            fieldValuesStorage.setValue(fieldName, parseInt(value ?? ""));            
 
             if (!value || value === "") {
-              value = getFieldValueFromOriginalData(fieldName)?.toString() ?? "";
-            }
+              let origDataValue = getFieldValueFromOriginalData(fieldName);
+              if (origDataValue && !isNaN(origDataValue))
+                value = origDataValue.toString();
+              else 
+                value = undefined;
+            } 
 
-            if (fieldName == FieldMappings.FieldNames[0]) {
+            if (value && fieldName == FieldMappings.FieldNames[0]) {
                 // Convert hh:mm:ss to seconds
                 value = Converters.timeToSeconds(value.toString()).toString();
             }
 
             setFieldValueInData(fieldName, value);
-            s2pImage.updateTextsValue();
+            s2pImage.updateTextsValue(FieldMappings.fieldNameToId(fieldName), value);
           }
         }        
       />
@@ -294,13 +298,27 @@
 
     <div class="mb-4" style="width: 100%;">
       {#if theme_fetched}
-        <S2PImage data={data} themes={themes} bind:this={s2pImage} />
+        <S2PImage data={data} themes={themes} fieldMappings={fieldValuesStorage} bind:this={s2pImage} />
       {/if}
     </div>
   </div>
 </main>
 
 <style>
+  h1 {
+    
+    /* 1. Define the gradient */
+    background: linear-gradient(to right, #fc5200, #000000d6);
+    
+    /* 2. Clip the background to the text */
+    -webkit-background-clip: text;
+    background-clip: text;
+    
+    /* 3. Make the actual text transparent so the background shows through */
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
   .url-error-message {
     color: red;
   }

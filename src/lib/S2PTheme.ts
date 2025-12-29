@@ -19,7 +19,7 @@ export class S2PThemeObject {
 }
 
 export class S2PThemeText extends S2PThemeObject {    
-    public value?: string = "";
+    public value: string | undefined = "";
 
     public fontSize: number = 30;
     public fontFamily: string = "Kanit"; 
