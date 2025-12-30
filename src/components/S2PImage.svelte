@@ -306,7 +306,10 @@
               text.value = value + (getUnitMeasurementForType(text.label) ?? "");
           }
 
-          case "total_active_days": {
+          case "total_active_days":
+          case "total_distance":
+          case "total_time":
+          case "total_elevation": {
             let value = getValueForType(text.label);
             if (!value)
               text.value = "N/A";

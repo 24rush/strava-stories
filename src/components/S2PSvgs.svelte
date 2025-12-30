@@ -12,8 +12,8 @@
     } = $props();
 
     let svgUrls: string[] = [
-        "/svgs/run-sport.svg",
-        "/svgs/ride.svg",
+        "/svgs/run-sport.svg",        
+        "/svgs/road-cycling.svg",
         "/svgs/hike.svg",
         "/svgs/swim.svg",
         "/svgs/strava.svg",
