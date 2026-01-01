@@ -30,6 +30,10 @@
 
     let currentItem = $derived(indexedValues[currentItemIdx] ?? "");
 
+    export function onSelectedItemChanged(newSelectedValue: string) {
+        selectedValue = newSelectedValue;
+    }
+
     function selectItem(header: string, selectedValue: string) {
         currentItem = header + ": " + selectedValue;
         currentItemIdx = indexedValues.findIndex(

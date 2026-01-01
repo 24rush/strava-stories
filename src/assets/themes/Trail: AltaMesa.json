@@ -134,7 +134,7 @@
         },
         {
             "id": "u5xj14e",
-            "label": "time",
+            "label": "movingTime",
             "top": 0.6934886055393858,
             "left": 0.7797630605272209,
             "width": 0,
@@ -186,7 +186,7 @@
         },
         {
             "id": "ceb9pcy",
-            "label": "elevation",
+            "label": "elevationGain",
             "top": 0.6951829177522716,
             "left": 0.29620913730275145,
             "width": 0,

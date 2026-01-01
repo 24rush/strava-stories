@@ -5,7 +5,7 @@
         {
             "id": "es6pg72",
             "label": "user",
-            "top": 0.850126945269724,
+            "top": 0.881271084490172,
             "left": 0.41406149563809,
             "width": 0,
             "height": 0,
@@ -31,7 +31,7 @@
         {
             "id": "k9nz39u",
             "label": "distance",
-            "top": 0.766170871576502,
+            "top": 0.7942393058542319,
             "left": 0.41520822917698186,
             "width": 0,
             "height": 0,
@@ -57,7 +57,7 @@
         {
             "id": "ucncncp",
             "label": "pace",
-            "top": 0.7693190789723314,
+            "top": 0.7975028468599136,
             "left": 0.7777857389544415,
             "width": 0,
             "height": 0,
@@ -83,7 +83,7 @@
         {
             "id": "tymvast",
             "label": "user",
-            "top": 0.8513170452180745,
+            "top": 0.8825047833841669,
             "left": 0.7789631337902712,
             "width": 0,
             "height": 0,
@@ -109,7 +109,7 @@
         {
             "id": "t925y03",
             "label": "user",
-            "top": 0.850695305785586,
+            "top": 0.8818602667187581,
             "left": 0.041666666666666546,
             "width": 0,
             "height": 0,
@@ -134,8 +134,8 @@
         },
         {
             "id": "u5xj14e",
-            "label": "time",
-            "top": 0.7669986724622072,
+            "label": "movingTime",
+            "top": 0.7950974329708308,
             "left": 0.04166666666666625,
             "width": 0,
             "height": 0,
@@ -151,10 +151,62 @@
             "strokeWidth": 0,
             "scaleX": 1.1431645134607515,
             "scaleY": 1.2775766194155194,
-            "value": "2h04m",
+            "value": "2:04:13",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Kanit",
             "fontWeight": 600,
+            "fontStyle": "normal",
+            "charSpacing": 0
+        },
+        {
+            "id": "ngccbqu",
+            "label": "altitude_max",
+            "top": 0.5844082810797353,
+            "left": 0.8943821598770748,
+            "width": 0,
+            "height": 0,
+            "angle": 0,
+            "fill": [
+                "#FFFFFF",
+                "#FFFFFF"
+            ],
+            "stroke": [
+                "#FFFFFF00",
+                "#FFFFFF00"
+            ],
+            "strokeWidth": 0,
+            "scaleX": 0.8293658433189173,
+            "scaleY": 0.6582023356086006,
+            "value": "51m",
+            "fontSize": 0.04096638655462185,
+            "fontFamily": "Archivo Narrow",
+            "fontWeight": 200,
+            "fontStyle": "normal",
+            "charSpacing": 0
+        },
+        {
+            "id": "wbh63d8",
+            "label": "altitude_min",
+            "top": 0.6768089608057961,
+            "left": 0.8958333333333334,
+            "width": 0,
+            "height": 0,
+            "angle": 0,
+            "fill": [
+                "#FFFFFF",
+                "#FFFFFF"
+            ],
+            "stroke": [
+                "#FFFFFF00",
+                "#FFFFFF00"
+            ],
+            "strokeWidth": 0,
+            "scaleX": 0.8293658433189173,
+            "scaleY": 0.6582023356086006,
+            "value": "0m",
+            "fontSize": 0.04096638655462185,
+            "fontFamily": "Archivo Narrow",
+            "fontWeight": 100,
             "fontStyle": "normal",
             "charSpacing": 0
         }
@@ -163,8 +215,8 @@
         {
             "id": "",
             "label": "track_profile",
-            "top": 0.16619287943865418,
-            "left": 0.2708423959664353,
+            "top": 0.20650264490334916,
+            "left": 0.2882035070775464,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -183,8 +235,8 @@
         {
             "id": "",
             "label": "elevation_profile",
-            "top": 0.5963478942587834,
-            "left": 0.04575577280879787,
+            "top": 0.6181949159841374,
+            "left": 0.04575577280879781,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -197,12 +249,12 @@
                 "#FFFFFF7D"
             ],
             "strokeWidth": 1,
-            "scaleX": 0.8907960435994312,
+            "scaleX": 0.8166966006240283,
             "scaleY": 0.8907960435994312
         }
     ],
     "rects": [],
     "svgs": [],
-    "height_percentage": 0.6819833733151824,
-    "devicePixelRatio": 1.100000023841858
+    "height_percentage": 0.65788206612564,
+    "devicePixelRatio": 1
 }

@@ -13,7 +13,7 @@
         fieldMappings: Record<string, string[]>;
         selectedField: string;
 
-        getValueForField: (fieldName: string) => string;
+        getValueForField: (fieldName: string) => string | undefined;
         setValueForField: (fieldName: string, value: string) => void;
     } = $props();
     
@@ -29,7 +29,7 @@
 
     function onFieldValueSelected(type: string, fieldName: string) {
         selectedField = fieldName;
-        field_value = getValueForField(fieldName);
+        field_value = getValueForField(fieldName) ?? "";
     }
 
     function onInputFieldData() {

@@ -2,14 +2,14 @@
   import { onMount } from "svelte";
   import S2PImage from "./components/S2PImage.svelte";
   import S2PFieldData from "./components/S2PFieldData.svelte";
-  import { FieldMappings, StravaData } from "./lib/utils/fieldmappings";
-    import { Converters } from "./lib/utils/converters";
+  import { DataSource, FieldMappings } from "./lib/utils/fieldmappings";
 
   let s2pImage: S2PImage;
-  let s2pFieldData: S2PFieldData;
 
-  let data: StravaData;
-  let origData: StravaData;
+  let s2pFieldData: S2PFieldData;
+  let field_data_is_open = $state(false);
+  
+  let source: DataSource = new DataSource();
   let data_fetched = $state(false);
 
   let strava_default_url = "https://www.strava.com/activities/14134698093";
@@ -24,9 +24,6 @@
     "15174937862": "15174937862.txt",
     "14134698093": "14134698093.txt",
   };
-
-  let field_data_is_open = $state(false);
-  let fieldValuesStorage: FieldMappings = new FieldMappings();
 
   function extractStravaUrl(url: string): string | undefined {
     for (let regex of [actRegex, appLinkRegex]) {
@@ -68,8 +65,8 @@
         .replace(/&amp;/g, "&");
 
       const jsonData = JSON.parse(jsonText);
-      data = StravaData.loadFromRaw(jsonData.props.pageProps.activity);
-      origData = structuredClone(data);
+      source.loadFromRaw(jsonData.props.pageProps.activity);
+      
       s2pFieldData.refresh();
       data_fetched = true;
       reloadTheme();
@@ -99,8 +96,7 @@
         data_fetched = true;
 
         if (url_ok) {
-          data = StravaData.loadFromRaw(raw_data);
-          origData = structuredClone(data);
+          source.loadFromRaw(raw_data);
           s2pFieldData.refresh();
           reloadTheme();
         }
@@ -164,42 +160,6 @@
       console.error("Clipboard access denied", err);
     }
   }
-
-  function getFieldValueFromOriginalData(fieldName: string): number | undefined {   
-    if (!origData) return undefined;
-
-    switch (FieldMappings.fieldNameToId(fieldName)) {
-      case "distance":
-        return origData.scalars.distance;        
-      case "time":
-        return origData.scalars.movingTime;   
-      //case "elevationGain":
-      default:
-        return undefined;
-    }
-  }
-
-  function setFieldValueInData(fieldName: string, value: string | undefined) {    
-    switch (FieldMappings.fieldNameToId(fieldName)) {
-      case "distance":
-        data.scalars.distance = value ? parseInt(value) : 0;
-        break;
-      case "time":
-        data.scalars.movingTime = value ? parseInt(value) : 0;
-        break;
-
-      case "calories":
-        data.scalars.calories = value ? parseInt(value) : undefined;
-        break;
-      case "avgpower":
-        data.scalars.avgpower = value ? parseInt(value) : undefined;
-        break;
-      case "maxpower":
-        data.scalars.maxpower = value ? parseInt(value) : undefined;
-        break;
-    }      
-  }
-
 </script>
 
 <main>
@@ -260,37 +220,10 @@
         id={"fieldData"}
         selectedField={FieldMappings.FieldNames[0] ?? ""}
         fieldMappings={FieldMappings.getFieldMapping()}
-        getValueForField={(fieldName: string) => {
-            let storageValue = fieldValuesStorage.getValue(fieldName);
-            if (!storageValue) {
-              storageValue = getFieldValueFromOriginalData(fieldName);
-            }
-
-            if (storageValue && fieldName == FieldMappings.FieldNames[0]) {
-              return Converters.secondsToHMS(parseInt(storageValue.toString()));
-            }
-
-            return storageValue ? storageValue.toString() : "";
-          }
-        }
+        getValueForField={(fieldName: string) => source.getValue(fieldName)}
         setValueForField={(fieldName: string, value: string | undefined) => {
-            fieldValuesStorage.setValue(fieldName, parseInt(value ?? ""));            
-
-            if (!value || value === "") {
-              let origDataValue = getFieldValueFromOriginalData(fieldName);
-              if (origDataValue && !isNaN(origDataValue))
-                value = origDataValue.toString();
-              else 
-                value = undefined;
-            } 
-
-            if (value && fieldName == FieldMappings.FieldNames[0]) {
-                // Convert hh:mm:ss to seconds
-                value = Converters.timeToSeconds(value.toString()).toString();
-            }
-
-            setFieldValueInData(fieldName, value);
-            s2pImage.updateTextsValue(FieldMappings.fieldNameToId(fieldName), value);
+            source.setValue(fieldName, value);
+            s2pImage.updateTextsValue();
           }
         }        
       />
@@ -298,7 +231,7 @@
 
     <div class="mb-4" style="width: 100%;">
       {#if theme_fetched}
-        <S2PImage data={data} themes={themes} fieldMappings={fieldValuesStorage} bind:this={s2pImage} />
+        <S2PImage source={source} themes={themes} bind:this={s2pImage} />
       {/if}
     </div>
   </div>

@@ -135,7 +135,7 @@
       },
       {
         "id": "rlfai08",
-        "label": "time",
+        "label": "movingTime",
         "top": 0.6042240544289996,
         "left": 0.06076388888888891,
         "width": 0,
@@ -458,7 +458,7 @@
       },
       {
         "id": "rlfai08",
-        "label": "time",
+        "label": "movingTime",
         "top": 0.7590715393083505,
         "left": 0.2743055555555556,
         "width": 0,
@@ -563,7 +563,7 @@
     "devicePixelRatio": 1
   },
   {
-    "name": "Cycling: Strava #1",
+    "name": "Cycling: Outdoor #2",
     "ignore": false,
     "texts": [
       {
@@ -587,7 +587,7 @@
         "scaleY": 1.2827677139574483,
         "value": "22km",
         "fontSize": 0.04096638655462185,
-        "fontFamily": "Noto Sans",
+        "fontFamily": "Termina Test",
         "fontWeight": 600,
         "fontStyle": "normal",
         "charSpacing": 0
@@ -613,7 +613,7 @@
         "scaleY": 1.0145354530754302,
         "value": "speed",
         "fontSize": 0.04096638655462185,
-        "fontFamily": "Noto Sans",
+        "fontFamily": "Termina Test",
         "fontWeight": 300,
         "fontStyle": "normal",
         "charSpacing": 0
@@ -639,7 +639,7 @@
         "scaleY": 1.2693430039655833,
         "value": "10.7km/h",
         "fontSize": 0.04096638655462185,
-        "fontFamily": "Noto Sans",
+        "fontFamily": "Termina Test",
         "fontWeight": 600,
         "fontStyle": "normal",
         "charSpacing": 0
@@ -665,7 +665,7 @@
         "scaleY": 1.0145354530754302,
         "value": "distance",
         "fontSize": 0.04096638655462185,
-        "fontFamily": "Noto Sans",
+        "fontFamily": "Termina Test",
         "fontWeight": 300,
         "fontStyle": "normal",
         "charSpacing": 0
@@ -691,14 +691,14 @@
         "scaleY": 1.0145354530754302,
         "value": "time",
         "fontSize": 0.04096638655462185,
-        "fontFamily": "Noto Sans",
+        "fontFamily": "Termina Test",
         "fontWeight": 300,
         "fontStyle": "normal",
         "charSpacing": 0
       },
       {
         "id": "rlfai08",
-        "label": "time",
+        "label": "movingTime",
         "top": 0.5781052832885677,
         "left": 0.6707557279300066,
         "width": 0,
@@ -717,7 +717,7 @@
         "scaleY": 1.2827677139574483,
         "value": "2h04m",
         "fontSize": 0.04096638655462185,
-        "fontFamily": "Noto Sans",
+        "fontFamily": "Termina Test",
         "fontWeight": 600,
         "fontStyle": "normal",
         "charSpacing": 0
@@ -796,7 +796,7 @@
       },
       {
         "id": "54daz6g",
-        "label": "time",
+        "label": "movingTime",
         "top": 0.1447969978788655,
         "left": 0.37844865989227444,
         "width": 0,
@@ -1117,7 +1117,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "time",
+        "label": "movingTime",
         "top": 0.5990111295343321,
         "left": 0.37152777777777757,
         "width": 0,
@@ -1350,7 +1350,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "time",
+        "label": "movingTime",
         "top": 0.6505580407649625,
         "left": 0.6874999999999998,
         "width": 0,
@@ -1500,7 +1500,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "time_value",
+        "label": "movingTime_value",
         "top": 0.4336774607251223,
         "left": 0.5451421770533015,
         "width": 0,
@@ -1552,7 +1552,7 @@
       },
       {
         "id": "6w0g2pi",
-        "label": "elevation_value",
+        "label": "elevationGain_value",
         "top": 0.4384568945985857,
         "left": 0.7942259491119401,
         "width": 0,
@@ -1578,7 +1578,7 @@
       },
       {
         "id": "hfe9jyb",
-        "label": "elevation_value_unit",
+        "label": "elevationGain_value_unit",
         "top": 0.48449995898126624,
         "left": 0.8807933228864818,
         "width": 0,
@@ -1797,7 +1797,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "time_value",
+        "label": "movingTime_value",
         "top": 0.6217326968527905,
         "left": 0.49826388888888884,
         "width": 0,
@@ -1960,7 +1960,7 @@
       {
         "id": "es6pg72",
         "label": "user",
-        "top": 0.850126945269724,
+        "top": 0.881271084490172,
         "left": 0.41406149563809,
         "width": 0,
         "height": 0,
@@ -1986,7 +1986,7 @@
       {
         "id": "k9nz39u",
         "label": "distance",
-        "top": 0.766170871576502,
+        "top": 0.7942393058542319,
         "left": 0.41520822917698186,
         "width": 0,
         "height": 0,
@@ -2012,7 +2012,7 @@
       {
         "id": "ucncncp",
         "label": "pace",
-        "top": 0.7693190789723314,
+        "top": 0.7975028468599136,
         "left": 0.7777857389544415,
         "width": 0,
         "height": 0,
@@ -2038,7 +2038,7 @@
       {
         "id": "tymvast",
         "label": "user",
-        "top": 0.8513170452180745,
+        "top": 0.8825047833841669,
         "left": 0.7789631337902712,
         "width": 0,
         "height": 0,
@@ -2064,7 +2064,7 @@
       {
         "id": "t925y03",
         "label": "user",
-        "top": 0.850695305785586,
+        "top": 0.8818602667187581,
         "left": 0.041666666666666546,
         "width": 0,
         "height": 0,
@@ -2089,8 +2089,8 @@
       },
       {
         "id": "u5xj14e",
-        "label": "time",
-        "top": 0.7669986724622072,
+        "label": "movingTime",
+        "top": 0.7950974329708308,
         "left": 0.04166666666666625,
         "width": 0,
         "height": 0,
@@ -2106,10 +2106,62 @@
         "strokeWidth": 0,
         "scaleX": 1.1431645134607515,
         "scaleY": 1.2775766194155194,
-        "value": "2h04m",
+        "value": "2:04:13",
         "fontSize": 0.04096638655462185,
         "fontFamily": "Kanit",
         "fontWeight": 600,
+        "fontStyle": "normal",
+        "charSpacing": 0
+      },
+      {
+        "id": "ngccbqu",
+        "label": "altitude_max",
+        "top": 0.5844082810797353,
+        "left": 0.8943821598770748,
+        "width": 0,
+        "height": 0,
+        "angle": 0,
+        "fill": [
+          "#FFFFFF",
+          "#FFFFFF"
+        ],
+        "stroke": [
+          "#FFFFFF00",
+          "#FFFFFF00"
+        ],
+        "strokeWidth": 0,
+        "scaleX": 0.8293658433189173,
+        "scaleY": 0.6582023356086006,
+        "value": "51m",
+        "fontSize": 0.04096638655462185,
+        "fontFamily": "Archivo Narrow",
+        "fontWeight": 200,
+        "fontStyle": "normal",
+        "charSpacing": 0
+      },
+      {
+        "id": "wbh63d8",
+        "label": "altitude_min",
+        "top": 0.6768089608057961,
+        "left": 0.8958333333333334,
+        "width": 0,
+        "height": 0,
+        "angle": 0,
+        "fill": [
+          "#FFFFFF",
+          "#FFFFFF"
+        ],
+        "stroke": [
+          "#FFFFFF00",
+          "#FFFFFF00"
+        ],
+        "strokeWidth": 0,
+        "scaleX": 0.8293658433189173,
+        "scaleY": 0.6582023356086006,
+        "value": "0m",
+        "fontSize": 0.04096638655462185,
+        "fontFamily": "Archivo Narrow",
+        "fontWeight": 100,
         "fontStyle": "normal",
         "charSpacing": 0
       }
@@ -2118,8 +2170,8 @@
       {
         "id": "",
         "label": "track_profile",
-        "top": 0.16619287943865418,
-        "left": 0.2708423959664353,
+        "top": 0.20650264490334916,
+        "left": 0.2882035070775464,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -2138,8 +2190,8 @@
       {
         "id": "",
         "label": "elevation_profile",
-        "top": 0.5963478942587834,
-        "left": 0.04575577280879787,
+        "top": 0.6181949159841374,
+        "left": 0.04575577280879781,
         "width": 0,
         "height": 0,
         "angle": 0,
@@ -2152,14 +2204,14 @@
           "#FFFFFF7D"
         ],
         "strokeWidth": 1,
-        "scaleX": 0.8907960435994312,
+        "scaleX": 0.8166966006240283,
         "scaleY": 0.8907960435994312
       }
     ],
     "rects": [],
     "svgs": [],
-    "height_percentage": 0.6819833733151824,
-    "devicePixelRatio": 1.100000023841858
+    "height_percentage": 0.65788206612564,
+    "devicePixelRatio": 1
   },
   {
     "name": "Run: test",
@@ -2191,7 +2243,7 @@
       },
       {
         "id": "54daz6g",
-        "label": "time",
+        "label": "movingTime",
         "left": 0.2647058823529412,
         "top": 0.10339923156967303,
         "fontSize": 0.04096638655462185,
@@ -2384,7 +2436,7 @@
     "devicePixelRatio": 1
   },
   {
-    "name": "Swim: Strava#1",
+    "name": "Swim: Arena",
     "ignore": false,
     "texts": [
       {
@@ -2519,7 +2571,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "time",
+        "label": "movingTime",
         "top": 0.3989017650950587,
         "left": 0.7482638888888887,
         "width": 0,
@@ -2565,7 +2617,7 @@
     "devicePixelRatio": 1.100000023841858
   },
   {
-    "name": "Trail: Strava #1",
+    "name": "Trail: AltaMesa",
     "ignore": false,
     "texts": [
       {
@@ -2700,7 +2752,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "time",
+        "label": "movingTime",
         "top": 0.6934886055393858,
         "left": 0.7797630605272209,
         "width": 0,
@@ -2752,7 +2804,7 @@
       },
       {
         "id": "ceb9pcy",
-        "label": "elevation",
+        "label": "elevationGain",
         "top": 0.6951829177522716,
         "left": 0.29620913730275145,
         "width": 0,
@@ -2825,7 +2877,7 @@
     "devicePixelRatio": 1.100000023841858
   },
   {
-    "name": "Trail: Strava #2",
+    "name": "Trail: Hoka",
     "ignore": false,
     "texts": [
       {
@@ -2908,7 +2960,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "time_value",
+        "label": "movingTime_value",
         "top": 0.6645507938965315,
         "left": 0.5121527777777777,
         "width": 0,

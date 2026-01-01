@@ -5,6 +5,7 @@ export class ColorCombos {
         ["#ffcd23", "#ff2768"],
         ["#b80454", "#FBC704"],
         ["#dcbcd0", "#b175ff"],
+        ["#E91E63", "#FC5200"],
         ["#F5E30A", "#0A9DF5"],
         ["#3EC3FF", "#FF3A75"],
         ["#FF236E", "#FF776D"],

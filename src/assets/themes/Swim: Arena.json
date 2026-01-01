@@ -134,7 +134,7 @@
         },
         {
             "id": "u5xj14e",
-            "label": "time",
+            "label": "movingTime",
             "top": 0.3989017650950587,
             "left": 0.7482638888888887,
             "width": 0,
@@ -178,4 +178,4 @@
     ],
     "height_percentage": 0.4240719766194919,
     "devicePixelRatio": 1.100000023841858
-}
+} 

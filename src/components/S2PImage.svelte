@@ -3,7 +3,6 @@
   import S2PCanvas from "./S2PCanvas.svelte";
   import S2PSvgs from "./S2PSvgs.svelte";
   import { S2PCanvasText } from "../lib/S2PCanvasText";
-  import { Converters } from "../lib/utils/converters";
   import S2PVisualProps from "./S2PVisualProps.svelte";
   import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
   import { S2PTheme, S2PThemePoly, S2PThemeRect } from "../lib/S2PTheme";
@@ -15,20 +14,19 @@
   import type { S2PSvg } from "../lib/S2PSvg";
   import type { S2PRect } from "../lib/S2PRect";
   import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
-  import type { FieldMappings, StravaData } from "../lib/utils/fieldmappings";
+  import { DataSource } from "../lib/utils/fieldmappings";
   
   let {
-        data,
-        fieldMappings,
+        source,
         themes,
   }: {
-        data: StravaData;
-        fieldMappings: FieldMappings;
+        source: DataSource;
         themes: S2PTheme[];
   } = $props();  
 
   let themesByType: Record<string, string[]> = $state({});
   let themeMainFont = $state("");
+  let themeMainFontSlider: S2PSliderDropdown;  
   let selectedTheme = $state("");
   let currentThemeIdx = 0;
   let countThemes = 0;
@@ -152,92 +150,6 @@
           );
   }
 
-  function getUnitMeasurementForType(type: string): string | undefined {
-    type = type.replace("_value_unit", "");
-
-    switch (type) {
-      case "distance":
-        if (data.activityKind.sportType == "Swim") return "m";
-        else return (data.scalars.distance > 999) ? "km" : "m";    
-      case "time":
-        return "";//"min";
-      case "elevation":
-        return "m";     
-      case "pace":              
-        if (data.activityKind.sportType == "Swim")             
-          return "/100m";        
-        else
-          return"/km";
-      case "calories":
-        return "kcal";
-      case "avgpower":
-      case "maxpower":
-        return "W";
-      case "speed":
-        return "km/h";
-      case "total_active_days":
-        return "";
-      case "total_distance":
-        return "km";
-      case "total_time":
-        return "hrs";
-      case "total_elevation":
-        return "m";
-      default:
-        return undefined;
-    }
-  }
-
-  function getValueForType(type: string): string | number | undefined {
-    type = type.replace("_value", "");
-
-    switch (type) {
-      case "distance":
-        if (data.activityKind.sportType == "Swim")
-          return data.scalars.distance ? (data.scalars.distance) : 0;
-        else {
-          let divider = data.scalars.distance > 999 ? 1000 : 1;          
-          return data.scalars.distance ? (data.scalars.distance / divider).toFixed(0) : 0;
-        }
-      case "time":
-        return data.scalars.movingTime ? Converters.secondsToHMS(data.scalars.movingTime) : 0;
-      case "elevation":
-        return data.scalars.elevationGain
-          ? data.scalars.elevationGain.toFixed(0)
-          : 0;
-      case "pace":
-        if (data.scalars.movingTime && data.scalars.distance) {
-          if (data.activityKind.sportType == "Swim") {
-            let pace = (data.scalars.movingTime / data.scalars.distance * 100);                  
-            return `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}`;
-          }
-          else {
-            let pace = (data.scalars.movingTime) / (data.scalars.distance / 1000);
-            return `${String(Math.floor(pace / 60)).padStart(2, '0')}:${String(Math.floor(pace % 60)).padStart(2, '0')}`;                  
-          }
-        } else {
-          return 0;
-        }            
-      case "speed":
-        return (data.scalars.movingTime && data.scalars.distance) ? ((data.scalars.distance / 1000) / (data.scalars.movingTime / 3600)).toFixed(1) : 0;
-      
-      case "calories":
-          return data.scalars.calories;
-      case "avgpower":
-        return data.scalars.avgpower;
-      case "maxpower":
-       return data.scalars.maxpower;
-          
-      case "total_active_days":
-      case "total_distance":
-      case "total_time":
-      case "total_elevation":
-        return fieldMappings.getValue(type);
-      default:        
-        return undefined;
-    }
-  }
-
   function _loadTheme(theme_meta: S2PTheme | undefined) {
     s2pCanvas.clear();    
     accentColorPicker.setColor("#ffffff");
@@ -252,26 +164,29 @@
         height: canvasHeight,
       });
 
-    if (theme_meta.polys && data && data.streams)
+    if (theme_meta.polys && source && source.data.streams)
       theme_meta.polys.forEach((poly: S2PThemePoly) => {
-        if (poly.label == "track_profile" && data.streams.location)
+        if (poly.label == "track_profile" && source.data.streams.location)
           s2pCanvas.addPolyFromLatLngs(
             "track_profile",
-            data.streams.location,
+            source.data.streams.location,
             poly,
           );
 
-        if (poly.label == "elevation_profile" && data.streams.elevation)
+        if (poly.label == "elevation_profile" && source.data.streams.elevation)
           s2pCanvas.addFilledPolyFromVector(
             "elevation_profile",
-            data.streams.elevation,
+            source.data.streams.elevation,
             poly,
           );
       });
 
     if (theme_meta.texts) {
-      if (theme_meta.texts.length > 0)
+      if (theme_meta.texts.length > 0) {
         themeMainFont = ("Font: " + theme_meta.texts[0]?.fontFamily) ?? "";
+        themeMainFontSlider.onSelectedItemChanged(themeMainFont);
+        accentColorPicker.setColor(theme_meta.texts[0]?.fill[0]);
+      }
 
       let labelToObj: Record<string, S2PCanvasText> = {};
 
@@ -283,40 +198,17 @@
 
         // Just units, e.g. m, min, km/h
         if (text.label.includes("_value_unit"))        
-          text.value = getUnitMeasurementForType(text.label);                 
+          text.value = source.getUnitForField(text.label.replace("_value_unit", ""));                 
         else    
           if (text.label.includes("_value"))                  
-            text.value = (getValueForType(text.label) ?? text.value).toString();        
-        
-        switch (text.label) {
-          case "distance": 
-          case "time":            
-          case "elevation":             
-          case "pace":          
-          case "speed":
-
-          case "calories":
-          case "avgpower":
-          case "maxpower":
-          if (data && data.scalars) {
-            let value = getValueForType(text.label);
-            if (!value)
+            text.value = (source.getValueForField(text.label.replace("_value", "")) ?? text.value).toString();                
+          else {
+            let value = source.getValueForField(text.label.replace("_value", ""));
+            if (value == undefined)
               text.value = "N/A";
             else
-              text.value = value + (getUnitMeasurementForType(text.label) ?? "");
+              text.value = value + (source.getUnitForField(text.label.replace("_value_unit", "")) ?? "");                 
           }
-
-          case "total_active_days":
-          case "total_distance":
-          case "total_time":
-          case "total_elevation": {
-            let value = getValueForType(text.label);
-            if (!value)
-              text.value = "N/A";
-            else
-              text.value = value + (getUnitMeasurementForType(text.label) ?? "");
-          }            
-        }
 
         if (text.value)
           labelToObj[text.label] = s2pCanvas.addText(text);      
@@ -432,13 +324,13 @@
   export function reloadTheme(themeIdx?: number) {
     if (!themeIdx) {
       let keyworkToSearch = "";
-      if (data.activityKind.sportType.includes("Swim"))
+      if (source.data.activityKind.sportType.includes("Swim"))
         keyworkToSearch = "Swim";
       
-      if (data.activityKind.sportType.includes("Run"))
+      if (source.data.activityKind.sportType.includes("Run"))
         keyworkToSearch = "Run";
 
-      if (data.activityKind.sportType.includes("Ride"))
+      if (source.data.activityKind.sportType.includes("Ride"))
         keyworkToSearch = "Cycling";
 
       themeIdx = themes.findIndex(t => t.name.includes(keyworkToSearch));
@@ -457,7 +349,7 @@
     currentThemeIdx =
       themes.findIndex((theme) => theme.name.includes(themeType + ": " + themeName)) ?? 0;
 
-    if (themes[currentThemeIdx] && data.streams) {   
+    if (themes[currentThemeIdx] && source.data.streams) {   
         selectedTheme = themeType + ": " + themeName;
         loadTheme(themes[currentThemeIdx]) ;
         onRequestRedraw();          
@@ -477,12 +369,12 @@
   }
 
   function onAddTrackProfile() {
-    if (!data || !data.streams || !data.streams.location) 
+    if (!data || !source.data.streams || !source.data.streams.location) 
       return;    
 
     s2pCanvas.addPolyFromLatLngs(
       "track_profile",
-      data.streams.location,
+      source.data.streams.location,
       {
         ...new S2PThemePoly(),
         stroke: ["#fc5200", "#fc5200"],
@@ -496,12 +388,12 @@
   }
 
   function onAddElevationChart() {
-    if (!data || !data.streams || !data.streams.elevation) 
+    if (!data || !source.data.streams || !source.data.streams.elevation) 
       return;
 
     s2pCanvas.addFilledPolyFromVector(
       "elevation_profile",
-      data.streams.elevation,
+      source.data.streams.elevation,
       {
         ...new S2PThemePoly(),        
         scaleX: 0.5,
@@ -530,23 +422,18 @@
     onRequestRedraw();
   }
 
-  export function updateTextsValue(label: string, newValue: string) {
+  export function updateTextsValue() {
     s2pCanvas.getObjects().texts.forEach(text => {
       if (text.label === "user") 
         return;
       
-      let value = getValueForType(text.label);
-      let unit = getUnitMeasurementForType(text.label);
+      let value = source.getValueForField(text.label.replace("_value", ""));
+      let unit = source.getUnitForField(text.label.replace("_value_unit", ""));
       
-      if (text.label.includes("_value_unit")) {
-        text.set('text', unit ?? "");
-      }
+      if (text.label.includes("_value_unit"))
+        text.set('text', unit);      
       else
-        if (text.label.includes("_value")) {
-          text.set('text', (value ?? "N/A") + ((value && unit) ? unit : ""));
-        }
-        else
-          text.set('text', (value ?? "N/A") + ((value && unit) ? unit : ""));
+        text.set('text', (value ?? "N/A") + (value ? unit : ""));
     });
 
     alignUnitsWithValues();
@@ -567,7 +454,6 @@
       }
     });
   }
-
 
 </script>
 
@@ -662,6 +548,7 @@
     <div class="d-flex align-items-center" style="flex-direction: column; width: 90%;">
       <div style="width: 100%; padding-top: 3px;">
         <S2PSliderDropdown
+          bind:this={themeMainFontSlider}
           selectedValue={themeMainFont}
           dropdownData={Fonts.fontFamilies}
           onItemSelected={onFontFamilySelected}

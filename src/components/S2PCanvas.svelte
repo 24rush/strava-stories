@@ -676,7 +676,7 @@
     }
 
     function moveObjects(objects: FabricObject[], dx: number, dy: number) {
-        objects.forEach((obj) => {
+        objects.forEach((obj) => {        
             obj.left = (obj.left ?? 0) + dx;
             obj.top = (obj.top ?? 0) + dy;
             obj.setCoords();
@@ -825,14 +825,25 @@
             const value = Number(event.target.value);
 
             moveObjects(selected.length == 0 ? canvas.getObjects() : selected, value - rangeX.lastValue, 0);                        
-            rangeX.lastValue = value;
 
-            unselectAll();
+            if (selected.length > 0) {
+                selected.forEach(obj => {
+                    obj.set('hasControls', false);
+                    obj.set('hasBorders', false);
+                });  
+            }
+            
+            rangeX.lastValue = value;            
         }}
         onchange={(event) => {
             rangeX.lastValue = Number(event.target.value);
 
             canvas.setActiveObject(selected[0]);
+            selected.forEach(obj => {
+                obj.set('hasControls', true);
+                obj.set('hasBorders', true);
+            });    
+
             canvas.requestRenderAll();
         }}
     />

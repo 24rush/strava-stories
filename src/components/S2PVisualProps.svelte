@@ -534,7 +534,7 @@
             <label
                 class="font-emp ms-1"
                 style="align-self: self-start; touch-action: none; pointer-events: none;"
-                >Contour</label
+                >Edge</label
             >
 
 

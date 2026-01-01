@@ -82,7 +82,7 @@
         },
         {
             "id": "u5xj14e",
-            "label": "time_value",
+            "label": "movingTime_value",
             "top": 0.4336774607251223,
             "left": 0.5451421770533015,
             "width": 0,
@@ -134,7 +134,7 @@
         },
         {
             "id": "6w0g2pi",
-            "label": "elevation_value",
+            "label": "elevationGain_value",
             "top": 0.4384568945985857,
             "left": 0.7942259491119401,
             "width": 0,
@@ -160,7 +160,7 @@
         },
         {
             "id": "hfe9jyb",
-            "label": "elevation_value_unit",
+            "label": "elevationGain_value_unit",
             "top": 0.48449995898126624,
             "left": 0.8807933228864818,
             "width": 0,
