@@ -31,9 +31,6 @@
   let currentThemeIdx = 0;
   let countThemes = 0;
 
-  let accentColorPicker: any = null;
-  let accentColorPickerEl: HTMLDivElement;
-
   let s2pCanvas: S2PCanvas;
   let s2pSvgs: S2PSvgs;
   let s2pSuggestedColors: S2PSuggestedColors;
@@ -85,15 +82,7 @@
     });
 
     updateObjectPositions(themes);
-
-    accentColorPicker = createPicker(
-        accentColorPickerEl,
-        "#ffffff",
-        (color: any) => {
-            s2pCanvas.setAccentColor(color.toHEXA().toString());            
-        },
-    );
-
+    
     s2pCanvas.getCanvas().on("mouse:down", (e) => {
       toggleSelectAll = false;      
     });
@@ -151,8 +140,7 @@
   }
 
   function _loadTheme(theme_meta: S2PTheme | undefined) {
-    s2pCanvas.clear();    
-    accentColorPicker.setColor("#ffffff");
+    s2pCanvas.clear();        
 
     if (!theme_meta) return;
 
@@ -184,8 +172,7 @@
     if (theme_meta.texts) {
       if (theme_meta.texts.length > 0) {
         themeMainFont = ("Font: " + theme_meta.texts[0]?.fontFamily) ?? "";
-        themeMainFontSlider.onSelectedItemChanged(themeMainFont);
-        accentColorPicker.setColor(theme_meta.texts[0]?.fill[0]);
+        themeMainFontSlider.onSelectedItemChanged(themeMainFont);        
       }
 
       let labelToObj: Record<string, S2PCanvasText> = {};
@@ -369,7 +356,7 @@
   }
 
   function onAddTrackProfile() {
-    if (!data || !source.data.streams || !source.data.streams.location) 
+    if (!source.data.streams || !source.data.streams.location) 
       return;    
 
     s2pCanvas.addPolyFromLatLngs(
@@ -388,7 +375,7 @@
   }
 
   function onAddElevationChart() {
-    if (!data || !source.data.streams || !source.data.streams.elevation) 
+    if (!source.data.streams || !source.data.streams.elevation) 
       return;
 
     s2pCanvas.addFilledPolyFromVector(
@@ -541,11 +528,9 @@
     onclick={() => exportToPng()}
     class="btn btn-outline-primary"><i class="bi bi-download"></i></button
   >
-
   </div>
 
-  <div class="d-flex gap-1" style="flex-direction: row; width: 100%;">
-    <div class="d-flex align-items-center" style="flex-direction: column; width: 90%;">
+  <div class="d-flex gap-1" style="flex-direction: row;">
       <div style="width: 100%; padding-top: 3px;">
         <S2PSliderDropdown
           bind:this={themeMainFontSlider}
@@ -553,11 +538,6 @@
           dropdownData={Fonts.fontFamilies}
           onItemSelected={onFontFamilySelected}
         />
-      </div>
-    </div>
-
-    <div class="d-flex align-items-center" style="flex-direction: column; width: 10%;">
-      <div bind:this={accentColorPickerEl}></div>
     </div>
   </div>
 

@@ -5,14 +5,14 @@
         {
             "id": "es6pg72",
             "label": "user",
-            "top": 0.11272132042726102,
+            "top": 0.12136522642980602,
             "left": 0.3881932132583537,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
@@ -31,14 +31,14 @@
         {
             "id": "k9nz39u",
             "label": "distance",
-            "top": 0.1742334330475757,
+            "top": 0.18759432530873243,
             "left": 0.39284230953551874,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
@@ -57,14 +57,14 @@
         {
             "id": "ucncncp",
             "label": "pace",
-            "top": 0.3954964543674749,
+            "top": 0.42582464927269975,
             "left": 0.3398488562091501,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
@@ -83,14 +83,14 @@
         {
             "id": "u5xj14e",
             "label": "movingTime",
-            "top": 0.5990111295343321,
+            "top": 0.6449456153844539,
             "left": 0.37152777777777757,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
@@ -99,7 +99,7 @@
             "strokeWidth": 0,
             "scaleX": 1.3243864237695542,
             "scaleY": 1.480106415267419,
-            "value": "2h04m",
+            "value": "2:04:13",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
             "fontWeight": 600,
@@ -109,14 +109,14 @@
         {
             "id": "ym5n7mr",
             "label": "user",
-            "top": 0.330710940745478,
+            "top": 0.35607113236656374,
             "left": 0.4305555555555555,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
@@ -135,14 +135,14 @@
         {
             "id": "ap2c4vb",
             "label": "user",
-            "top": 0.5420366041264059,
+            "top": 0.5836020634223762,
             "left": 0.43229166666666674,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
@@ -159,23 +159,44 @@
             "charSpacing": 0
         }
     ],
-    "polys": [],
+    "polys": [
+        {
+            "id": "",
+            "label": "track_profile",
+            "top": 0.29432256933836876,
+            "left": 0.2465277777777778,
+            "width": 0,
+            "height": 0,
+            "angle": 0,
+            "fill": [
+                null,
+                null
+            ],
+            "stroke": [
+                "#fc5200",
+                "#fc5200"
+            ],
+            "strokeWidth": 1,
+            "scaleX": 0.5,
+            "scaleY": 0.5
+        }
+    ],
     "rects": [],
     "svgs": [
         {
-            "left": 0.4409722222222222,
-            "top": 0.7503165896682592,
-            "width": 0.10486476154229099,
-            "height": 0.12324925988544112,
+            "left": 0.44097222222222227,
+            "top": 0.8079047876044743,
+            "width": 0.10509849794125843,
+            "height": 0.13299626926414598,
             "url": "/svgs/run-sport.svg",
             "angle": 0,
             "stroke": null,
             "strokeWidth": 0,
             "fill": "rgb(0,0,0)",
-            "scaleX": 0.07929363554519549,
-            "scaleY": 0.07929363554519549
+            "scaleX": 0.1346321658052508,
+            "scaleY": 0.1346321658052508
         }
     ],
-    "height_percentage": 0.6325807922087906,
-    "devicePixelRatio": 1.100000023841858
+    "height_percentage": 0.5875269570393672,
+    "devicePixelRatio": 1.25
 }

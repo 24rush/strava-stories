@@ -2,17 +2,46 @@ import type { TFiller } from "fabric";
 
 export class ColorCombos {
     static colorCombos: [string, string][] = [        
-        ["#ffcd23", "#ff2768"],
-        ["#b80454", "#FBC704"],
-        ["#dcbcd0", "#b175ff"],
         ["#E91E63", "#FC5200"],
-        ["#F5E30A", "#0A9DF5"],
+        ["#ffcd23", "#ff2768"],        
+        ["#dcbcd0", "#b175ff"],
+        ["#FCFFDA", "#03A9F4"],
+        
         ["#3EC3FF", "#FF3A75"],
         ["#FF236E", "#FF776D"],
         ["#3D97F133", "#731636"],
+
+        ["#0EA5E9", "#2563EB"],
+        ["#7C3AED", "#2563EB"],
+        ["#22C55E", "#16A34A"],
+        ["#F97316", "#EA580C"],
+        ["#EC4899", "#DB2777"],
+        ["#14B8A6", "#0D9488"],
+        ["#6366F1", "#4F46E5"],
+        ["#F43F5E", "#E11D48"],
+        ["#A855F7", "#7E22CE"],
+        ["#38BDF8", "#0284C7"],
+
         ["#FFF", "#FFF"],
         ["#FFFFFF00", "#FFFFFF00"]
-        ];
+    ];
+
+    static swatches: string[] = [
+        "#F44336",
+        "#E91E63",
+        "#9C27B0",
+        "#673AB7",
+        "#3F51B5",
+        "#2196F3",
+        "#03A9F4",
+        "#00BCD4",
+        "#009688",
+        "#4CAF50",
+        "#8BC34A",
+        "#CDDC39",
+        "#FFEB3B",
+        "#FFC107",
+    ]
 }
 
 export function createPicker(pickerEl: HTMLDivElement, defaultColor: string | TFiller | null, onChangeCbk) {
@@ -20,22 +49,7 @@ export function createPicker(pickerEl: HTMLDivElement, defaultColor: string | TF
         el: pickerEl,
         theme: "classic",
         default: defaultColor,
-        swatches: [
-            "#F44336",
-            "#E91E63",
-            "#9C27B0",
-            "#673AB7",
-            "#3F51B5",
-            "#2196F3",
-            "#03A9F4",
-            "#00BCD4",
-            "#009688",
-            "#4CAF50",
-            "#8BC34A",
-            "#CDDC39",
-            "#FFEB3B",
-            "#FFC107",
-        ],
+        swatches: ColorCombos.swatches,
         components: {
             preview: true,
             opacity: true,

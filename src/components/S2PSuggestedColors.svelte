@@ -20,7 +20,8 @@
     let backgroundImgAdded = $state(false);
     let bgInput: HTMLInputElement;
 
-    let suggestedColors: string[][] = $state([]);
+    let suggestedColorsGenerator = new ColorSuggestions();
+    let suggestedColors: string[][] = $state(suggestedColorsGenerator.getDefaultColors());
     let showSuggestedColors = $state(true);
     let currColorIdx = 0;
 
@@ -37,7 +38,7 @@
 
         let isNullOfTransparent = (color: string | null): boolean => {
             return (
-                !color || 
+                !color ||
                 color.toLowerCase() == "#ffffff" ||
                 color.toLowerCase() == "#ffffff00"
             );
@@ -63,7 +64,10 @@
                 if (!isNullOfTransparent(p.getStrokeStop(gradientIndex)))
                     p.setStrokeStop(gradientIndex, colorStr);
 
-                if (!p.isPolyline && !isNullOfTransparent(p.getFillStop(gradientIndex)))
+                if (
+                    !p.isPolyline &&
+                    !isNullOfTransparent(p.getFillStop(gradientIndex))
+                )
                     p.setFillStop(gradientIndex, moreAlphaColorStr);
             });
         };
@@ -101,6 +105,8 @@
                 onRequestRedraw?.();
             },
         );
+                
+        setPickerColors();
     });
 
     onDestroy(() => {
@@ -118,23 +124,19 @@
         backgroundImgAdded = img != null;
 
         if (backgroundImgAdded) {
-            getSuggestedColors(img);
+            suggestedColors = suggestedColorsGenerator.generateColorsFromImage(
+                img?._element,
+            );
+
+            showSuggestedColors = true;
+            currColorIdx = 0;
             setPickerColors();
         }
 
-        bgInput.value = '';
-    }
-
-    function getSuggestedColors(img: FabricImage | null) {
-        if (!img) return;
-
-        let palette = new ColorSuggestions(img._element);
-        suggestedColors = [...palette.getSuggestedColors()];
+        bgInput.value = "";
     }
 
     export function setPickerColors() {
-        if (!backgroundImgAdded || !showSuggestedColors) return;
-
         let currentColor = suggestedColors[currColorIdx];
 
         colorPicker.setColor(currentColor[0]);
@@ -144,12 +146,20 @@
 
     function onSuggestedColorsChanged(event: any) {
         showSuggestedColors = event.target.checked;
+
+        suggestedColors = showSuggestedColors
+            ? suggestedColorsGenerator.getSuggestedColors()
+            : suggestedColorsGenerator.getDefaultColors();
+
+        currColorIdx = 0;
         setPickerColors();
 
         onSuggestedColorsChangedEvent?.(showSuggestedColors);
     }
 
     function nextSuggestedColor(direction: boolean) {
+        if (suggestedColors.length == 0) return;
+
         if (direction) {
             currColorIdx = ((currColorIdx ?? -1) + 1) % suggestedColors.length;
         } else {
@@ -186,6 +196,11 @@
             if (backgroundImgAdded) {
                 s2pCanvas.removeBackground();
                 backgroundImgAdded = false;
+
+                suggestedColors = suggestedColorsGenerator.getDefaultColors();
+                currColorIdx = 0;
+                setPickerColors();
+
                 onBackgroundRemoved?.();
                 return;
             }
@@ -204,22 +219,22 @@
             style="display: none;"
         />
     </button>
-    <i class="mb-1">(it will not be exported in final image)</i>
+    <i class="mb-2">(it will not be exported in final image)</i>
 
-    <div
-        style="display: {backgroundImgAdded
-            ? 'flex'
-            : 'none'}; flex-direction: column;"
-    >
-        <div class="d-flex gap-2 mb-2" style="margin: auto;">
-            <label for="switchCheckChecked">theme colors</label>
+    <div class="d-flex gap-2 mb-2" style="flex-direction: column;">
+        <div
+            style="margin: auto;display: {backgroundImgAdded
+                ? 'flex'
+                : 'none'};"
+        >
+            <label for="switchCheckChecked" class="me-2">theme colors</label>
             <div class="form-check form-switch">
                 <input
                     class="form-check-input"
                     type="checkbox"
                     role="switch"
                     id="switchCheckChecked"
-                    checked
+                    bind:checked={showSuggestedColors}
                     oninput={onSuggestedColorsChanged}
                 />
                 <label for="switchCheckChecked">suggested</label>
@@ -227,9 +242,7 @@
         </div>
 
         <div
-            style="flex-direction: column;list-style: none; display: {showSuggestedColors
-                ? 'flex'
-                : 'none'}"
+            style="flex-direction: column;list-style: none;"
         >
             <div class="btn-group me-mobile" role="group" style="width: 100%;">
                 <button

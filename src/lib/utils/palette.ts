@@ -1,3 +1,4 @@
+import { ColorCombos } from "./picker";
 
 type Triple = [number, number, number]
 
@@ -8,12 +9,48 @@ export class ColorSuggestions {
     private dominantHsl: Triple;
     private paletteHsl: Triple[] = [];
 
-    constructor(img: any) {
-        this.dominantHsl = this.rgbToHsl(this.colorThief.getColor(img));
-        this.paletteHsl = this.colorThief.getPalette(img, this.NO_OF_COLORS).map((rgb: Triple) => this.rgbToHsl(rgb));
+    private defaultColorSet: string[][] = [];
+    private suggestedColors: string[][] = [];
+
+    constructor() {
+        ColorCombos.colorCombos.forEach(color => {
+            if (color[0] == "#FFF" || color[0] == "#FFFFFF00")
+                return;
+
+            let textColor = ["#F9FAFB",
+                "#E5E7EB",
+                "#CBD5E1",
+                "#D1D5DB",][Math.floor(Math.random() * 4)];
+
+            this.defaultColorSet.push([textColor, color[0], color[1]]);
+        });
     }
 
-    public getNoOfColors(): number { return this.NO_OF_COLORS; }
+    public generateColorsFromImage(img: any): string[][] {
+        if (img) {
+            this.dominantHsl = this.rgbToHsl(this.colorThief.getColor(img));
+            this.paletteHsl = this.colorThief.getPalette(img, this.NO_OF_COLORS).map((rgb: Triple) => this.rgbToHsl(rgb));
+
+            let getCrazyColorSet = (hsl: Triple) => {
+                let colorsForHsl: string[] = [];
+
+                colorsForHsl.push(this.crazyTextColor(hsl));
+                colorsForHsl.push(...this.crazyGradient(hsl));
+
+                return colorsForHsl;
+            }
+
+            for (let i = 0; i < this.paletteHsl.length; i++) {                
+                let hsl = this.higherContrastHsl(this.paletteHsl[i]);
+                //colors.push(getCrazyColorSet(hsl));         
+                this.suggestedColors.push(getCrazyColorSet(this.complementaryHsl(hsl)));
+            }
+
+            this.suggestedColors.push(getCrazyColorSet(this.dominantHsl));
+        }
+
+        return this.suggestedColors;
+    }
 
     private rgbToHsl(color: Triple): Triple {
         let [r, g, b] = color;
@@ -68,6 +105,56 @@ export class ColorSuggestions {
         );
     }
 
+    private hexToHsl(hex: string): Triple {
+        // Remove leading #
+        hex = hex.replace(/^#/, "");
+
+        // Handle shorthand hex (#f80)
+        if (hex.length === 3) {
+            hex = hex
+                .split("")
+                .map(c => c + c)
+                .join("");
+        }
+
+        const r = parseInt(hex.slice(0, 2), 16) / 255;
+        const g = parseInt(hex.slice(2, 4), 16) / 255;
+        const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const delta = max - min;
+
+        let h = 0;
+        let s = 0;
+        const l = (max + min) / 2;
+
+        if (delta !== 0) {
+            s = delta / (1 - Math.abs(2 * l - 1));
+
+            switch (max) {
+                case r:
+                    h = ((g - b) / delta) % 6;
+                    break;
+                case g:
+                    h = (b - r) / delta + 2;
+                    break;
+                case b:
+                    h = (r - g) / delta + 4;
+                    break;
+            }
+
+            h *= 60;
+            if (h < 0) h += 360;
+        }
+
+        return [
+            Math.round(h),
+            Math.round(s * 100),
+            Math.round(l * 100),
+        ];
+    }
+
     private higherContrastHsl(color: Triple): Triple {
         const [h, s, l] = color;
 
@@ -78,26 +165,11 @@ export class ColorSuggestions {
     }
 
     public getSuggestedColors(): string[][] {
-        let colors: string[][] = [];
+        return this.suggestedColors;
+    }
 
-        let getCrazyColorSet = (hsl: Triple) => {
-            let colorsForHsl: string[] = [];
-
-            colorsForHsl.push(this.crazyTextColor(hsl));
-            colorsForHsl.push(...this.crazyGradient(hsl));
-
-            return colorsForHsl;
-        }
-
-        for (let i = 0; i < this.NO_OF_COLORS; i++) {
-            let hsl = this.higherContrastHsl(this.paletteHsl[i]);
-            //colors.push(getCrazyColorSet(hsl));         
-            colors.push(getCrazyColorSet(this.complementaryHsl(hsl)));         
-        }
-
-        colors.push(getCrazyColorSet(this.dominantHsl));
-
-        return colors;
+    public getDefaultColors(): string[][] {
+        return this.defaultColorSet;
     }
 
     public complementaryHsl(colorHsl: Triple): Triple {
