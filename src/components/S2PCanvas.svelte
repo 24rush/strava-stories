@@ -650,7 +650,7 @@
         canvas.renderAll();
     }
 
-    function resetSlidersToMedian() {
+    export function resetSlidersToMedian() {
         let medPos = getMedianPosition();
         if (medPos) {
             rangeX.value = medPos?.x.toString();

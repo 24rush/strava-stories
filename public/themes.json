@@ -1248,8 +1248,8 @@
         "height": 0,
         "angle": 0,
         "fill": [
-          "#FF0606",
-          "#ED1919"
+          "#F8F8F8",
+          "#F8F8F8"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1269,13 +1269,13 @@
         "id": "ucncncp",
         "label": "pace_value",
         "top": 0.4333171657818904,
-        "left": 0.28714298739310173,
+        "left": 0.2680457651708795,
         "width": 0,
         "height": 0,
         "angle": 0,
         "fill": [
-          "#FF0606",
-          "#ED1919"
+          "#F8F8F8",
+          "#F8F8F8"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1294,14 +1294,14 @@
       {
         "id": "tymvast",
         "label": "pace_value_unit",
-        "top": 0.48008596993809594,
-        "left": 0.44836003807666214,
+        "top": 0.480085969938096,
+        "left": 0.43099728288334466,
         "width": 0,
         "height": 0,
         "angle": 0,
         "fill": [
-          "#A71A1A",
-          "#F83030"
+          "#F8F8F8cc",
+          "#F8F8F8cc"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1326,8 +1326,8 @@
         "height": 0,
         "angle": 0,
         "fill": [
-          "#FF0606",
-          "#ED1919"
+          "#F8F8F8",
+          "#F8F8F8"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1347,13 +1347,13 @@
         "id": "78azuks",
         "label": "distance_value_unit",
         "top": 0.4801401422216522,
-        "left": 0.15470391626724309,
+        "left": 0.1529694492383383,
         "width": 0,
         "height": 0,
         "angle": 0,
         "fill": [
-          "#A71A1A",
-          "#F83030"
+          "#F8F8F8cc",
+          "#F8F8F8cc"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1378,8 +1378,8 @@
         "height": 0,
         "angle": 0,
         "fill": [
-          "#FF0606",
-          "#ED1919"
+          "#F8F8F8",
+          "#F8F8F8"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1399,13 +1399,13 @@
         "id": "hfe9jyb",
         "label": "elevationGain_value_unit",
         "top": 0.48449995898126624,
-        "left": 0.8807933228864818,
+        "left": 0.8790588558575771,
         "width": 0,
         "height": 0,
         "angle": 0,
         "fill": [
-          "#A71A1A",
-          "#F83030"
+          "#F8F8F8cc",
+          "#F8F8F8cc"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1425,13 +1425,13 @@
         "id": "0bviska",
         "label": "user",
         "top": 0.6499194752349425,
-        "left": 0.10069444444444484,
+        "left": 0.08333333333333373,
         "width": 0,
         "height": 0,
         "angle": 0,
         "fill": [
-          "#AB1414",
-          "#F83030"
+          "#F8F8F8",
+          "#F8F8F8"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1451,13 +1451,13 @@
         "id": "1y9p5yr",
         "label": "user",
         "top": 0.6649228561873666,
-        "left": 0.3566839855008645,
+        "left": 0.33758676327864223,
         "width": 0,
         "height": 0,
         "angle": 0,
         "fill": [
-          "#AB1414",
-          "#F83030"
+          "#F8F8F8",
+          "#F8F8F8"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1482,8 +1482,8 @@
         "height": 0,
         "angle": 0,
         "fill": [
-          "#AB1414",
-          "#F83030"
+          "#F8F8F8",
+          "#F8F8F8"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1508,8 +1508,8 @@
         "height": 0,
         "angle": 0,
         "fill": [
-          "#AB1414",
-          "#F83030"
+          "#F8F8F8",
+          "#F8F8F8"
         ],
         "stroke": [
           "#FFFFFF",
@@ -1530,7 +1530,7 @@
     "rects": [],
     "svgs": [],
     "height_percentage": 0.19927404014706054,
-    "devicePixelRatio": 1.5
+    "devicePixelRatio": 1.25
   },
   {
     "name": "Run: Strava #4",

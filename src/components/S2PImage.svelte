@@ -232,6 +232,7 @@
     s2pCanvas.unselectAll();
     s2pSuggestedColors.setPickerColors();
     alignUnitsWithValues();
+    s2pCanvas.resetSlidersToMedian();
   }
 
   function onRequestRedraw() {    
@@ -395,7 +396,7 @@
 
   function onSuggestedColorsChangedEvent(showSuggestedColors: boolean) {
     if (!showSuggestedColors) {
-      reloadTheme(currentThemeIdx);
+      onBackgroundRemoved();
     }
   }
 
