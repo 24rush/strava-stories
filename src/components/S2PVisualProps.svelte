@@ -649,7 +649,7 @@
         align-items: center;
     }
 
-    @media (max-width: 575.98px) {
+    @media (max-width: 600px) {
         .me-mobile {
             margin-right: 1.25rem !important;
         }

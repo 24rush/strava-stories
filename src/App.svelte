@@ -164,7 +164,7 @@
 
 <main>
   <div
-    class="container d-flex align-items-center"
+    class="container tight-mobile d-flex align-items-center"
     style="flex-direction: column; max-width: 600px; justify-content: center"
   >
     <h1

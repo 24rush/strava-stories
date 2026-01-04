@@ -1,26 +1,26 @@
-{
+S2PCanvas.svelte: 589 {
     "name": "default",
     "ignore": false,
     "texts": [
         {
             "id": "es6pg72",
             "label": "user",
-            "top": 0.5763864763664023,
-            "left": 0.03749876881390941,
+            "top": 0.37192468674924317,
+            "left": 0.13819321325835376,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1030945004771593,
-            "scaleY": 1.071237996288427,
+            "scaleX": 0.8880993346908319,
+            "scaleY": 0.8624517223028174,
             "value": "Distance",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
@@ -31,23 +31,23 @@
         {
             "id": "k9nz39u",
             "label": "distance",
-            "top": 0.6473176690819937,
-            "left": 0.0633692703198325,
+            "top": 0.4293185767006324,
+            "left": 0.15902150599808731,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.3541956570047957,
-            "scaleY": 1.513420587440903,
-            "value": "11 km",
+            "scaleX": 1.0902604096992101,
+            "scaleY": 1.2184521056285553,
+            "value": "22km",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
             "fontWeight": 600,
@@ -57,23 +57,23 @@
         {
             "id": "ucncncp",
             "label": "pace",
-            "top": 0.6507291217135055,
-            "left": 0.3263888888888886,
+            "top": 0.43207894952690695,
+            "left": 0.3707781126721062,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.2883507821141547,
-            "scaleY": 1.4398337399853627,
-            "value": "04:53 /km",
+            "scaleX": 1.0372488231507462,
+            "scaleY": 1.1592074713392972,
+            "value": "05:37/km",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
             "fontWeight": 600,
@@ -83,22 +83,22 @@
         {
             "id": "tymvast",
             "label": "user",
-            "top": 0.5743291482070044,
-            "left": 0.421875,
+            "top": 0.370260002123851,
+            "left": 0.4476538034794767,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1030945004771593,
-            "scaleY": 1.071237996288427,
+            "scaleX": 0.8880993346908319,
+            "scaleY": 0.8624517223028174,
             "value": "Pace",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
@@ -109,22 +109,22 @@
         {
             "id": "t925y03",
             "label": "user",
-            "top": 0.5744160041040594,
-            "left": 0.7534722222222221,
+            "top": 0.3703302814693173,
+            "left": 0.7146221115559805,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.1030945004771593,
-            "scaleY": 1.071237996288427,
+            "scaleX": 0.8880993346908319,
+            "scaleY": 0.8624517223028174,
             "value": "Time",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
@@ -135,23 +135,23 @@
         {
             "id": "u5xj14e",
             "label": "movingTime",
-            "top": 0.6505580407649625,
-            "left": 0.6874999999999998,
+            "top": 0.4319405195815256,
+            "left": 0.6615079979072519,
             "width": 0,
             "height": 0,
             "angle": 0,
             "fill": [
-                "#FFFFFF",
-                "#FFFFFF"
+                "#F9FAFB",
+                "#F9FAFB"
             ],
             "stroke": [
                 "#FFFFFF",
                 "#FFFFFF"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.3243864237695542,
-            "scaleY": 1.480106415267419,
-            "value": "54m 40s",
+            "scaleX": 1.0662610513555593,
+            "scaleY": 1.191630927451845,
+            "value": "2:04:13",
             "fontSize": 0.04096638655462185,
             "fontFamily": "Termina Test",
             "fontWeight": 600,
@@ -163,8 +163,8 @@
         {
             "id": "",
             "label": "track_profile",
-            "top": 0.2282651012774335,
-            "left": 0.234375,
+            "top": 0.09024269147115269,
+            "left": 0.2966979015304588,
             "width": 0,
             "height": 0,
             "angle": 0,
@@ -173,30 +173,30 @@
                 null
             ],
             "stroke": [
-                "#3EC3FF",
-                "#FF3A75"
+                "#E91E63",
+                "#FC5200"
             ],
             "strokeWidth": 2,
-            "scaleX": 0.5,
-            "scaleY": 0.5
+            "scaleX": 0.40254907186404787,
+            "scaleY": 0.40254907186404787
         }
     ],
     "rects": [],
     "svgs": [
         {
-            "left": 0.4305555555555556,
-            "top": 0.8218339118441869,
-            "width": 0.10486476154229103,
-            "height": 0.1195881746912102,
+            "left": 0.45464250264378303,
+            "top": 0.5705653937307662,
+            "width": 0.0846146056011183,
+            "height": 0.09698031061576676,
             "url": "/svgs/run-sport.svg",
             "angle": 0,
             "stroke": null,
             "strokeWidth": 0,
             "fill": "rgb(0,0,0)",
-            "scaleX": 0.13433274727656652,
-            "scaleY": 0.13433274727656652
+            "scaleX": 0.10839210677590069,
+            "scaleY": 0.10839210677590069
         }
     ],
-    "height_percentage": 0.6519466883644137,
-    "devicePixelRatio": 1
+    "height_percentage": 0.6486829915520109,
+    "devicePixelRatio": 1.25
 }

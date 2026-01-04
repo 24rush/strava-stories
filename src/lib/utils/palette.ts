@@ -20,7 +20,7 @@ export class ColorSuggestions {
             let textColor = ["#F9FAFB",
                 "#E5E7EB",
                 "#CBD5E1",
-                "#D1D5DB",][Math.floor(Math.random() * 4)];
+                "#F8F8F8",][Math.floor(Math.random() * 4)];
 
             this.defaultColorSet.push([textColor, color[0], color[1]]);
         });

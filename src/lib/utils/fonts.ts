@@ -10,7 +10,6 @@ export class Fonts {
             "Kanit",
             "Roboto",
             "Black Ops One",
-            "Carter One",
             "Goldman",
             "Rubik Glitch",
             "Rubik Moonrocks",
