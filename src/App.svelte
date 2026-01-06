@@ -171,7 +171,7 @@
       class="mb-2"
       style="font-weight: 300;  font-size: clamp(2.5rem, 8vw, 5rem);"
     >
-      strava story
+      sweat story
     </h1>
 
     <div class="row mb-2" style="width: 100%;">
