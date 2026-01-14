@@ -167,8 +167,8 @@
         });
 
         window.addEventListener("beforeunload", function (e) {
-            e.preventDefault(); // required for some browsers
-            e.returnValue = ""; // triggers the browser's confirmation dialog
+            //e.preventDefault(); // required for some browsers
+            //e.returnValue = ""; // triggers the browser's confirmation dialog
         });
 
         let MOVE_STEP = 1;

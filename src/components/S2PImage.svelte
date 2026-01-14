@@ -10,7 +10,6 @@
   import type { FabricObject } from "fabric";
   import S2PSliderDropdown from "./S2PSliderDropdown.svelte";
   import { Fonts } from "../lib/utils/fonts";
-  import { createPicker } from "../lib/utils/picker";
   import type { S2PSvg } from "../lib/S2PSvg";
   import type { S2PRect } from "../lib/S2PRect";
   import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
@@ -43,10 +42,10 @@
 
   let polyProp: S2PVisualProps;
 
-  let hasFill: boolean;
-  let hasStroke: boolean;
-  let hasStrokeWidth: boolean;
-  let hasRadius: boolean;
+  let hasFill: boolean = $state(false);
+  let hasStroke: boolean = $state(false);
+  let hasStrokeWidth: boolean = $state(false);
+  let hasRadius: boolean = $state(false);
 
   let toggleSelectAll: boolean = false;
   let currentSelection: FabricObject[] = [];

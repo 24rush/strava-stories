@@ -3,6 +3,7 @@
   import S2PImage from "./components/S2PImage.svelte";
   import S2PFieldData from "./components/S2PFieldData.svelte";
   import { DataSource, FieldMappings } from "./lib/utils/fieldmappings";
+  import S2PLogin from "./components/S2PLogin.svelte";
 
   let s2pImage: S2PImage;
 
@@ -17,6 +18,8 @@
 
   let themes: any = {};
   let theme_fetched = $state(false);
+
+  let loggedInAthlete: any = $state(false);
 
   const appLinkRegex = /[https:\/\/]*strava\.app\.link\/[A-Za-z0-9]+$/;
   const actRegex = /https?:\/\/[www\.]*strava\.com\/activities\/(\d+)(\/.*)?/;
@@ -118,6 +121,10 @@
     }
   }
 
+  function onAthleteLoggedIn(loggedIn: boolean) {
+    loggedInAthlete = loggedIn;
+  }
+
   onMount(() => {
     getThemes();
 
@@ -128,7 +135,7 @@
       strava_default_url = "https://www.strava.com/activities/" + act;
     }
 
-    getStravaActivity(strava_default_url);
+    getStravaActivity(strava_default_url);    
   });
 
   function onStravaUrlChanged(e: any) {
@@ -168,18 +175,21 @@
     style="flex-direction: column; max-width: 600px; justify-content: center"
   >
     <h1
-      class="mb-2"
+      class="mb-3"
       style="font-weight: 300;  font-size: clamp(2.5rem, 8vw, 5rem);"
     >
       sweat story
     </h1>
+
+    <S2PLogin {onAthleteLoggedIn} />
 
     <div class="row mb-2" style="width: 100%;">
       <div
         class="col-md-4 mb-1 d-flex gap-1 align-items-center"
         style="width: 100%; padding: 0px;justify-content: center; flex-direction: column;"
       >      
-      <span class="mb-1">URL of your Strava activity (set to <i>Everyone</i>)</span>
+      {#if loggedInAthlete}
+        <span class="mb-1">URL of your Strava activity (set to <i>Everyone</i>)</span>
         <div class="d-flex gap-1 align-items-center" style="width: 100%;">
           <button
             class="btn btn-primary"
@@ -200,6 +210,7 @@
               ></i>
             {/if}
         </div>
+        {/if}
         
         <i>or</i>
 
@@ -211,7 +222,7 @@
           aria-expanded={field_data_is_open}
           onclick={() => (field_data_is_open = !field_data_is_open)}
           aria-controls="fieldData"
-          type="button">Enter values</button
+          type="button">Manually enter values</button
         >
       </div>
 
