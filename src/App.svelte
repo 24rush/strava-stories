@@ -26,6 +26,7 @@
   const localActivities: Record<string, string> = {
     "15174937862": "15174937862.txt",
     "14134698093": "14134698093.txt",
+    '17045340809': '17045340809.txt',
   };
 
   function extractStravaUrl(url: string): string | undefined {
@@ -68,7 +69,7 @@
         .replace(/&amp;/g, "&");
 
       const jsonData = JSON.parse(jsonText);
-      source.loadFromRaw(jsonData.props.pageProps.activity);
+      source.loadFromRawNoApi(jsonData.props.pageProps.activity);
       
       s2pFieldData.refresh();
       data_fetched = true;

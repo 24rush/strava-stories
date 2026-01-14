@@ -43,6 +43,10 @@ export class DataSource {
         this.data = StravaData.loadFromRaw(raw);
     }
 
+    public loadFromRawNoApi(raw: any) {
+        this.data = StravaData.loadFromRawNoApi(raw);
+    }
+
     public getValue(fieldName: string): string | undefined {
         let storageValue = this.fieldValuesStorage.getValue(fieldName);
         if (!storageValue) {
