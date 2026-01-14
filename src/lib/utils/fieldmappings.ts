@@ -1,4 +1,4 @@
-import type { LatLng } from "../geometry/LatLng";
+import { LatLng } from "../geometry/LatLng";
 import { Converters } from "./converters";
 
 export enum FieldName {
@@ -366,7 +366,7 @@ export class StravaData {
         this.origData = undefined;
     }
 
-    static loadFromRaw(data: any): StravaData {
+    static loadFromRawNoApi(data: any): StravaData {
         let newThis: StravaData = {
             activityKind: { sportType: data.activityKind.sportType },
             scalars: {
@@ -377,6 +377,26 @@ export class StravaData {
             streams: {
                 location: data.streams.location,
                 elevation: data.streams.elevation
+            },
+            origData: undefined
+        }
+
+        newThis.origData = structuredClone(newThis);
+
+        return newThis;
+    }
+
+    static loadFromRaw(data: any): StravaData {
+        let newThis: StravaData = {
+            activityKind: { sportType: data.sport_type },
+            scalars: {
+                distance: data.distance,
+                movingTime: data.moving_time,
+                elevationGain: data.total_elevation_gain,
+            },
+            streams: {
+                location: 'latlng' in data.streams ? (data.streams.latlng.data as [[number, number]]).map(v => new LatLng(v[0], v[1])) : [],
+                elevation: 'altitude' in data.streams ? data.streams.altitude.data : [],
             },
             origData: undefined
         }

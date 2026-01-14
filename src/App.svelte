@@ -77,8 +77,9 @@
       return;
     }
 
-    await fetch("https://strava-stories-taupe.vercel.app/api/strava", {
+    await fetch("https://strava-auth.vercel.app/api/activity", {
       method: "GET",
+      credentials: "include",
       headers: {
         url: stravaActUrl,
       },
@@ -94,7 +95,7 @@
         return res.json();
       })
       .then((strava_data) => {
-        let raw_data = strava_data["activity"];        
+        let raw_data = strava_data;        
         url_ok = raw_data != null;
         data_fetched = true;
 
@@ -199,6 +200,7 @@
           <input
             class="form-control {!url_ok ? 'is-invalid' : 'is-valid'}"
             style="width: 100%; margin-right: 3px;"
+            disabled={!data_fetched}
             oninput={onStravaUrlChanged}
             placeholder={strava_default_url}
             value={strava_default_url}
