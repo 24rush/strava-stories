@@ -7,7 +7,7 @@
         onAthleteLoggedIn(loggedInAthlete: boolean): void;
     } = $props();
 
-    const STRAVA_AUTH_URL = "http://localhost:3000";
+    let STRAVA_AUTH_URL = "https://strava-auth.vercel.app";
     const STORAGE_KEY_AUTH = "auth";
     const STORAGE_KEY_LOGIN_IN_PROGRESS = "op";
     const CLOCK_SKEW_BUFFER = 30; // seconds
@@ -17,8 +17,18 @@
     let operation_msg = $state("");
 
     onMount(() => {
+        if (isLocalhost()) {
+            STRAVA_AUTH_URL = "http://localhost:3000";
+        }
+
         getLoggedInUser();
     });
+
+    function isLocalhost() {
+        return /^localhost$|^127\.0\.0\.1$|^\[::1\]$/.test(
+            window.location.hostname,
+        );
+    }
 
     async function logout() {
         loggedInAthlete = false;
@@ -32,7 +42,7 @@
             credentials: "include",
         });
 
-        setOperation(false, "");        
+        setOperation(false, "");
     }
 
     async function login() {
@@ -45,7 +55,7 @@
         let storage = localStorage.getItem(STORAGE_KEY_LOGIN_IN_PROGRESS);
         if (!storage) return false;
 
-        return storage == 'y';
+        return storage == "y";
     }
 
     async function getLoggedInUser() {
