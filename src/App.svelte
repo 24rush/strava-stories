@@ -176,12 +176,12 @@
     class="container tight-mobile d-flex align-items-center"
     style="flex-direction: column; max-width: 600px; justify-content: center"
   >
-    <h1
-      class="mb-3"
+    <h1      
       style="font-weight: 300;  font-size: clamp(2.5rem, 8vw, 5rem);"
     >
       sweat story
     </h1>
+    <span class="mb-3" style="font-style: italic; margin-top: -16px;">Strava activity to Instagram overlay</span>
 
     <S2PLogin {onAthleteLoggedIn} />
 
