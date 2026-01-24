@@ -14,7 +14,7 @@
     );
     let indexedValues: string[] = $derived(
         Object.entries(dropdownData).flatMap(([key, values]) =>
-            values.map((value) => key + ": " + value),
+            values.map((value) => key + " - " + value),
         ),
     );
 
@@ -35,9 +35,9 @@
     }
 
     function selectItem(header: string, selectedValue: string) {
-        currentItem = header + ": " + selectedValue;
+        currentItem = header + " - " + selectedValue;
         currentItemIdx = indexedValues.findIndex(
-            (value) => value == header + ": " + selectedValue,
+            (value) => value == header + " - " + selectedValue,
         );
         onItemSelected(header, selectedValue);
     }
@@ -45,7 +45,7 @@
     function _selectItem(itemIdx: number) {
         let itemValue = indexedValues[itemIdx];
 
-        let posComma = itemValue?.indexOf(":") ?? -1;
+        let posComma = itemValue?.indexOf("-") ?? -1;
         if (posComma != -1 && itemValue) {
             selectItem(
                 itemValue.substring(0, posComma).trim() ?? "",

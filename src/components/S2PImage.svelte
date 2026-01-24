@@ -61,7 +61,7 @@
       if (t.ignore && !isLocalhost)
         return;
 
-      let themeTokens: string[] = t.name.split(":");
+      let themeTokens: string[] = t.name.split("-");
 
       let themeType = "Generic";
       let themeName = t.name;
@@ -334,10 +334,10 @@
   
   async function onThemeSelected(themeType: string, themeName: string) {
     currentThemeIdx =
-      themes.findIndex((theme) => theme.name.includes(themeType + ": " + themeName)) ?? 0;
+      themes.findIndex((theme) => theme.name.includes(themeType + " - " + themeName)) ?? 0;
 
     if (themes[currentThemeIdx] && source.data.streams) {   
-        selectedTheme = themeType + ": " + themeName;
+        selectedTheme = themeType + "- " + themeName;
         loadTheme(themes[currentThemeIdx]) ;
         onRequestRedraw();          
     }

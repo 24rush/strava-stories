@@ -1,6 +1,6 @@
 [
   {
-    "name": "Cycling: Indoor #1",
+    "name": "Cycling - Indoor #1",
     "ignore": false,
     "texts": [
       {
@@ -323,7 +323,7 @@
     "devicePixelRatio": 3.5
   },
   {
-    "name": "Cycling: Outdoor #1",
+    "name": "Cycling - Outdoor #1",
     "ignore": false,
     "texts": [
       {
@@ -563,7 +563,7 @@
     "devicePixelRatio": 1
   },
   {
-    "name": "Cycling: Outdoor #2",
+    "name": "Cycling - Outdoor #2",
     "ignore": false,
     "texts": [
       {
@@ -765,7 +765,7 @@
     "devicePixelRatio": 1.100000023841858
   },
   {
-    "name": "Run: Garmin",
+    "name": "Run - Garmin",
     "ignore": false,
     "texts": [
       {
@@ -1034,7 +1034,7 @@
     "devicePixelRatio": 1.25
   },
   {
-    "name": "Run: Strava #1",
+    "name": "Run - Strava #1",
     "ignore": false,
     "texts": [
       {
@@ -1236,7 +1236,7 @@
     "devicePixelRatio": 1.25
   },
   {
-    "name": "Run: Strava #3",
+    "name": "Run - Strava #3",
     "ignore": false,
     "texts": [
       {
@@ -1533,7 +1533,7 @@
     "devicePixelRatio": 1.25
   },
   {
-    "name": "Run: Strava #4",
+    "name": "Run - Strava #4",
     "ignore": false,
     "texts": [
       {
@@ -1773,7 +1773,7 @@
     "devicePixelRatio": 1.100000023841858
   },
   {
-    "name": "Run: Suunto",
+    "name": "Run - Suunto",
     "ignore": false,
     "texts": [
       {
@@ -2033,7 +2033,7 @@
     "devicePixelRatio": 1
   },
   {
-    "name": "Run: test",
+    "name": "Run - test",
     "ignore": true,
     "texts": [
       {
@@ -2255,7 +2255,7 @@
     "devicePixelRatio": 1
   },
   {
-    "name": "Swim: Arena",
+    "name": "Swim - Arena",
     "ignore": false,
     "texts": [
       {
@@ -2436,7 +2436,7 @@
     "devicePixelRatio": 1.100000023841858
   },
   {
-    "name": "Trail: AltaMesa",
+    "name": "Trail - AltaMesa",
     "ignore": false,
     "texts": [
       {
@@ -2696,7 +2696,7 @@
     "devicePixelRatio": 1.100000023841858
   },
   {
-    "name": "Trail: Hoka",
+    "name": "Trail - Hoka",
     "ignore": false,
     "texts": [
       {
@@ -2979,7 +2979,7 @@
     "devicePixelRatio": 1.100000023841858
   },
   {
-    "name": "Trail: Merrell",
+    "name": "Trail - Merrell",
     "ignore": false,
     "texts": [
       {
@@ -3138,7 +3138,7 @@
     "devicePixelRatio": 1.25
   },
   {
-    "name": "Year in Sports: 2025 #1",
+    "name": "Year in Sports - 2025 #1",
     "ignore": false,
     "texts": [
       {
@@ -3442,7 +3442,7 @@
     "devicePixelRatio": 1
   },
   {
-    "name": "Year in Sports: 2025 #2",
+    "name": "Year in Sports - 2025 #2",
     "ignore": false,
     "texts": [
       {

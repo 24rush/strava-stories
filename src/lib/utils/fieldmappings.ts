@@ -286,7 +286,7 @@ export class FieldMappings {
 
     static stripHeaderFromFieldName(fieldName: string): string {
         FieldMappings.Headers.forEach((header: string) => {
-            fieldName = fieldName.replace(header + ": ", "");
+            fieldName = fieldName.replace(header + " - ", "");
         });
 
         return fieldName;
