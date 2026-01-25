@@ -47,6 +47,10 @@
   let hasStrokeWidth: boolean = $state(false);
   let hasRadius: boolean = $state(false);
 
+  let hasHeartRate = $state(false);
+  let hasTrackProfile = $state(false);
+  let hasElevation = $state(false);
+
   let toggleSelectAll: boolean = false;
   let currentSelection: FabricObject[] = [];
 
@@ -139,7 +143,10 @@
   }
 
   function _loadTheme(theme_meta: S2PTheme | undefined) {
-    s2pCanvas.clear();        
+    s2pCanvas.clear();  
+    hasHeartRate = source.data.hasHeartRate && source.data.streams.heartrate.length > 0;
+    hasTrackProfile = source.data.streams.location.length > 0;    
+    hasElevation = source.data.streams.elevation.length > 0;
 
     if (!theme_meta) return;
 
@@ -317,6 +324,9 @@
       if (source.data.activityKind.sportType.includes("Run"))
         keyworkToSearch = "Run";
 
+      if (source.data.activityKind.sportType.includes("Trail"))
+        keyworkToSearch = "Trail";
+
       if (source.data.activityKind.sportType.includes("Ride"))
         keyworkToSearch = "Cycling";
 
@@ -337,7 +347,7 @@
       themes.findIndex((theme) => theme.name.includes(themeType + " - " + themeName)) ?? 0;
 
     if (themes[currentThemeIdx] && source.data.streams) {   
-        selectedTheme = themeType + "- " + themeName;
+        selectedTheme = themeType + " - " + themeName;
         loadTheme(themes[currentThemeIdx]) ;
         onRequestRedraw();          
     }
@@ -387,6 +397,25 @@
         scaleY: 0.5,
         stroke: ["#fc5200", "#fc5200"],
         fill: ["rgba(0, 128, 255, 0.2)", "rgba(0, 128, 255, 0.2)"],
+        top: s2pCanvas.getCanvas().height / 4,
+        left: s2pCanvas.getCanvas().width / 4,
+      }
+    );
+  }
+
+  function onAddHeartrateChart() {
+    if (!source.data.streams || !source.data.streams.heartrate) 
+      return;
+
+    s2pCanvas.addFilledPolyFromVector(
+      "heartrate_profile",
+      source.data.streams.heartrate,
+      {
+        ...new S2PThemePoly(),        
+        scaleX: 0.5,
+        scaleY: 0.5,
+        stroke: ["#ff0000", "#ff0000"],
+        fill: ["rgba(0, 0, 255, 0.2)", "rgba(0, 0, 0, 0.2)"],
         top: s2pCanvas.getCanvas().height / 4,
         left: s2pCanvas.getCanvas().width / 4,
       }
@@ -542,12 +571,21 @@
   </div>
 
   <div class="btn-group mb-2 d-flex" role="group">    
+    {#if hasTrackProfile }
     <button onclick={() => onAddTrackProfile()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
       >Track profile +</button
     >
+    {/if}
+    {#if hasElevation }
     <button onclick={() => onAddElevationChart()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
       >Elevation chart +</button
     >
+    {/if}
+    {#if hasHeartRate }
+    <button onclick={() => onAddHeartrateChart()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
+      >Heartrate chart +</button
+    >
+    {/if}
   </div>
   <div class="mb-2">
     {#if canvasItemSelected && canvasItemSelected.s2pType != S2PCanvasItemType.Svg}

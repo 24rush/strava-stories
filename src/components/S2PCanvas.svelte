@@ -692,12 +692,12 @@
     ): Group | undefined {
         if (!elevations.length) return;
 
-        let points = generateXYFromPoints(elevations, canvas.getWidth(), 40);
+        let points = generateXYFromPoints(elevations, canvas.getWidth(), 30);
 
         let filledPoly = new S2PCanvasPoly(
             label,
             canvas.getWidth(),
-            60 - canvasPadding,
+            50 - canvasPadding,
             poly,
         );
 

@@ -9,6 +9,8 @@ export enum FieldName {
     Calories = "Calories",
     AvgPower = "Avg. Power (W)",
     MaxPower = "Max. Power (W)",
+    AvgHeartRate = "Avg. heartrate (bpm)",
+    MaxHeartRate = "Max. heartrate (bpm)",
     AltitudeMax = "Altitude max (m)",
     AltitudeMin = "Altitude min (m)",
 
@@ -29,6 +31,8 @@ export enum FieldId {
     AltitudeMin = "altitude_min",
     AvgPower = "avgpower",
     MaxPower = "maxpower",
+    AvgHeartRate = "average_heartrate",
+    MaxHeartRate = "max_heartrate",
     TotalActiveDays = "total_active_days",
     TotalDistance = "total_distance",
     TotalTime = "total_time",
@@ -86,7 +90,6 @@ export class DataSource {
             switch (fieldName) {
                 case FieldId.AltitudeMax:
                 case FieldId.AltitudeMin:
-                case FieldId.Calories:
                 case FieldId.AvgPower:
                 case FieldId.MaxPower:
                 case FieldId.TotalActiveDays:
@@ -134,6 +137,11 @@ export class DataSource {
             case FieldId.AltitudeMin:
                 return this.data.streams ? Math.floor(Math.min(...this.data.streams.elevation)) : 0;
             case FieldId.Calories:
+                return this.data.scalars.calories;
+            case FieldId.AvgHeartRate:
+                return this.data.scalars.average_heartrate ? Math.ceil(this.data.scalars.average_heartrate) : undefined;
+            case FieldId.MaxHeartRate:
+                return this.data.scalars.max_heartrate ? Math.ceil(this.data.scalars.max_heartrate) : undefined;
             case FieldId.AvgPower:
             case FieldId.MaxPower:
             case FieldId.TotalActiveDays:
@@ -171,6 +179,11 @@ export class DataSource {
             case FieldName.MaxPower:
             case FieldId.MaxPower:
                 return "W";
+            case FieldId.AvgHeartRate:
+            case FieldId.MaxHeartRate:
+            case FieldName.AvgHeartRate:
+            case FieldName.MaxHeartRate:
+                return "bpm";
             case FieldName.Speed:
             case FieldId.Speed:
                 return "km/h";
@@ -202,6 +215,9 @@ export class DataSource {
             case FieldId.Distance:
             case FieldId.MovingTime:
             case FieldId.Elevation:
+            case FieldId.Calories:
+            case FieldId.AvgHeartRate:
+            case FieldId.MaxHeartRate:
                 return this.data.origData.scalars[field];
             default:
                 return undefined;
@@ -215,6 +231,9 @@ export class DataSource {
             case FieldId.Distance:
             case FieldId.MovingTime:
             case FieldId.Elevation:
+            case FieldId.Calories:
+            case FieldId.AvgHeartRate:
+            case FieldId.MaxHeartRate:
                 this.data.scalars[fieldId] = value ? parseInt(value) : 0;
                 return true;
             default:
@@ -241,6 +260,8 @@ export class FieldMappings {
         FieldName.AltitudeMin,
         FieldName.AvgPower,
         FieldName.MaxPower,
+        FieldName.AvgHeartRate,
+        FieldName.MaxHeartRate,
         FieldName.TotalActiveDays,
         FieldName.TotalDistance,
         FieldName.TotalTime,
@@ -255,6 +276,8 @@ export class FieldMappings {
         FieldId.AltitudeMin,
         FieldId.AvgPower,
         FieldId.MaxPower,
+        FieldId.AvgHeartRate,
+        FieldId.MaxHeartRate,
         FieldId.TotalActiveDays,
         FieldId.TotalDistance,
         FieldId.TotalTime,
@@ -266,7 +289,9 @@ export class FieldMappings {
             [FieldMappings.GeneralHeader_val]: [
                 FieldName.MovingTime,
                 FieldName.Distance,
-                FieldName.Calories],
+                FieldName.Calories,
+                FieldName.AvgHeartRate,
+                FieldName.MaxHeartRate],
 
             [FieldMappings.AltitudeHeader_val]: [
                 FieldName.AltitudeMax,
@@ -349,11 +374,17 @@ export class StravaData {
         distance: number,
         movingTime: number,
         elevationGain: number,
+        calories: number | undefined,
+        average_heartrate: number | undefined,
+        max_heartrate: number | undefined
     }
     streams: {
         location: LatLng[],
-        elevation: number[]
+        elevation: number[],
+        heartrate: number[],
     }
+
+    hasHeartRate: boolean;
 
     constructor() {
         this.activityKind = { sportType: "" };
@@ -361,12 +392,16 @@ export class StravaData {
             distance: 0,
             movingTime: 0,
             elevationGain: 0,
+            calories: undefined,
+            average_heartrate: undefined,
+            max_heartrate: undefined
         }
         this.streams = {
             location: [],
-            elevation: []
+            elevation: [],
+            heartrate: [],
         }
-
+        this.hasHeartRate = false;
         this.origData = undefined;
     }
 
@@ -377,11 +412,16 @@ export class StravaData {
                 distance: data.scalars.distance,
                 movingTime: data.scalars.movingTime,
                 elevationGain: data.scalars.elevationGain,
+                calories: undefined,
+                average_heartrate: undefined,
+                max_heartrate: undefined,
             },
             streams: {
                 location: data.streams.location,
-                elevation: data.streams.elevation
+                elevation: data.streams.elevation,
+                heartrate: []
             },
+            hasHeartRate: false,
             origData: undefined
         }
 
@@ -397,11 +437,16 @@ export class StravaData {
                 distance: data.distance,
                 movingTime: data.moving_time,
                 elevationGain: data.total_elevation_gain,
+                calories: data.calories,
+                max_heartrate: data.max_heartrate,
+                average_heartrate: data.average_heartrate
             },
             streams: {
                 location: 'latlng' in data.streams ? (data.streams.latlng.data as [[number, number]]).map(v => new LatLng(v[0], v[1])) : [],
                 elevation: 'altitude' in data.streams ? data.streams.altitude.data : [],
+                heartrate: 'heartrate' in data.streams ? data.streams.heartrate.data : []
             },
+            hasHeartRate: data.has_heartrate,
             origData: undefined
         }
 
