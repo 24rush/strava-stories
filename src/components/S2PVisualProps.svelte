@@ -12,9 +12,11 @@
         S2PCanvasItemType,
         type S2PCanvasObjectType,
     } from "../lib/S2PCanvasItem";
+    import { FieldMappings } from "../lib/utils/fieldmappings";
 
     let {
         onRequestRedraw,
+        onFieldMappingChanged,
         hasFill,
         hasStroke,
         hasStrokeWidth,
@@ -23,6 +25,7 @@
         canvasItemSelected,
     }: {
         onRequestRedraw?: () => void;
+        onFieldMappingChanged: (canvasText: S2PCanvasText) => void;
         hasFill: boolean;
         hasStroke: boolean;
         hasStrokeWidth: boolean;
@@ -47,9 +50,17 @@
     let gradientFill = $state(true);
 
     let selectFontFamily: HTMLSelectElement;
+    let selectFieldMapping: HTMLSelectElement;
+
+    let inputTextField: HTMLInputElement;
 
     const Fill: number = 0;
     const Stroke: number = 1;
+
+    let isValueField = $derived(canvasItemSelected.label.endsWith("_value"));
+    let isUnitField = $derived(
+        canvasItemSelected.label.endsWith("_value_unit"),
+    );
 
     onMount(() => {
         canvasItemSelected.fillColorComboIdx = 0;
@@ -152,6 +163,13 @@
                 option.style.fontFamily = font;
                 selectFontFamily.appendChild(option);
             });
+
+        Object.values(FieldMappings.FieldNames).forEach((field) => {
+            const option = document.createElement("option");
+            option.value = field;
+            option.textContent = field;
+            selectFieldMapping.appendChild(option);
+        });
     });
 
     onDestroy(() => {
@@ -215,6 +233,39 @@
         onRequestRedraw?.();
     }
 
+    function fireFieldMappingChanged(e: any) {
+        let fieldId = FieldMappings.fieldNameToId(e.target.value);
+
+        if (fieldId) {
+            (canvasItemSelected as S2PCanvasText).label = fieldId;
+            onFieldMappingChanged(canvasItemSelected as S2PCanvasText);
+        }
+    }
+
+    function updateFieldLabel(add: boolean, suffix: string) {
+        let oldLabelStripped = (canvasItemSelected as S2PCanvasText).label
+            .replace("_value_unit", "")
+            .replace("_value", "");
+
+        (canvasItemSelected as S2PCanvasText).label = oldLabelStripped;
+
+        if (add) {
+            (canvasItemSelected as S2PCanvasText).label += suffix;            
+        }
+
+        onFieldMappingChanged(canvasItemSelected as S2PCanvasText);
+    }
+
+    function onFieldValueTypeChanged(e: any) {
+        updateFieldLabel(e.target.checked, "_value");
+        if (e.target.checked) isUnitField = false;
+    }
+
+    function onFieldUnitTypeChanged(e: any) {
+        updateFieldLabel(e.target.checked, "_value_unit");
+        if (e.target.checked) isValueField = false;
+    }
+
     function fireFontFamilyChanged(event: Event) {
         currentSelection.forEach((obj) => {
             if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Text) {
@@ -273,17 +324,18 @@
         setPickersToCurrColor(Stroke, gradientStroke);
     }
 
-    function getColorCombos(type: number, isGradient: boolean): [string, string] {
+    function getColorCombos(
+        type: number,
+        isGradient: boolean,
+    ): [string, string] {
         let index =
             type == Fill
                 ? canvasItemSelected.fillColorComboIdx
-                : canvasItemSelected.strokeColorComboIdx;           
+                : canvasItemSelected.strokeColorComboIdx;
 
         let colorCombo = ColorCombos.colorCombos[Math.floor(index)];
 
-        let isMiddle =
-            Math.abs((index % 1) - 0.5) <
-            Number.EPSILON;
+        let isMiddle = Math.abs((index % 1) - 0.5) < Number.EPSILON;
 
         let fCIdx = 0,
             sCIdx = 1;
@@ -297,7 +349,7 @@
             }
         }
 
-        return [colorCombo[fCIdx], colorCombo[sCIdx]]
+        return [colorCombo[fCIdx], colorCombo[sCIdx]];
     }
 
     function setPickersToCurrColor(type: number, isGradient: boolean) {
@@ -315,11 +367,11 @@
 
             strokeColor1Picker?.setColor(canvasItemSelected.getStrokeStop(0));
             strokeColor2Picker?.setColor(canvasItemSelected.getStrokeStop(1));
-        }        
+        }
     }
 
     function colorFill(direction: boolean) {
-        let incr = gradientFill ? 1 : 0.5;        
+        let incr = gradientFill ? 1 : 0.5;
 
         if (direction) {
             canvasItemSelected.fillColorComboIdx =
@@ -332,7 +384,7 @@
                     ColorCombos.colorCombos.length) %
                 ColorCombos.colorCombos.length;
         }
-        
+
         setPickersToCurrColor(Fill, gradientFill);
         onRequestRedraw?.();
     }
@@ -352,7 +404,7 @@
                 ColorCombos.colorCombos.length;
         }
 
-        setPickersToCurrColor(Stroke, gradientStroke);    
+        setPickersToCurrColor(Stroke, gradientStroke);
         onRequestRedraw?.();
     }
 
@@ -380,6 +432,17 @@
                 canvasItemSelected instanceof S2PCanvasPoly ||
                 canvasItemSelected instanceof S2PRect
             ) {
+                if (canvasItemSelected instanceof S2PCanvasText) {
+                    if (inputTextField)
+                        inputTextField.value = canvasItemSelected.text;
+
+                    selectFieldMapping.value = FieldMappings.fieldIdToName(
+                        canvasItemSelected.label
+                            .replace("_value_unit", "")
+                            .replace("_value", ""),
+                    );
+                }
+
                 if (isColorDifferent(0, Stroke, strokeColor1Picker))
                     strokeColor1Picker?.setColor(
                         canvasItemSelected.getStrokeStop(0),
@@ -415,25 +478,15 @@
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
             currentSelection.length > 1
                 ? 'flex'
-                : 'none'}; width: 100%;"
+                : 'none'}; width: 100%; flex-direction: column;"
         >
             <input
+                disabled={currentSelection.length > 1}
+                bind:this={inputTextField}
                 value={canvasItemSelected.text}
                 oninput={fireTextChanged}
-                class="form-control"
+                class="form-control mb-2"
             />
-
-            <button
-                type="button"
-                class="btn ms-2 btn-outline-secondary {canvasItemSelected.fontStyle !=
-                'normal'
-                    ? 'active'
-                    : ''}"
-                data-bs-toggle="button"
-                onclick={fireFontStyleChanged}
-                aria-pressed={canvasItemSelected.fontStyle != "normal"}
-                ><i class="bi bi-type-italic"></i></button
-            >
         </div>
         <div
             style="display: flex; visibility: {hasFill
@@ -484,6 +537,27 @@
             </div>
         </div>
 
+        <div
+            style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            currentSelection.length > 1
+                ? 'flex'
+                : 'none'}; width: 100%; flex-direction: column;"
+        >
+            <label
+                class="font-emp ms-1"
+                style="align-self: self-end;touch-action: none; pointer-events: none;"
+                >Mapping</label
+            >
+
+            <select
+                class="form-select"
+                disabled={currentSelection.length > 1}
+                bind:this={selectFieldMapping}
+                onchange={fireFieldMappingChanged}
+            >
+            </select>
+        </div>
+
         <span
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
             currentSelection.length > 1
@@ -516,16 +590,30 @@
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
             currentSelection.length > 1
                 ? 'flex'
-                : 'none'}; width: 100%;"
+                : 'none'}; width: 100%; flex-direction: column;"
         >
-            <select
-                class="form-select"
-                bind:this={selectFontFamily}
-                value={canvasItemSelected.fontFamily}
-                onchange={fireFontFamilyChanged}
-            >
-            </select>
+            <div class="d-flex mb-2" style="flex-direction: row; width: 100%;">
+                <select
+                    class="form-select"
+                    bind:this={selectFontFamily}
+                    value={canvasItemSelected.fontFamily}
+                    onchange={fireFontFamilyChanged}
+                >
+                </select>
+                <button
+                    type="button"
+                    class="btn ms-2 btn-outline-secondary {canvasItemSelected.fontStyle !=
+                    'normal'
+                        ? 'active'
+                        : ''}"
+                    data-bs-toggle="button"
+                    onclick={fireFontStyleChanged}
+                    aria-pressed={canvasItemSelected.fontStyle != "normal"}
+                    ><i class="bi bi-type-italic"></i></button
+                >
+            </div>
         </div>
+
         <div
             style="display: flex; visibility: {hasStroke
                 ? 'flex'
@@ -536,7 +624,6 @@
                 style="align-self: self-start; touch-action: none; pointer-events: none;"
                 >Edge</label
             >
-
 
             <div class="d-flex gap-2">
                 <label for="switchStrokeCheckChecked">solid</label>
@@ -573,6 +660,53 @@
                 >
                     <i class="bi bi-caret-right-fill"></i>
                 </button>
+            </div>
+        </div>
+
+        <div
+            style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            currentSelection.length > 1
+                ? 'flex'
+                : 'none'}; width: 100%; flex-direction: column;"
+        >
+            <label
+                class="font-emp ms-1"
+                style="align-self: self-start; touch-action: none; pointer-events: none;"
+                >Type</label
+            >
+
+            <div
+                class="d-flex ms-1"
+                style="width:100%; flex-direction: row; align-self: start;"
+            >
+                <label class="me-2 mt-2" for="fieldValueType">value</label>
+                <div class="form-check mt-2">
+                    <input
+                        id="fieldValueType"
+                        disabled={currentSelection.length > 1}
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        bind:checked={isValueField}
+                        oninput={onFieldValueTypeChanged}
+                    />
+                </div>
+
+                <label class="me-2 mt-2" for="fieldUnitType">unit</label>
+                <div class="form-check mt-2">
+                    <input
+                        id="fieldUnitType"
+                        disabled={currentSelection.length > 1}
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        bind:checked={isUnitField}
+                        onchange={onFieldUnitTypeChanged}
+                    />
+                </div>
+
+                <select class="form-select" style="visibility: hidden;"
+                ></select>
             </div>
         </div>
 

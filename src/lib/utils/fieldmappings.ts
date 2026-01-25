@@ -6,6 +6,7 @@ export enum FieldName {
     Distance = "Distance (m)",
     Speed = "Speed",
     Pace = "Pace",
+    Elevation = "Elevation gain (m)",
     Calories = "Calories",
     AvgPower = "Avg. Power (W)",
     MaxPower = "Max. Power (W)",
@@ -17,7 +18,9 @@ export enum FieldName {
     TotalActiveDays = "Total active days",
     TotalDistance = "Total distance",
     TotalTime = "Total time",
-    TotalElevation = "Total elevation"
+    TotalElevation = "Total elevation",
+    Text = "User",
+    None = ""
 }
 
 export enum FieldId {
@@ -36,7 +39,9 @@ export enum FieldId {
     TotalActiveDays = "total_active_days",
     TotalDistance = "total_distance",
     TotalTime = "total_time",
-    TotalElevation = "total_elevation"
+    TotalElevation = "total_elevation",
+    Text = "user",
+    None = ""
 }
 
 export class DataSource {
@@ -252,9 +257,13 @@ export class FieldMappings {
 
     static Headers: string[] = [this.GeneralHeader_val, this.PowerHeader_val, this.TotalsHeader_val, this.AltitudeHeader_val];
 
+    // These two arrays need to be kept in sync
     static FieldNames: FieldName[] = [
         FieldName.MovingTime,
         FieldName.Distance,
+        FieldName.Pace,
+        FieldName.Speed,
+        FieldName.Elevation,
         FieldName.Calories,
         FieldName.AltitudeMax,
         FieldName.AltitudeMin,
@@ -265,12 +274,16 @@ export class FieldMappings {
         FieldName.TotalActiveDays,
         FieldName.TotalDistance,
         FieldName.TotalTime,
-        FieldName.TotalElevation
+        FieldName.TotalElevation,
+        FieldName.Text,
     ];
 
     static FieldIds: FieldId[] = [
         FieldId.MovingTime,
         FieldId.Distance,
+        FieldId.Pace,
+        FieldId.Speed,
+        FieldId.Elevation,
         FieldId.Calories,
         FieldId.AltitudeMax,
         FieldId.AltitudeMin,
@@ -281,7 +294,8 @@ export class FieldMappings {
         FieldId.TotalActiveDays,
         FieldId.TotalDistance,
         FieldId.TotalTime,
-        FieldId.TotalElevation
+        FieldId.TotalElevation,
+        FieldId.Text
     ]
 
     static getFieldMapping(): Record<string, string[]> {
@@ -354,13 +368,13 @@ export class FieldMappings {
         return FieldMappings.FieldIds[idx] ?? "";
     }
 
-    static fieldIdToName(fieldId: string): string {
+    static fieldIdToName(fieldId: string): FieldName {
         let idx = FieldMappings.FieldIds.findIndex(v => v === fieldId);
 
         if (idx == -1)
-            return "";
+            return FieldName.Text;
 
-        return FieldMappings.FieldNames[idx] ?? "";
+        return FieldMappings.FieldNames[idx] ?? FieldName.Text;
     }
 }
 

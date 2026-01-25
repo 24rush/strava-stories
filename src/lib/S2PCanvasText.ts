@@ -30,7 +30,7 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
             angle: textProps.angle,
             originX: "left",
             originY: "top",
-            width: 2000,            
+            width: 2000,
             scaleX: textProps.scaleX,
             scaleY: textProps.scaleY
         });
@@ -107,6 +107,7 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
     set id(value: string) { this.id_ = value; }
 
     get label(): string { return this.label_; }
+    set label(value: string) { this.label_ = value; }
 
     get auxItems(): FabricObject[] {
         return [this.vGuide, this.hGuide];

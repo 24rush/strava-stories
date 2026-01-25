@@ -438,8 +438,8 @@
     onRequestRedraw();
   }
 
-  export function updateTextsValue() {
-    s2pCanvas.getObjects().texts.forEach(text => {
+  export function updateTextsValue(canvasText?: S2PCanvasText) {
+    (canvasText ? [canvasText] : s2pCanvas.getObjects().texts).forEach(text => {
       if (text.label === "user") 
         return;
       
@@ -449,10 +449,11 @@
       if (text.label.includes("_value_unit"))
         text.set('text', unit);      
       else
-        text.set('text', (value ?? "N/A") + (value ? unit : ""));
-    });
+        text.set('text', (value ?? "N/A") + (value ? unit : ""));});
 
     alignUnitsWithValues();
+    if (polyProp) polyProp.onChanged();
+
     onRequestRedraw();
   }
 
@@ -594,6 +595,7 @@
         {canvasItemSelected}
         {currentSelection}
         {onRequestRedraw}
+        onFieldMappingChanged={updateTextsValue}
         {hasFill}
         {hasStroke}
         {hasStrokeWidth}

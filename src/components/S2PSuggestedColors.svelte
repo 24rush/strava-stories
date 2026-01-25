@@ -21,7 +21,9 @@
     let bgInput: HTMLInputElement;
 
     let suggestedColorsGenerator = new ColorSuggestions();
-    let suggestedColors: string[][] = $state(suggestedColorsGenerator.getDefaultColors());
+    let suggestedColors: string[][] = $state(
+        suggestedColorsGenerator.getDefaultColors(),
+    );
     let showSuggestedColors = $state(true);
     let currColorIdx = 0;
 
@@ -39,7 +41,7 @@
         let isNullOfTransparent = (color: string | null): boolean => {
             return (
                 !color ||
-                color.toLowerCase() == "#ffffff" ||
+                //color.toLowerCase() == "#ffffff" ||
                 color.toLowerCase() == "#ffffff00"
             );
         };
@@ -105,7 +107,7 @@
                 onRequestRedraw?.();
             },
         );
-                
+
         setPickerColors();
     });
 
@@ -241,9 +243,7 @@
             </div>
         </div>
 
-        <div
-            style="flex-direction: column;list-style: none;"
-        >
+        <div style="flex-direction: column;list-style: none;">
             <div class="btn-group me-mobile" role="group" style="width: 100%;">
                 <button
                     class="btn btn-sm btn-outline-primary"
