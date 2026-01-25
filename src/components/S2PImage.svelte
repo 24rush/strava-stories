@@ -14,6 +14,7 @@
   import type { S2PRect } from "../lib/S2PRect";
   import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
   import { DataSource } from "../lib/utils/fieldmappings";
+  import { decreaseHexaOpacity } from "../lib/utils/colors";
   
   let {
         source,
@@ -369,12 +370,14 @@
     if (!source.data.streams || !source.data.streams.location) 
       return;    
 
+    let colors = s2pSuggestedColors.getCurrentColors();
+
     s2pCanvas.addPolyFromLatLngs(
       "track_profile",
       source.data.streams.location,
       {
         ...new S2PThemePoly(),
-        stroke: ["#fc5200", "#fc5200"],
+        stroke: [colors[1] ?? null, colors[2] ?? null],
         fill: [null, null],
         scaleX: 0.5,
         scaleY: 0.5,
@@ -388,6 +391,8 @@
     if (!source.data.streams || !source.data.streams.elevation) 
       return;
 
+    let colors = s2pSuggestedColors.getCurrentColors();
+
     s2pCanvas.addFilledPolyFromVector(
       "elevation_profile",
       source.data.streams.elevation,
@@ -395,17 +400,21 @@
         ...new S2PThemePoly(),        
         scaleX: 0.5,
         scaleY: 0.5,
-        stroke: ["#fc5200", "#fc5200"],
-        fill: ["rgba(0, 128, 255, 0.2)", "rgba(0, 128, 255, 0.2)"],
+        stroke: [colors[1] ?? null, colors[2] ?? null],
+        fill: [decreaseHexaOpacity(colors[1], 0.5), decreaseHexaOpacity(colors[2], 0.5)],
         top: s2pCanvas.getCanvas().height / 4,
         left: s2pCanvas.getCanvas().width / 4,
       }
     );
+
+    onRequestRedraw();
   }
 
   function onAddHeartrateChart() {
     if (!source.data.streams || !source.data.streams.heartrate) 
       return;
+
+    let colors = s2pSuggestedColors.getCurrentColors();
 
     s2pCanvas.addFilledPolyFromVector(
       "heartrate_profile",
@@ -414,12 +423,14 @@
         ...new S2PThemePoly(),        
         scaleX: 0.5,
         scaleY: 0.5,
-        stroke: ["#ff0000", "#ff0000"],
-        fill: ["rgba(0, 0, 255, 0.2)", "rgba(0, 0, 0, 0.2)"],
+        stroke: [colors[1] ?? null, colors[2] ?? null],
+        fill: [decreaseHexaOpacity(colors[1], 0.5), decreaseHexaOpacity(colors[2], 0.5)],
         top: s2pCanvas.getCanvas().height / 4,
         left: s2pCanvas.getCanvas().width / 4,
       }
     );
+
+    onRequestRedraw();
   }
 
   function onSuggestedColorsChangedEvent(showSuggestedColors: boolean) {
@@ -472,6 +483,57 @@
     });
   }
 
+  function isNullOfTransparent(color: string | null): boolean {
+    return (
+        !color || color.toLowerCase() == "#ffffff00"
+    );            
+  }
+
+  function updatePolyColor(p: S2PCanvasPoly, gradientIndex: number, color: any) {    
+    let colorStr = color.toHEXA().toString();
+    let moreAlphaColorStr = decreaseHexaOpacity(colorStr, 0.5);
+
+    if (!isNullOfTransparent(p.getStrokeStop(gradientIndex)))
+      p.setStrokeStop(gradientIndex, colorStr);
+
+    if (!p.isPolyline && !isNullOfTransparent(p.getFillStop(gradientIndex)))
+      p.setFillStop(gradientIndex, moreAlphaColorStr);
+  }
+
+  function updateRectColor(r: S2PRect, gradientIndex: number, color: any) {    
+    let colorStr = color.toHEXA().toString();
+    let moreAlphaColorStr = decreaseHexaOpacity(colorStr, 0.5);
+
+    if (!isNullOfTransparent(r.getStrokeStop(gradientIndex)))
+      r.setStrokeStop(gradientIndex, colorStr);
+
+    if (!isNullOfTransparent(r.getFillStop(gradientIndex)))
+      r.setFillStop(gradientIndex, moreAlphaColorStr);
+  }
+
+  function onGradientChanged(type: number, color: any) {    
+    s2pCanvas.getObjects().rects.forEach((r) => updateRectColor(r, type, color));    
+    s2pCanvas.getObjects().polys.forEach((p) => updatePolyColor(p, type, color));
+
+    onRequestRedraw();
+  }
+
+  function onSolidColorChanged(color: any) {
+    let colorStr = color.toHEXA().toString();
+    let moreAlphaColorStr = decreaseHexaOpacity(colorStr);
+
+    let texts = s2pCanvas.getObjects().texts;
+
+    texts.forEach((t) => {
+        let isUnit = t.label.includes("_value_unit");
+
+        t.setFillStop(0, isUnit ? moreAlphaColorStr : colorStr);
+        t.setFillStop(1, isUnit ? moreAlphaColorStr : colorStr);
+    });
+
+    onRequestRedraw?.();
+  }
+
 </script>
 
 <div
@@ -481,7 +543,8 @@
   <i class="mb-2 bi bi-arrow-down" style="transform: scale(1.2);"></i>
  
   <div class="mb-2">
-    <S2PSuggestedColors bind:this={s2pSuggestedColors} {s2pCanvas} {onRequestRedraw} {onSuggestedColorsChangedEvent} 
+    <S2PSuggestedColors bind:this={s2pSuggestedColors} {s2pCanvas}
+    {onSuggestedColorsChangedEvent} {onGradientChanged} {onSolidColorChanged}
     {onBackgroundRemoved}/>
   </div>
 
@@ -516,19 +579,22 @@
 
     <button
       type="button"
-      onclick={() =>
-        s2pCanvas.addRect({
-          ...new S2PThemeRect(),
-          left: 100,
-          top: 100,
-          width: 300,
-          height: 100,          
-          fill: ["rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.2)"],
-          stroke: ["rgba(255,0,255, 0.1)", "rgba(255,0,255, 0.1)"],
-          strokeWidth: 1,
-          rx: 10,
-          ry: 10,
-        })}
+      onclick={() => {
+          let colors = s2pSuggestedColors.getCurrentColors();
+          s2pCanvas.addRect({
+              ...new S2PThemeRect(),
+              left: 100,
+              top: 100,
+              width: 300,
+              height: 100,          
+              fill: [colors[1], colors[2]],
+              stroke: [colors[0], colors[0]],
+              strokeWidth: 1,
+              rx: 10,
+              ry: 10,
+            });          
+          }
+        }
       class="btn btn-outline-primary"
     >
       <i class="bi bi-app">+</i>

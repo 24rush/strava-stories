@@ -354,7 +354,7 @@
         return textObj;
     }
 
-    export function addRect(rectProps: S2PThemeRect) {
+    export function addRect(rectProps: S2PThemeRect) : S2PRect {
         let rect = new S2PRect(rectProps);
         rect.on("scaling", function () {
             const scaleX = rect.scaleX;
@@ -386,6 +386,8 @@
         canvas.sendObjectToBack(rect);
         canvas.setActiveObject(rect);
         canvas.requestRenderAll();
+
+        return rect;
     }
 
     export function deleteActiveObjects() {

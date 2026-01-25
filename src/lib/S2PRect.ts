@@ -60,6 +60,8 @@ export class S2PRect extends Rect implements S2PCanvasItem {
         return this.gradient.fillGradient;
     }
 
+    get label(): string { return ""; }    
+    
     private setDirty() {
         this.dirty = true;
         this.setCoords();                  

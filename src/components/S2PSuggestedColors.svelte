@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { FabricImage } from "fabric";
     import { ColorSuggestions } from "../lib/utils/palette";
     import S2PCanvas from "./S2PCanvas.svelte";
     import { onDestroy, onMount } from "svelte";
@@ -7,14 +6,16 @@
 
     let {
         s2pCanvas,
+        onSolidColorChanged,
+        onGradientChanged,
         onSuggestedColorsChangedEvent,
         onBackgroundRemoved,
-        onRequestRedraw,
     }: {
         s2pCanvas: S2PCanvas;
+        onSolidColorChanged: (color: any) => void;
+        onGradientChanged: (type: number, color: any) => void;
         onSuggestedColorsChangedEvent?: (v: boolean) => void;
         onBackgroundRemoved?: () => void;
-        onRequestRedraw?: () => void;
     } = $props();
 
     let backgroundImgAdded = $state(false);
@@ -38,64 +39,15 @@
         let Start = 0,
             End = 1;
 
-        let isNullOfTransparent = (color: string | null): boolean => {
-            return (
-                !color ||
-                //color.toLowerCase() == "#ffffff" ||
-                color.toLowerCase() == "#ffffff00"
-            );
-        };
-
-        let setGradient = (type: number, color: any) => {
-            let colorStr = color.toHEXA().toString();
-            let moreAlphaColorStr = decreaseHexaOpacity(colorStr, 0.5);
-
-            let gradientIndex = type == Start ? 0 : 1;
-
-            let rects = s2pCanvas.getObjects().rects;
-            rects.forEach((r) => {
-                if (!isNullOfTransparent(r.getStrokeStop(gradientIndex)))
-                    r.setStrokeStop(gradientIndex, colorStr);
-
-                if (!isNullOfTransparent(r.getFillStop(gradientIndex)))
-                    r.setFillStop(gradientIndex, moreAlphaColorStr);
-            });
-
-            let polys = s2pCanvas.getObjects().polys;
-            polys.forEach((p) => {
-                if (!isNullOfTransparent(p.getStrokeStop(gradientIndex)))
-                    p.setStrokeStop(gradientIndex, colorStr);
-
-                if (
-                    !p.isPolyline &&
-                    !isNullOfTransparent(p.getFillStop(gradientIndex))
-                )
-                    p.setFillStop(gradientIndex, moreAlphaColorStr);
-            });
-        };
-
         colorPicker = createPicker(colorPickerEl, "#fff", (color: any) => {
-            let colorStr = color.toHEXA().toString();
-            let moreAlphaColorStr = decreaseHexaOpacity(colorStr);
-
-            let texts = s2pCanvas.getObjects().texts;
-
-            texts.forEach((t) => {
-                let isUnit = t.label.includes("_value_unit");
-
-                t.setFillStop(0, isUnit ? moreAlphaColorStr : colorStr);
-                t.setFillStop(1, isUnit ? moreAlphaColorStr : colorStr);
-            });
-
-            onRequestRedraw?.();
+            onSolidColorChanged(color);
         });
 
         gradientStartPicker = createPicker(
             gradientStartPickerEl,
             "#fff",
             (color: any) => {
-                setGradient(Start, color);
-                onRequestRedraw?.();
+                onGradientChanged(Start, color);
             },
         );
 
@@ -103,8 +55,7 @@
             gradientEndPickerEl,
             "#fff",
             (color: any) => {
-                setGradient(End, color);
-                onRequestRedraw?.();
+                onGradientChanged(End, color);
             },
         );
 
@@ -146,6 +97,14 @@
         gradientEndPicker.setColor(currentColor[2]);
     }
 
+    export function getCurrentColors(): string[] {
+        return [
+            colorPicker.getColor().toHEXA().toString(),
+            gradientStartPicker.getColor().toHEXA().toString(),
+            gradientEndPicker.getColor().toHEXA().toString(),
+        ];
+    }
+
     function onSuggestedColorsChanged(event: any) {
         showSuggestedColors = event.target.checked;
 
@@ -171,22 +130,6 @@
         }
 
         setPickerColors();
-    }
-
-    function decreaseHexaOpacity(hexa: string, amount = 0.2) {
-        // amount: how much to reduce (0–1)
-        const hex = hexa.replace("#", "");
-
-        const rgb = hex.slice(0, 6);
-        let a = parseInt(hex.slice(6, 8) ?? "FF", 16) / 255;
-        if (isNaN(a)) a = 1;
-
-        const newAlpha = Math.max(0, Math.min(1, a - amount));
-        const newAlphaHex = Math.round(newAlpha * 255)
-            .toString(16)
-            .padStart(2, "0");
-
-        return `#${rgb}${newAlphaHex}`;
     }
 </script>
 
