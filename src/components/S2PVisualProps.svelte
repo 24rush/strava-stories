@@ -12,7 +12,7 @@
         S2PCanvasItemType,
         type S2PCanvasObjectType,
     } from "../lib/S2PCanvasItem";
-    import { FieldMappings } from "../lib/utils/fieldmappings";
+    import { FieldMappings, FieldName } from "../lib/utils/fieldmappings";
 
     let {
         onRequestRedraw,
@@ -164,7 +164,25 @@
                 selectFontFamily.appendChild(option);
             });
 
-        Object.values(FieldMappings.FieldNames).forEach((field) => {
+        let mappedFields = [
+            FieldName.Name,
+            FieldName.MovingTime,
+            FieldName.Distance,
+            FieldName.Elevation,
+            FieldName.Calories,
+            FieldName.AvgHeartRate,
+            FieldName.MaxHeartRate,
+
+            FieldName.AltitudeMax,
+            FieldName.AltitudeMin,
+
+            FieldName.AvgPower,
+            FieldName.MaxPower,
+
+            FieldName.Text,
+        ];
+        
+        Object.values(mappedFields).forEach((field) => {
             const option = document.createElement("option");
             option.value = field;
             option.textContent = field;
@@ -250,7 +268,7 @@
         (canvasItemSelected as S2PCanvasText).label = oldLabelStripped;
 
         if (add) {
-            (canvasItemSelected as S2PCanvasText).label += suffix;            
+            (canvasItemSelected as S2PCanvasText).label += suffix;
         }
 
         onFieldMappingChanged(canvasItemSelected as S2PCanvasText);

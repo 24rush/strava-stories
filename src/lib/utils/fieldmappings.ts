@@ -4,14 +4,17 @@ import { Converters } from "./converters";
 export enum FieldName {
     MovingTime = "Moving time (hh:mm:ss)",
     Distance = "Distance (m)",
-    Speed = "Speed",
-    Pace = "Pace",
     Elevation = "Elevation gain (m)",
     Calories = "Calories",
+    
+    Speed = "Speed",
+    Pace = "Pace",
+    
     AvgPower = "Avg. Power (W)",
     MaxPower = "Max. Power (W)",
     AvgHeartRate = "Avg. heartrate (bpm)",
     MaxHeartRate = "Max. heartrate (bpm)",
+    
     AltitudeMax = "Altitude max (m)",
     AltitudeMin = "Altitude min (m)",
 
@@ -19,6 +22,8 @@ export enum FieldName {
     TotalDistance = "Total distance",
     TotalTime = "Total time",
     TotalElevation = "Total elevation",
+    
+    Name = "Name",
     Text = "User",
     None = ""
 }
@@ -40,6 +45,7 @@ export enum FieldId {
     TotalDistance = "total_distance",
     TotalTime = "total_time",
     TotalElevation = "total_elevation",
+    Name = "name",
     Text = "user",
     None = ""
 }
@@ -89,22 +95,6 @@ export class DataSource {
     }
 
     public getValueForField(fieldName: string): string | number | undefined {
-        let valueInStorage = this.getValue(fieldName);
-
-        if (valueInStorage) {
-            switch (fieldName) {
-                case FieldId.AltitudeMax:
-                case FieldId.AltitudeMin:
-                case FieldId.AvgPower:
-                case FieldId.MaxPower:
-                case FieldId.TotalActiveDays:
-                case FieldId.TotalDistance:
-                case FieldId.TotalTime:
-                case FieldId.TotalElevation:
-                    return valueInStorage;
-            }
-        }
-
         switch (fieldName) {
             case FieldId.Distance:
                 if (this.data.activityKind.sportType == "Swim")
@@ -114,7 +104,7 @@ export class DataSource {
                     return this.data.scalars.distance ? (this.data.scalars.distance / divider).toFixed(0) : 0;
                 }
             case FieldId.MovingTime:
-                return this.data.scalars.movingTime ? Converters.secondsToHMS(this.data.scalars.movingTime) : 0;
+                return this.data.scalars.movingTime ? Converters.secondsToHMS(this.data.scalars.movingTime, false) : 0;
             case FieldId.Elevation:
                 return this.data.scalars.elevationGain
                     ? this.data.scalars.elevationGain.toFixed(0)
@@ -147,6 +137,8 @@ export class DataSource {
                 return this.data.scalars.average_heartrate ? Math.ceil(this.data.scalars.average_heartrate) : undefined;
             case FieldId.MaxHeartRate:
                 return this.data.scalars.max_heartrate ? Math.ceil(this.data.scalars.max_heartrate) : undefined;
+            case FieldId.Name:
+                return this.data.name;
             case FieldId.AvgPower:
             case FieldId.MaxPower:
             case FieldId.TotalActiveDays:
@@ -163,7 +155,7 @@ export class DataSource {
         switch (fieldName) {
             case FieldName.MovingTime:
             case FieldId.MovingTime:
-                return "";
+                return this.data.scalars.movingTime ? Converters.secondsToHMS(this.data.scalars.movingTime) : '';                
             case FieldName.Distance:
             case FieldId.Distance:
                 if (this.data.activityKind.sportType == "Swim") return "m";
@@ -211,7 +203,7 @@ export class DataSource {
         }
     }
 
-    private getFieldValueFromOriginalData(fieldName: string): number | undefined {
+    private getFieldValueFromOriginalData(fieldName: string): string | number | undefined {
         if (!this.data.origData) return undefined;
 
         let field = FieldMappings.fieldNameToId(fieldName);
@@ -224,6 +216,8 @@ export class DataSource {
             case FieldId.AvgHeartRate:
             case FieldId.MaxHeartRate:
                 return this.data.origData.scalars[field];
+            case FieldId.Name:
+                return this.data.name;
             default:
                 return undefined;
         }
@@ -241,6 +235,9 @@ export class DataSource {
             case FieldId.MaxHeartRate:
                 this.data.scalars[fieldId] = value ? parseInt(value) : 0;
                 return true;
+            case FieldId.Name:
+                this.data.name = value ?? "";
+                return true;
             default:
                 return false;
         }
@@ -253,48 +250,57 @@ export class FieldMappings {
     static GeneralHeader_val: string = "General";
     static PowerHeader_val: string = "Power";
     static AltitudeHeader_val: string = "Altitude";
-    static TotalsHeader_val: string = "Totals";
 
-    static Headers: string[] = [this.GeneralHeader_val, this.PowerHeader_val, this.TotalsHeader_val, this.AltitudeHeader_val];
+    static Headers: string[] = [this.GeneralHeader_val, this.PowerHeader_val, this.AltitudeHeader_val];
 
     // These two arrays need to be kept in sync
     static FieldNames: FieldName[] = [
+        FieldName.Name,
         FieldName.MovingTime,
         FieldName.Distance,
-        FieldName.Pace,
-        FieldName.Speed,
         FieldName.Elevation,
         FieldName.Calories,
         FieldName.AltitudeMax,
         FieldName.AltitudeMin,
+
+        FieldName.Pace,
+        FieldName.Speed,
+                
         FieldName.AvgPower,
         FieldName.MaxPower,
         FieldName.AvgHeartRate,
         FieldName.MaxHeartRate,
+
         FieldName.TotalActiveDays,
         FieldName.TotalDistance,
         FieldName.TotalTime,
         FieldName.TotalElevation,
+
         FieldName.Text,
     ];
 
     static FieldIds: FieldId[] = [
+        FieldId.Name,
         FieldId.MovingTime,
-        FieldId.Distance,
-        FieldId.Pace,
-        FieldId.Speed,
+        FieldId.Distance,            
         FieldId.Elevation,
         FieldId.Calories,
         FieldId.AltitudeMax,
         FieldId.AltitudeMin,
+
+        FieldId.Pace,
+        FieldId.Speed,
+        
         FieldId.AvgPower,
         FieldId.MaxPower,
         FieldId.AvgHeartRate,
         FieldId.MaxHeartRate,
+
         FieldId.TotalActiveDays,
         FieldId.TotalDistance,
         FieldId.TotalTime,
         FieldId.TotalElevation,
+
         FieldId.Text
     ]
 
@@ -303,6 +309,7 @@ export class FieldMappings {
             [FieldMappings.GeneralHeader_val]: [
                 FieldName.MovingTime,
                 FieldName.Distance,
+                FieldName.Elevation,
                 FieldName.Calories,
                 FieldName.AvgHeartRate,
                 FieldName.MaxHeartRate],
@@ -314,12 +321,6 @@ export class FieldMappings {
             [FieldMappings.PowerHeader_val]: [
                 FieldName.AvgPower,
                 FieldName.MaxPower],
-
-            [FieldMappings.TotalsHeader_val]: [
-                FieldName.TotalActiveDays,
-                FieldName.TotalDistance,
-                FieldName.TotalTime,
-                FieldName.TotalElevation]
         };
     }
 
@@ -399,6 +400,7 @@ export class StravaData {
     }
 
     hasHeartRate: boolean;
+    name: string;
 
     constructor() {
         this.activityKind = { sportType: "" };
@@ -416,6 +418,8 @@ export class StravaData {
             heartrate: [],
         }
         this.hasHeartRate = false;
+        this.name = "";
+
         this.origData = undefined;
     }
 
@@ -436,6 +440,7 @@ export class StravaData {
                 heartrate: []
             },
             hasHeartRate: false,
+            name: data.name,
             origData: undefined
         }
 
@@ -461,6 +466,7 @@ export class StravaData {
                 heartrate: 'heartrate' in data.streams ? data.streams.heartrate.data : []
             },
             hasHeartRate: data.has_heartrate,
+            name: data.name,
             origData: undefined
         }
 

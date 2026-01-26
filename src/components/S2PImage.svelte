@@ -13,7 +13,7 @@
   import type { S2PSvg } from "../lib/S2PSvg";
   import type { S2PRect } from "../lib/S2PRect";
   import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
-  import { DataSource } from "../lib/utils/fieldmappings";
+  import { DataSource, FieldId } from "../lib/utils/fieldmappings";
   import { decreaseHexaOpacity } from "../lib/utils/colors";
 
   let {
@@ -190,18 +190,23 @@
           return;
         }
 
+        let fieldLabelStripped = text.label.replace("_value_unit", "").replace("_value", "");
+
         // Just units, e.g. m, min, km/h
         if (text.label.includes("_value_unit"))
-          text.value = source.getUnitForField(text.label.replace("_value_unit", ""));
+          text.value = source.getUnitForField(fieldLabelStripped);
         else
           if (text.label.includes("_value"))
-            text.value = (source.getValueForField(text.label.replace("_value", "")) ?? text.value).toString();
+            text.value = (source.getValueForField(fieldLabelStripped) ?? text.value)?.toString() ?? '';
           else {
-            let value = source.getValueForField(text.label.replace("_value", ""));
+            let value = source.getValueForField(fieldLabelStripped);
             if (value == undefined)
               text.value = "N/A";
-            else
-              text.value = value + (source.getUnitForField(text.label.replace("_value_unit", "")) ?? "");
+            else {
+              text.value = value.toString();
+              if (fieldLabelStripped != FieldId.MovingTime)
+                text.value += (source.getUnitForField(fieldLabelStripped) ?? "");
+            }
           }
 
         if (text.value)
@@ -455,8 +460,15 @@
 
       if (text.label.includes("_value_unit"))
         text.set('text', unit);
-      else
-        text.set('text', (value ?? "N/A") + (value ? unit : ""));});
+      else 
+        if (text.label.includes("_value"))
+          text.set('text', (value ?? "N/A"));
+        else 
+          if (!text.label.includes(FieldId.MovingTime))
+            text.set('text', (value ?? "N/A") + (value ? unit : ""));      
+          else
+            text.set('text', (unit ?? "N/A"));      
+    });
 
     alignUnitsWithValues();
     if (polyProp) polyProp.onChanged();

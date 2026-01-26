@@ -134,7 +134,7 @@
         },
         {
             "id": "rlfai08",
-            "label": "movingTime",
+            "label": "movingTime_value",
             "top": 0.5781052832885677,
             "left": 0.6707557279300066,
             "width": 0,

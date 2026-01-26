@@ -134,7 +134,7 @@ S2PCanvas.svelte: 589 {
         },
         {
             "id": "u5xj14e",
-            "label": "movingTime",
+            "label": "movingTime_value",
             "top": 0.4319405195815256,
             "left": 0.6615079979072519,
             "width": 0,
