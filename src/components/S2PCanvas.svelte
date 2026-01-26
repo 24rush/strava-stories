@@ -506,6 +506,17 @@
         }, 400);
     }
 
+    export async function copyCanvasToClipboard() {
+        const dataURL = canvas.toDataURL();
+        const blob = await (await fetch(dataURL)).blob();
+
+        await navigator.clipboard.write([
+            new ClipboardItem({
+            'image/png': blob
+            })
+        ]);        
+    }
+
     export function dump() {
         let theme: S2PTheme = new S2PTheme("default");
 

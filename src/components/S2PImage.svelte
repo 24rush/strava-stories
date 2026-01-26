@@ -15,18 +15,18 @@
   import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
   import { DataSource } from "../lib/utils/fieldmappings";
   import { decreaseHexaOpacity } from "../lib/utils/colors";
-  
+
   let {
         source,
         themes,
   }: {
         source: DataSource;
         themes: S2PTheme[];
-  } = $props();  
+  } = $props();
 
   let themesByType: Record<string, string[]> = $state({});
   let themeMainFont = $state("");
-  let themeMainFontSlider: S2PSliderDropdown;  
+  let themeMainFontSlider: S2PSliderDropdown;
   let selectedTheme = $state("");
   let currentThemeIdx = 0;
   let countThemes = 0;
@@ -80,17 +80,17 @@
         if (!(themeType in themesByType) || !themesByType[themeType])
           themesByType[themeType] = [themeName];
         else themesByType[themeType]?.push(themeName);
-      }      
+      }
 
       countThemes++;
     });
 
     updateObjectPositions(themes);
-    
+
     s2pCanvas.getCanvas().on("mouse:down", (e) => {
-      toggleSelectAll = false;      
+      toggleSelectAll = false;
     });
-  });  
+  });
 
   function updateObjectPositions(themes: S2PTheme[]) {
     let canvasWidth = s2pCanvas.getCanvas().width;
@@ -107,16 +107,16 @@
       if (t.texts)
         t.texts.forEach((text) => {
           text.left *= canvasWidth;
-          text.top *= canvasHeight;          
+          text.top *= canvasHeight;
           text.fontSize *= canvasWidth;
         });
 
       if (t.rects)
         t.rects.forEach((rect) => {
           rect.left *= canvasWidth;
-          rect.top *= canvasHeight;   
+          rect.top *= canvasHeight;
           rect.width *= canvasWidth;
-          rect.height *= canvasHeight;          
+          rect.height *= canvasHeight;
         });
 
       if (t.svgs)
@@ -124,7 +124,7 @@
           svgTheme.left *= canvasWidth;
           svgTheme.top *= canvasHeight;
           svgTheme.width *= canvasWidth;
-          svgTheme.height *= canvasHeight;   
+          svgTheme.height *= canvasHeight;
         });
     });
   }
@@ -134,8 +134,8 @@
 
     Promise.all(theme_meta.texts.map(t => [t.fontFamily, t.fontWeight]).map(f => document.fonts.load(`${f[1]} 16px "${f[0]}"`)))
         .then(() => document.fonts.ready)
-          .then(() =>            
-           requestAnimationFrame(() => {    
+          .then(() =>
+           requestAnimationFrame(() => {
              _loadTheme(theme_meta);
              onRequestRedraw();
             }
@@ -144,9 +144,9 @@
   }
 
   function _loadTheme(theme_meta: S2PTheme | undefined) {
-    s2pCanvas.clear();  
+    s2pCanvas.clear();
     hasHeartRate = source.data.hasHeartRate && source.data.streams.heartrate.length > 0;
-    hasTrackProfile = source.data.streams.location.length > 0;    
+    hasTrackProfile = source.data.streams.location.length > 0;
     hasElevation = source.data.streams.elevation.length > 0;
 
     if (!theme_meta) return;
@@ -179,7 +179,7 @@
     if (theme_meta.texts) {
       if (theme_meta.texts.length > 0) {
         themeMainFont = ("Font: " + theme_meta.texts[0]?.fontFamily) ?? "";
-        themeMainFontSlider.onSelectedItemChanged(themeMainFont);        
+        themeMainFontSlider.onSelectedItemChanged(themeMainFont);
       }
 
       let labelToObj: Record<string, S2PCanvasText> = {};
@@ -191,26 +191,26 @@
         }
 
         // Just units, e.g. m, min, km/h
-        if (text.label.includes("_value_unit"))        
-          text.value = source.getUnitForField(text.label.replace("_value_unit", ""));                 
-        else    
-          if (text.label.includes("_value"))                  
-            text.value = (source.getValueForField(text.label.replace("_value", "")) ?? text.value).toString();                
+        if (text.label.includes("_value_unit"))
+          text.value = source.getUnitForField(text.label.replace("_value_unit", ""));
+        else
+          if (text.label.includes("_value"))
+            text.value = (source.getValueForField(text.label.replace("_value", "")) ?? text.value).toString();
           else {
             let value = source.getValueForField(text.label.replace("_value", ""));
             if (value == undefined)
               text.value = "N/A";
             else
-              text.value = value + (source.getUnitForField(text.label.replace("_value_unit", "")) ?? "");                 
+              text.value = value + (source.getUnitForField(text.label.replace("_value_unit", "")) ?? "");
           }
 
         if (text.value)
-          labelToObj[text.label] = s2pCanvas.addText(text);      
+          labelToObj[text.label] = s2pCanvas.addText(text);
       });
 
       // Find all value_unit and align them to value
       let unitTextObjs = Object.entries(labelToObj).filter(([key]) => key.includes("_value_unit"));
-      
+
       unitTextObjs.forEach(kv => {
         let typeValueUnit = kv[0].replace("_value_unit", "");
 
@@ -234,7 +234,7 @@
       theme_meta.rects.forEach(rect => {
         s2pCanvas.addRect(rect);
       });
-    }   
+    }
 
     s2pCanvas.unselectAll();
     s2pSuggestedColors.setPickerColors();
@@ -242,7 +242,7 @@
     s2pCanvas.resetSlidersToMedian();
   }
 
-  function onRequestRedraw() {    
+  function onRequestRedraw() {
     s2pCanvas.getCanvas().requestRenderAll();
   }
 
@@ -252,18 +252,18 @@
     if (!canvasItem) return;
 
     s2pCanvas.deleteActiveObjects();
-    toggleSelectAll = false;       
+    toggleSelectAll = false;
   }
 
-  async function onSelectionChanged(selectedObjs: FabricObject[]) { 
+  async function onSelectionChanged(selectedObjs: FabricObject[]) {
     currentSelection = s2pCanvas.getCanvas().getActiveObjects();
-    
+
     if (!selectedObjs || !selectedObjs.length) {
       canvasItemSelected = undefined;
       if (polyProp) polyProp.onChanged();
 
       return;
-    }    
+    }
 
     let idxText = selectedObjs.findIndex(o => o instanceof S2PCanvasText);
     idxText = idxText != -1 ? idxText : 0;
@@ -278,7 +278,7 @@
         }
         case S2PCanvasItemType.Polyline:
         case S2PCanvasItemType.FilledPolyline: {
-          hasFill = hasStroke = hasStrokeWidth = true;          
+          hasFill = hasStroke = hasStrokeWidth = true;
           hasRadius = false;
           canvasItemSelected = selectedObjs[idxText] as S2PCanvasPoly;
           break;
@@ -308,10 +308,6 @@
       polyProp.onChanged();
   }
 
-  export function exportToPng() {
-    s2pCanvas.exportToPng();
-  }
-
   function dump() {
     s2pCanvas.dump();
   }
@@ -321,7 +317,7 @@
       let keyworkToSearch = "";
       if (source.data.activityKind.sportType.includes("Swim"))
         keyworkToSearch = "Swim";
-      
+
       if (source.data.activityKind.sportType.includes("Run"))
         keyworkToSearch = "Run";
 
@@ -338,37 +334,37 @@
     }
 
     if (themes && themes[themeIdx]) {
-      selectedTheme = themes[themeIdx]?.name ?? "";   
-      loadTheme(themes[themeIdx] ?? new S2PTheme(""));            
+      selectedTheme = themes[themeIdx]?.name ?? "";
+      loadTheme(themes[themeIdx] ?? new S2PTheme(""));
     }
   }
-  
+
   async function onThemeSelected(themeType: string, themeName: string) {
     currentThemeIdx =
       themes.findIndex((theme) => theme.name.includes(themeType + " - " + themeName)) ?? 0;
 
-    if (themes[currentThemeIdx] && source.data.streams) {   
+    if (themes[currentThemeIdx] && source.data.streams) {
         selectedTheme = themeType + " - " + themeName;
         loadTheme(themes[currentThemeIdx]) ;
-        onRequestRedraw();          
+        onRequestRedraw();
     }
   }
 
   function onFontFamilySelected(fontType: string, fontFamily: string) {
     Promise.all([fontFamily].map(f => document.fonts.load(`16px "${f}"`)))
       .then(() => document.fonts.ready)
-        .then(() =>            
-          requestAnimationFrame(() => {                     
+        .then(() =>
+          requestAnimationFrame(() => {
             s2pCanvas.setFontFamily(fontFamily);
             onRequestRedraw();
           }
           )
-        );    
+        );
   }
 
   function onAddTrackProfile() {
-    if (!source.data.streams || !source.data.streams.location) 
-      return;    
+    if (!source.data.streams || !source.data.streams.location)
+      return;
 
     let colors = s2pSuggestedColors.getCurrentColors();
 
@@ -384,11 +380,11 @@
         top: s2pCanvas.getCanvas().height / 4,
         left: s2pCanvas.getCanvas().width / 4,
       }
-    );    
+    );
   }
 
   function onAddElevationChart() {
-    if (!source.data.streams || !source.data.streams.elevation) 
+    if (!source.data.streams || !source.data.streams.elevation)
       return;
 
     let colors = s2pSuggestedColors.getCurrentColors();
@@ -397,7 +393,7 @@
       "elevation_profile",
       source.data.streams.elevation,
       {
-        ...new S2PThemePoly(),        
+        ...new S2PThemePoly(),
         scaleX: 0.5,
         scaleY: 0.5,
         stroke: [colors[1] ?? null, colors[2] ?? null],
@@ -411,7 +407,7 @@
   }
 
   function onAddHeartrateChart() {
-    if (!source.data.streams || !source.data.streams.heartrate) 
+    if (!source.data.streams || !source.data.streams.heartrate)
       return;
 
     let colors = s2pSuggestedColors.getCurrentColors();
@@ -420,7 +416,7 @@
       "heartrate_profile",
       source.data.streams.heartrate,
       {
-        ...new S2PThemePoly(),        
+        ...new S2PThemePoly(),
         scaleX: 0.5,
         scaleY: 0.5,
         stroke: [colors[1] ?? null, colors[2] ?? null],
@@ -451,14 +447,14 @@
 
   export function updateTextsValue(canvasText?: S2PCanvasText) {
     (canvasText ? [canvasText] : s2pCanvas.getObjects().texts).forEach(text => {
-      if (text.label === "user") 
+      if (text.label === "user")
         return;
-      
+
       let value = source.getValueForField(text.label.replace("_value", ""));
       let unit = source.getUnitForField(text.label.replace("_value_unit", ""));
-      
+
       if (text.label.includes("_value_unit"))
-        text.set('text', unit);      
+        text.set('text', unit);
       else
         text.set('text', (value ?? "N/A") + (value ? unit : ""));});
 
@@ -486,10 +482,10 @@
   function isNullOfTransparent(color: string | null): boolean {
     return (
         !color || color.toLowerCase() == "#ffffff00"
-    );            
+    );
   }
 
-  function updatePolyColor(p: S2PCanvasPoly, gradientIndex: number, color: any) {    
+  function updatePolyColor(p: S2PCanvasPoly, gradientIndex: number, color: any) {
     let colorStr = color.toHEXA().toString();
     let moreAlphaColorStr = decreaseHexaOpacity(colorStr, 0.5);
 
@@ -500,7 +496,7 @@
       p.setFillStop(gradientIndex, moreAlphaColorStr);
   }
 
-  function updateRectColor(r: S2PRect, gradientIndex: number, color: any) {    
+  function updateRectColor(r: S2PRect, gradientIndex: number, color: any) {
     let colorStr = color.toHEXA().toString();
     let moreAlphaColorStr = decreaseHexaOpacity(colorStr, 0.5);
 
@@ -511,8 +507,8 @@
       r.setFillStop(gradientIndex, moreAlphaColorStr);
   }
 
-  function onGradientChanged(type: number, color: any) {    
-    s2pCanvas.getObjects().rects.forEach((r) => updateRectColor(r, type, color));    
+  function onGradientChanged(type: number, color: any) {
+    s2pCanvas.getObjects().rects.forEach((r) => updateRectColor(r, type, color));
     s2pCanvas.getObjects().polys.forEach((p) => updatePolyColor(p, type, color));
 
     onRequestRedraw();
@@ -539,9 +535,9 @@
 <div
   class="d-flex justify-content-center align-items-center mb-2"
   style="flex-direction: column; max-width: 600px; width: 100%; margin: auto;"
-> 
+>
   <i class="mb-2 bi bi-arrow-down" style="transform: scale(1.2);"></i>
- 
+
   <div class="mb-2">
     <S2PSuggestedColors bind:this={s2pSuggestedColors} {s2pCanvas}
     {onSuggestedColorsChangedEvent} {onGradientChanged} {onSolidColorChanged}
@@ -564,41 +560,43 @@
   <S2PCanvas bind:this={s2pCanvas} {onSelectionChanged} />
 
   <div id="btnGroup" class="btn-group mb-2 d-flex" role="group">
-    <button
-      type="button"
-      onclick={e => s2pCanvas.addTextAtPos(
-        "text",
-        s2pCanvas.getCanvas().width / 2,
-        s2pCanvas.getCanvas().height / 2,
-        (canvasItemSelected && "s2pType" in canvasItemSelected && canvasItemSelected.s2pType == S2PCanvasItemType.Text) ? (canvasItemSelected as S2PCanvasText).textProps : undefined
-      )}
-      class="btn btn-outline-primary"
-    >
-      <i class="bi bi-fonts">+</i>
-    </button>
+    <div class="btn-group" style="flex: 2;">
+      <button
+        type="button"
+        onclick={e => s2pCanvas.addTextAtPos(
+          "text",
+          s2pCanvas.getCanvas().width / 2,
+          s2pCanvas.getCanvas().height / 2,
+          (canvasItemSelected && "s2pType" in canvasItemSelected && canvasItemSelected.s2pType == S2PCanvasItemType.Text) ? (canvasItemSelected as S2PCanvasText).textProps : undefined
+        )}
+        class="btn btn-outline-primary"
+      >
+        <i class="bi bi-fonts">+</i>
+      </button>
 
-    <button
-      type="button"
-      onclick={() => {
-          let colors = s2pSuggestedColors.getCurrentColors();
-          s2pCanvas.addRect({
-              ...new S2PThemeRect(),
-              left: 100,
-              top: 100,
-              width: 300,
-              height: 100,          
-              fill: [colors[1], colors[2]],
-              stroke: [colors[0], colors[0]],
-              strokeWidth: 1,
-              rx: 10,
-              ry: 10,
-            });          
+      <button
+        type="button"
+        onclick={() => {
+            let colors = s2pSuggestedColors.getCurrentColors();
+            s2pCanvas.addRect({
+                ...new S2PThemeRect(),
+                left: 100,
+                top: 100,
+                width: 300,
+                height: 100,
+                fill: [colors[1], colors[2]],
+                stroke: [colors[0], colors[0]],
+                strokeWidth: 1,
+                rx: 10,
+                ry: 10,
+              });
+            }
           }
-        }
-      class="btn btn-outline-primary"
-    >
-      <i class="bi bi-app">+</i>
-    </button>
+        class="btn btn-outline-primary"
+      >
+        <i class="bi bi-app">+</i>
+      </button>
+    </div>
 
     <button
       type="button"
@@ -610,34 +608,34 @@
       <i class="bi bi-trash"></i></button
     >
 
-    <button
-      type="button"
-      onclick={() => {
-          toggleSelectAll ? s2pCanvas.unselectAll() : s2pCanvas.selectAll();
-          toggleSelectAll = !toggleSelectAll;
-        }}
-      class="btn btn-outline-primary"><i class="bi {toggleSelectAll ? "bi-collection-fill" : "bi-collection"}"></i></button
-    >
+    <div class="btn-group" style="flex: 2;">      
+      <button
+        type="button" title="Download as PNG"
+        onclick={() => s2pCanvas.exportToPng()}
+        class="btn btn-outline-primary">
+        <i class="bi bi-download"></i>
+      </button>
 
-    <button
-    type="button"
-    onclick={() => exportToPng()}
-    class="btn btn-outline-primary"><i class="bi bi-download"></i></button
-  >
-  </div>
+      <button
+        type="button" title="Copy to clipboard"
+        onclick={() => s2pCanvas.copyCanvasToClipboard()}
+        class="btn btn-outline-primary">
+        <i class="bi bi-clipboard"></i>
+      </button>
 
-  <div class="d-flex gap-1" style="flex-direction: row;">
-      <div style="width: 100%; padding-top: 3px;">
-        <S2PSliderDropdown
-          bind:this={themeMainFontSlider}
-          selectedValue={themeMainFont}
-          dropdownData={Fonts.fontFamilies}
-          onItemSelected={onFontFamilySelected}
-        />
+      <button
+        type="button" title="Select all items"
+        onclick={() => {
+            toggleSelectAll ? s2pCanvas.unselectAll() : s2pCanvas.selectAll();
+            toggleSelectAll = !toggleSelectAll;
+          }}
+        class="btn btn-outline-primary">
+        <i class="bi {toggleSelectAll ? "bi-dash-square-dotted" : "bi-plus-square-dotted"}"></i></button
+      >
     </div>
   </div>
 
-  <div class="btn-group mb-2 d-flex" role="group">    
+  <div class="btn-group mb-1 d-flex" role="group">
     {#if hasTrackProfile }
     <button onclick={() => onAddTrackProfile()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
       >Track profile +</button
@@ -654,6 +652,18 @@
     >
     {/if}
   </div>
+  
+  <div class="d-flex gap-1" style="flex-direction: row;">
+      <div style="width: 100%; padding-top: 3px;">
+        <S2PSliderDropdown
+          bind:this={themeMainFontSlider}
+          selectedValue={themeMainFont}
+          dropdownData={Fonts.fontFamilies}
+          onItemSelected={onFontFamilySelected}
+        />
+    </div>
+  </div>
+
   <div class="mb-2">
     {#if canvasItemSelected && canvasItemSelected.s2pType != S2PCanvasItemType.Svg}
       <S2PVisualProps
@@ -693,7 +703,7 @@
           <S2PSvgs
             bind:this={s2pSvgs}
             {onRequestRedraw}
-            onRequestAdd={s2pCanvas.addSvg}            
+            onRequestAdd={s2pCanvas.addSvg}
           />
         </div>
       </div>
@@ -723,7 +733,7 @@
             </label>
             <input class="form-check-input" id="defaultCheck1" type="checkbox" onchange={s2pCanvas.onShowGuidesChanged}>
           </div>
-       
+
           <div class="d-flex mb-2" style="justify-content: space-between; align-items: baseline;">
             <div><span class="me-1 font-emp">Export theme</span><i class="me-1">The theme will be dumped in the browser console</i></div>
             <button onclick={() => dump()} class="mb-2 btn btn-primary btn-sm"
