@@ -92,9 +92,9 @@
     export function setPickerColors() {
         let currentColor = suggestedColors[currColorIdx];
 
-        colorPicker.setColor(currentColor[0]);
         gradientStartPicker.setColor(currentColor[1]);
         gradientEndPicker.setColor(currentColor[2]);
+        colorPicker.setColor(currentColor[0]);
     }
 
     export function getCurrentColors(): string[] {

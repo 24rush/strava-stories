@@ -13,6 +13,7 @@
         type S2PCanvasObjectType,
     } from "../lib/S2PCanvasItem";
     import { FieldMappings, FieldName } from "../lib/utils/fieldmappings";
+    import { S2PSplits } from "../lib/S2PSplits";
 
     let {
         onRequestRedraw,
@@ -181,7 +182,7 @@
 
             FieldName.Text,
         ];
-        
+
         Object.values(mappedFields).forEach((field) => {
             const option = document.createElement("option");
             option.value = field;
@@ -205,6 +206,28 @@
         });
 
         canvasItemSelected.set("strokeWidth", parseInt(newValue));
+        onRequestRedraw?.();
+    }
+
+    function barWidthChanged(newValue: number) {
+        currentSelection.forEach((obj) => {
+            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Splits) {
+                let s2pObject = obj as S2PSplits;
+                s2pObject.barWidth = newValue;
+            }
+        });
+
+        onRequestRedraw?.();
+    }
+
+    function barGapChanged(newValue: number) {
+        currentSelection.forEach((obj) => {
+            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Splits) {
+                let s2pObject = obj as S2PSplits;
+                s2pObject.barGap = newValue;
+            }
+        });
+
         onRequestRedraw?.();
     }
 
@@ -233,11 +256,12 @@
     //@ts-ignore
     function radiusChanged(newValue) {
         currentSelection.forEach((obj) => {
-            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Rect) {
-                let s2pObject = obj as S2PRect;
-                s2pObject.set("rx", parseInt(newValue));
-                s2pObject.set("ry", parseInt(newValue));
-            }
+            if ("s2pType" in obj)
+                if (obj.s2pType == S2PCanvasItemType.Rect) {
+                    let s2pObject = obj as S2PRect;
+                    s2pObject.set("rx", parseInt(newValue));
+                    s2pObject.set("ry", parseInt(newValue));
+                }
         });
 
         canvasItemSelected.set("rx", parseInt(newValue));
@@ -286,9 +310,12 @@
 
     function fireFontFamilyChanged(event: Event) {
         currentSelection.forEach((obj) => {
-            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Text) {
-                let s2pObject = obj as S2PCanvasText;
-                s2pObject.set(
+            if (
+                "s2pType" in obj &&
+                (obj.s2pType == S2PCanvasItemType.Text ||
+                    obj.s2pType == S2PCanvasItemType.Splits)
+            ) {
+                obj.set(
                     "fontFamily",
                     (event.target as HTMLSelectElement).value,
                 );
@@ -306,11 +333,14 @@
         let currFont = canvasItemSelected.get("fontStyle");
         currentSelection.forEach((obj) => {
             if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Text) {
-                let s2pObject = obj as S2PCanvasText;
-                s2pObject.set(
+                obj.set(
                     "fontStyle",
                     !currFont || currFont == "normal" ? "italic" : "normal",
                 );
+
+                if (obj.s2pType == S2PCanvasItemType.Splits)
+                    (obj as S2PSplits).fontStyle =
+                        !currFont || currFont == "normal" ? "italic" : "normal";
             }
         });
 
@@ -448,6 +478,7 @@
             if (
                 canvasItemSelected instanceof S2PCanvasText ||
                 canvasItemSelected instanceof S2PCanvasPoly ||
+                canvasItemSelected instanceof S2PSplits ||
                 canvasItemSelected instanceof S2PRect
             ) {
                 if (canvasItemSelected instanceof S2PCanvasText) {
@@ -494,12 +525,14 @@
     >
         <div
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            canvasItemSelected instanceof S2PSplits ||
             currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; width: 100%; flex-direction: column;"
         >
             <input
-                disabled={currentSelection.length > 1}
+                disabled={currentSelection.length > 1 ||
+                    canvasItemSelected instanceof S2PSplits}
                 bind:this={inputTextField}
                 value={canvasItemSelected.text}
                 oninput={fireTextChanged}
@@ -593,6 +626,20 @@
         >
 
         <span
+            style="display: {canvasItemSelected instanceof S2PSplits
+                ? 'flex'
+                : 'none'}; white-space: nowrap;"
+            class="font-emp">Bar width</span
+        >
+
+        <span
+            style="display: {canvasItemSelected instanceof S2PSplits
+                ? 'flex'
+                : 'none'}; white-space: nowrap;"
+            class="font-emp">Bar gap</span
+        >
+
+        <span
             style="display: {hasStrokeWidth
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
@@ -606,6 +653,7 @@
     <div class="column gap-2" style="padding-left: 0.25rem;">
         <div
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            canvasItemSelected instanceof S2PSplits ||
             currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; width: 100%; flex-direction: column;"
@@ -755,6 +803,34 @@
                 min={0}
                 max={600}
                 step={25}
+            />
+        </div>
+
+        <div
+            style="display: {canvasItemSelected instanceof S2PSplits
+                ? 'flex'
+                : 'none'};"
+        >
+            <S2PRangeControl
+                onValueChanged={barWidthChanged}
+                value={canvasItemSelected.barWidth}
+                min={0}
+                max={100}
+                step={0.5}
+            />
+        </div>
+
+        <div
+            style="display: {canvasItemSelected instanceof S2PSplits
+                ? 'flex'
+                : 'none'};"
+        >
+            <S2PRangeControl
+                onValueChanged={barGapChanged}
+                value={canvasItemSelected.barGap}
+                min={0}
+                max={200}
+                step={1}
             />
         </div>
 

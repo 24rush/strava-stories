@@ -1,0 +1,42 @@
+{
+    "name": "default",
+    "ignore": false,
+    "texts": [],
+    "polys": [],
+    "rects": [],
+    "svgs": [],
+    "splits": [
+        {
+            "id": "",
+            "label": "splits_profile",
+            "top": 0.07473772610410553,
+            "left": 0.09305555555555554,
+            "width": 0.7819095446003808,
+            "height": 0.8577876602532621,
+            "angle": 0,
+            "fill": [
+                "#E91E6380",
+                "#FC520080"
+            ],
+            "stroke": [
+                null,
+                null
+            ],
+            "strokeWidth": 0,
+            "scaleX": 1,
+            "scaleY": 1,
+            "barWidth": 20,
+            "barGap": 2,
+            "rx": 0,
+            "ry": 0,
+            "fontFamily": "Termina Test",
+            "fontStyle": "normal",
+            "textColor": [
+                "#E5E7EB",
+                "#E5E7EB"
+            ]
+        }
+    ],
+    "height_percentage": 0.7974325226080058,
+    "devicePixelRatio": 1
+}

@@ -6,15 +6,15 @@ export enum FieldName {
     Distance = "Distance (m)",
     Elevation = "Elevation gain (m)",
     Calories = "Calories",
-    
+
     Speed = "Speed",
     Pace = "Pace",
-    
+
     AvgPower = "Avg. Power (W)",
     MaxPower = "Max. Power (W)",
     AvgHeartRate = "Avg. heartrate (bpm)",
     MaxHeartRate = "Max. heartrate (bpm)",
-    
+
     AltitudeMax = "Altitude max (m)",
     AltitudeMin = "Altitude min (m)",
 
@@ -22,7 +22,7 @@ export enum FieldName {
     TotalDistance = "Total distance",
     TotalTime = "Total time",
     TotalElevation = "Total elevation",
-    
+
     Name = "Name",
     Text = "User",
     None = ""
@@ -155,7 +155,7 @@ export class DataSource {
         switch (fieldName) {
             case FieldName.MovingTime:
             case FieldId.MovingTime:
-                return this.data.scalars.movingTime ? Converters.secondsToHMS(this.data.scalars.movingTime) : '';                
+                return this.data.scalars.movingTime ? Converters.secondsToHMS(this.data.scalars.movingTime) : '';
             case FieldName.Distance:
             case FieldId.Distance:
                 if (this.data.activityKind.sportType == "Swim") return "m";
@@ -265,7 +265,7 @@ export class FieldMappings {
 
         FieldName.Pace,
         FieldName.Speed,
-                
+
         FieldName.AvgPower,
         FieldName.MaxPower,
         FieldName.AvgHeartRate,
@@ -282,7 +282,7 @@ export class FieldMappings {
     static FieldIds: FieldId[] = [
         FieldId.Name,
         FieldId.MovingTime,
-        FieldId.Distance,            
+        FieldId.Distance,
         FieldId.Elevation,
         FieldId.Calories,
         FieldId.AltitudeMax,
@@ -290,7 +290,7 @@ export class FieldMappings {
 
         FieldId.Pace,
         FieldId.Speed,
-        
+
         FieldId.AvgPower,
         FieldId.MaxPower,
         FieldId.AvgHeartRate,
@@ -379,6 +379,17 @@ export class FieldMappings {
     }
 }
 
+export type SplitData = {
+    distance: number;
+    elapsed_time: number;
+    elevation_difference: number;
+    moving_time: number;
+    split: number;
+    average_speed: number;
+    average_grade_adjusted_speed: number;
+    average_heartrate: number;
+}
+
 export class StravaData {
     origData: StravaData | undefined;
 
@@ -399,6 +410,7 @@ export class StravaData {
         heartrate: number[],
     }
 
+    splits_metric: SplitData[]
     hasHeartRate: boolean;
     name: string;
 
@@ -419,6 +431,7 @@ export class StravaData {
         }
         this.hasHeartRate = false;
         this.name = "";
+        this.splits_metric = [];
 
         this.origData = undefined;
     }
@@ -441,6 +454,7 @@ export class StravaData {
             },
             hasHeartRate: false,
             name: data.name,
+            splits_metric: [],
             origData: undefined
         }
 
@@ -467,6 +481,18 @@ export class StravaData {
             },
             hasHeartRate: data.has_heartrate,
             name: data.name,
+            splits_metric: data.splits_metric.map((s: any) => {
+                return {
+                    distance: s.distance,
+                    elapsed_time: s.elapsed_time,
+                    elevation_difference: s.elevation_difference,
+                    moving_time: s.moving_time,
+                    split: s.split,
+                    average_speed: s.average_speed,
+                    average_grade_adjusted_speed: s.average_grade_adjusted_speed,
+                    average_heartrate: s.average_heartrate,
+                }
+            }),
             origData: undefined
         }
 

@@ -11,6 +11,7 @@ export enum S2PCanvasItemType {
     FilledPolyline = "filledPolyline",
     Text = "text",
     Rect = "rect",
+    Splits = "splits",
     Svg = "svg"
 }
 

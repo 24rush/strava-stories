@@ -5,7 +5,7 @@
   import { S2PCanvasText } from "../lib/S2PCanvasText";
   import S2PVisualProps from "./S2PVisualProps.svelte";
   import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
-  import { S2PTheme, S2PThemePoly, S2PThemeRect } from "../lib/S2PTheme";
+  import { S2PTheme, S2PThemePoly, S2PThemeRect, S2PThemeSplits } from "../lib/S2PTheme";
   import { S2PCanvasItemType } from "../lib/S2PCanvasItem";
   import type { FabricObject } from "fabric";
   import S2PSliderDropdown from "./S2PSliderDropdown.svelte";
@@ -15,6 +15,7 @@
   import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
   import { DataSource, FieldId } from "../lib/utils/fieldmappings";
   import { decreaseHexaOpacity } from "../lib/utils/colors";
+  import type { S2PSplits } from "../lib/S2PSplits";
 
   let {
         source,
@@ -51,6 +52,7 @@
   let hasHeartRate = $state(false);
   let hasTrackProfile = $state(false);
   let hasElevation = $state(false);
+  let hasSplitsData = $state(false);
 
   let toggleSelectAll: boolean = false;
   let currentSelection: FabricObject[] = [];
@@ -126,6 +128,14 @@
           svgTheme.width *= canvasWidth;
           svgTheme.height *= canvasHeight;
         });
+
+      if (t.splits)
+        t.splits.forEach((splitTheme) => {
+          splitTheme.left *= canvasWidth;
+          splitTheme.top *= canvasHeight;
+          splitTheme.width *= canvasWidth;
+          splitTheme.height *= canvasHeight;
+        });
     });
   }
 
@@ -148,6 +158,7 @@
     hasHeartRate = source.data.hasHeartRate && source.data.streams.heartrate.length > 0;
     hasTrackProfile = source.data.streams.location.length > 0;
     hasElevation = source.data.streams.elevation.length > 0;
+    hasSplitsData = source.data.splits_metric.length > 0;
 
     if (!theme_meta) return;
 
@@ -158,7 +169,13 @@
       s2pCanvas.getCanvas().setDimensions({
         height: canvasHeight,
       });
-
+    
+    if (theme_meta.splits && source.data.splits_metric) {
+      theme_meta.splits.forEach(split => {
+        s2pCanvas.addSplitsCharts(source.data.splits_metric, split);
+      });
+    }    
+    
     if (theme_meta.polys && source && source.data.streams)
       theme_meta.polys.forEach((poly: S2PThemePoly) => {
         if (poly.label == "track_profile" && source.data.streams.location)
@@ -178,7 +195,7 @@
 
     if (theme_meta.texts) {
       if (theme_meta.texts.length > 0) {
-        themeMainFont = ("Font: " + theme_meta.texts[0]?.fontFamily) ?? "";
+        themeMainFont = ("Font - " + theme_meta.texts[0]?.fontFamily) ?? "";
         themeMainFontSlider.onSelectedItemChanged(themeMainFont);
       }
 
@@ -298,6 +315,13 @@
           hasFill = hasStroke = hasStrokeWidth = true;
           hasRadius = true;
           canvasItemSelected = selectedObjs[idxText] as S2PRect;
+          break;
+        }
+        case S2PCanvasItemType.Splits: {
+          hasFill = hasStroke = hasStrokeWidth = true;
+          hasRadius = true;
+          canvasItemSelected = selectedObjs[idxText] as S2PSplits;
+
           break;
         }
       }
@@ -434,6 +458,34 @@
     onRequestRedraw();
   }
 
+  function onAddSplitsChart() {
+    if (!source.data.splits_metric)
+      return;
+
+    let colors = s2pSuggestedColors.getCurrentColors();
+
+    s2pCanvas.addSplitsCharts(     
+      source.data.splits_metric,
+      {
+        ...new S2PThemeSplits(),
+        label: "splits_profile",
+        barGap: 2,
+        barWidth: 20,        
+        textColor: [colors[0] ?? null, colors[0] ?? null],
+        fill: [decreaseHexaOpacity(colors[1], 0.5), decreaseHexaOpacity(colors[2], 0.5)],
+        stroke: [null, null],
+        strokeWidth: 0,
+        top: s2pCanvas.getCanvas().height * 0.1,
+        left: s2pCanvas.getCanvas().width * 0.1,
+        height: s2pCanvas.getCanvas().height * 0.8,
+        width: s2pCanvas.getCanvas().width * 0.8,
+        fontFamily: themeMainFont.replace("Font - ", "")
+      }
+    );
+
+    onRequestRedraw();
+  }
+
   function onSuggestedColorsChangedEvent(showSuggestedColors: boolean) {
     if (!showSuggestedColors) {
       onBackgroundRemoved();
@@ -508,7 +560,7 @@
       p.setFillStop(gradientIndex, moreAlphaColorStr);
   }
 
-  function updateRectColor(r: S2PRect, gradientIndex: number, color: any) {
+  function updateRectColor(r: S2PRect | S2PSplits, gradientIndex: number, color: any) {
     let colorStr = color.toHEXA().toString();
     let moreAlphaColorStr = decreaseHexaOpacity(colorStr, 0.5);
 
@@ -522,6 +574,7 @@
   function onGradientChanged(type: number, color: any) {
     s2pCanvas.getObjects().rects.forEach((r) => updateRectColor(r, type, color));
     s2pCanvas.getObjects().polys.forEach((p) => updatePolyColor(p, type, color));
+    s2pCanvas.getObjects().splits.forEach((s) => updateRectColor(s, type, color));
 
     onRequestRedraw();
   }
@@ -530,13 +583,17 @@
     let colorStr = color.toHEXA().toString();
     let moreAlphaColorStr = decreaseHexaOpacity(colorStr);
 
-    let texts = s2pCanvas.getObjects().texts;
+    let canvasObjs = s2pCanvas.getObjects();    
 
-    texts.forEach((t) => {
+    canvasObjs.texts.forEach((t) => {
         let isUnit = t.label.includes("_value_unit");
 
         t.setFillStop(0, isUnit ? moreAlphaColorStr : colorStr);
         t.setFillStop(1, isUnit ? moreAlphaColorStr : colorStr);
+    });    
+
+    canvasObjs.splits.forEach((s) => {   
+      s.setTextGradient(colorStr);
     });
 
     onRequestRedraw?.();
@@ -661,6 +718,11 @@
     {#if hasHeartRate }
     <button onclick={() => onAddHeartrateChart()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
       >Heartrate chart +</button
+    >
+    {/if}
+    {#if hasSplitsData }
+    <button onclick={() => onAddSplitsChart()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
+      >Splits chart +</button
     >
     {/if}
   </div>

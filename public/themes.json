@@ -135,7 +135,7 @@
       },
       {
         "id": "rlfai08",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "top": 0.6042240544289996,
         "left": 0.06076388888888891,
         "width": 0,
@@ -458,7 +458,7 @@
       },
       {
         "id": "rlfai08",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "top": 0.7590715393083505,
         "left": 0.2743055555555556,
         "width": 0,
@@ -698,7 +698,7 @@
       },
       {
         "id": "rlfai08",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "top": 0.5781052832885677,
         "left": 0.6707557279300066,
         "width": 0,
@@ -770,7 +770,7 @@
     "texts": [
       {
         "id": "54daz6g",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "top": 0.18660464492110673,
         "left": 0.3749764376700522,
         "width": 0,
@@ -1034,6 +1034,48 @@
     "devicePixelRatio": 1.25
   },
   {
+    "name": "Run - Splits",
+    "ignore": false,
+    "texts": [],
+    "polys": [],
+    "rects": [],
+    "svgs": [],
+    "splits": [
+      {
+        "id": "",
+        "label": "splits_profile",
+        "top": 0.07473772610410553,
+        "left": 0.09305555555555554,
+        "width": 0.7819095446003808,
+        "height": 0.8577876602532621,
+        "angle": 0,
+        "fill": [
+          "#E91E6380",
+          "#FC520080"
+        ],
+        "stroke": [
+          null,
+          null
+        ],
+        "strokeWidth": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "barWidth": 20,
+        "barGap": 2,
+        "rx": 0,
+        "ry": 0,
+        "fontFamily": "Termina Test",
+        "fontStyle": "normal",
+        "textColor": [
+          "#E5E7EB",
+          "#E5E7EB"
+        ]
+      }
+    ],
+    "height_percentage": 0.7974325226080058,
+    "devicePixelRatio": 1
+  },
+  {
     "name": "Run - Strava #1",
     "ignore": false,
     "texts": [
@@ -1117,7 +1159,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "top": 0.4792872457779527,
         "left": 0.40840702710422133,
         "width": 0,
@@ -1908,7 +1950,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "top": 0.7950974329708308,
         "left": 0.04166666666666625,
         "width": 0,
@@ -2062,7 +2104,7 @@
       },
       {
         "id": "54daz6g",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "left": 0.2647058823529412,
         "top": 0.10339923156967303,
         "fontSize": 0.04096638655462185,
@@ -2390,7 +2432,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "top": 0.3989017650950587,
         "left": 0.7482638888888887,
         "width": 0,
@@ -2571,7 +2613,7 @@
       },
       {
         "id": "u5xj14e",
-        "label": "movingTime",
+        "label": "movingTime_value",
         "top": 0.6934886055393858,
         "left": 0.7797630605272209,
         "width": 0,

@@ -19,12 +19,21 @@ export class Converters {
     let seconds = 0;
 
     for (let i = 0; i < parts.length; i++) {
-      if (isNaN(parts[i] ?? NaN)) 
+      if (isNaN(parts[i] ?? NaN))
         continue;
 
       seconds += parts[i] * Math.pow(60, parts.length - 1 - i);
     }
 
     return seconds;
+  }
+
+  static mpsToPace(mps: number) {
+    const totalSeconds = 1000 / mps;
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = Math.round(totalSeconds % 60);
+
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 }

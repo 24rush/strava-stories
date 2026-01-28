@@ -5,7 +5,7 @@
         Group,
         Pattern,
         FabricImage,
-        ActiveSelection,
+        ActiveSelection
     } from "fabric";
     import {
         generateXYFromLatLng,
@@ -20,10 +20,13 @@
         S2PTheme,
         S2PThemePoly,
         S2PThemeRect,
+        S2PThemeSplits,
         S2PThemeText,
     } from "../lib/S2PTheme";
     import { S2PRect } from "../lib/S2PRect";
     import type { S2PSvg } from "../lib/S2PSvg";
+    import type { SplitData } from "../lib/utils/fieldmappings";
+    import { S2PSplits } from "../lib/S2PSplits";
 
     let {
         onSelectionChanged,
@@ -39,6 +42,7 @@
     let polys: S2PCanvasPoly[] = [];
     let texts: S2PCanvasText[] = [];
     let rects: S2PRect[] = [];
+    let splits: S2PSplits[] = [];
     let svgs: S2PSvg[] = [];
 
     let rndId = `${Math.random().toString(36).slice(2, 9)}`;
@@ -233,17 +237,18 @@
         texts: S2PCanvasText[];
         rects: S2PRect[];
         polys: S2PCanvasPoly[];
+        splits: S2PSplits[];
         svgs: S2PSvg[];
     };
 
     export function getObjects(): S2PCanvasObjects {
-        return { texts: texts, rects: rects, polys: polys, svgs: svgs };
+        return { texts: texts, rects: rects, polys: polys, svgs: svgs, splits: splits };
     }
 
     export function setFontFamily(fontFamily: string) {
-        texts.forEach((t) => {
+        [texts, splits].forEach(obj => obj.forEach((t) => {
             t.set("fontFamily", fontFamily);
-        });
+        }));        
     }
 
     export function setAccentColor(color: string) {
@@ -297,6 +302,7 @@
         polys = [];
         rects = [];
         svgs = [];
+        splits = [];
         selected = [];
 
         canvas.requestRenderAll();
@@ -413,6 +419,7 @@
         svgs = svgs.filter((svg) => svg != delItem);
         polys = polys.filter((poly) => poly != delItem);
         rects = rects.filter((rect) => rect != delItem);
+        splits = splits.filter((split) => split != delItem);
 
         canvas.remove(delItem);
         canvas.requestRenderAll();
@@ -596,6 +603,16 @@
             });
         });
 
+        splits.forEach(split => {
+            theme.splits.push({
+                ...split.themeData,                     
+                left: split.left / canvas.width,
+                top: split.top / canvas.height,
+                width: (split.width * split.scaleX) / canvas.width,
+                height: (split.height * split.scaleY) / canvas.height,            
+            });
+        });
+
         theme.height_percentage = canvas.height / canvas.width;
         theme.devicePixelRatio = window.devicePixelRatio;
 
@@ -644,7 +661,7 @@
         if (canvas.backgroundImage) return;
 
         let lastPos = 0;
-        [texts, polys, rects, svgs].forEach((col) => {
+        [texts, polys, rects, svgs, splits].forEach((col) => {
             lastPos = Math.max(
                 lastPos,
                 Math.max(
@@ -769,6 +786,21 @@
         sendAllRectsToBack();
 
         return polyline;
+    }
+
+    export function addSplitsCharts(split_data: SplitData[], splitTheme: S2PThemeSplits): S2PSplits {
+        let splitChart = new S2PSplits(splitTheme);
+        canvas.add(splitChart);
+
+        splitChart.createSplitsChart(split_data);
+    
+        splits.push(splitChart);
+        canvas.sendObjectToBack(splitChart);
+
+        adjustCanvasSize();
+        canvas.renderAll();
+
+        return splitChart;
     }
 
     function sendAllRectsToBack() {

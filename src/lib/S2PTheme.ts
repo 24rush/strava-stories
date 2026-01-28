@@ -32,6 +32,19 @@ export class S2PThemeText extends S2PThemeObject {
 export class S2PThemePoly extends S2PThemeObject {    
 }
 
+export class S2PThemeSplits extends S2PThemeObject {   
+    public barWidth: number = 15;
+    public barGap: number = 5; 
+
+    public rx: number = 0;
+    public ry: number = 0;
+
+    public fontFamily: string = "Kanit"; 
+    public fontStyle: string = "normal";
+
+    public textColor: (string|null)[] = ["#fff", "#fff"];
+}
+
 export class S2PThemeSvg extends S2PThemeObject {
     public url: string = "";    
 }
@@ -48,6 +61,7 @@ export class S2PTheme {
     public polys: S2PThemePoly[] = [];
     public rects: S2PThemeRect[] = [];
     public svgs: S2PThemeSvg[] = [];
+    public splits: S2PThemeSplits[] = [];
 
     public height_percentage: number = 1;
     public devicePixelRatio: number = 1;
