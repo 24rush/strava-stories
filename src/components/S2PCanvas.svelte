@@ -521,10 +521,7 @@
 
         unselectAll();
 
-        const blob = await exportCanvasToWebM({
-            duration: 4000,
-            fps: 60
-        });
+        const blob = await exportCanvasToWebM();
 
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -541,12 +538,9 @@
         canvas.requestRenderAll();
     }
     
-    async function exportCanvasToWebM({
-            duration = 2000,     // ms
-            fps = 60,
-        } = {}) {
-
-        let canvasScale = 4;
+    async function exportCanvasToWebM() {
+        let canvasScale = 2;
+        let fps = 30;
         
         const src = canvas.getElement();
         const hi = document.createElement('canvas');
@@ -554,25 +548,26 @@
         hi.height = src.height * canvasScale;
 
         const ctx = hi.getContext('2d', { alpha: true });
+        ctx.imageSmoothingEnabled = true;       // enable smoothing
+        ctx.imageSmoothingQuality = 'high';     // use high-quality algorithm
+        ctx.globalCompositeOperation = 'source-over';
         ctx?.scale(canvasScale, canvasScale);
         
         const recorder = new MediaRecorder(hi.captureStream(fps), {
             mimeType: 'video/webm;codecs=vp9',
-            videoBitsPerSecond: 20_000_000
+            videoBitsPerSecond: 10_000_000
         });
 
         const chunks: any[] = [];
         recorder.ondataavailable = e => chunks.push(e.data);
-
         recorder.start();
 
         splits.forEach(s => s.startAnimation());
+        let duration = Math.max(...splits.map(s => {return s.getAnimationDuration();} ));
 
         let totalFrames = fps * duration / 1000;
         let t = 0;
 
-        // ensure Fabric keeps rendering during recording
-        const start = performance.now();
         function renderLoop() {
             ctx.clearRect(0, 0, hi.width, hi.height);
             ctx.drawImage(src, 0, 0);
