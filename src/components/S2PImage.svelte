@@ -665,6 +665,16 @@
       >
         <i class="bi bi-app">+</i>
       </button>
+
+      <button
+        type="button" title="Select all items"
+        onclick={() => {
+            toggleSelectAll ? s2pCanvas.unselectAll() : s2pCanvas.selectAll();
+            toggleSelectAll = !toggleSelectAll;
+          }}
+        class="btn btn-outline-primary">
+        <i class="bi {toggleSelectAll ? "bi-dash-square-dotted" : "bi-plus-square-dotted"}"></i></button
+      >
     </div>
 
     <button
@@ -677,14 +687,7 @@
       <i class="bi bi-trash"></i></button
     >
 
-    <div class="btn-group" style="flex: 2;">      
-      <button
-        type="button" title="Download as PNG"
-        onclick={() => s2pCanvas.exportToPng()}
-        class="btn btn-outline-primary">
-        <i class="bi bi-download"></i>
-      </button>
-
+    <div class="btn-group" style="flex: 2;">   
       <button
         type="button" title="Copy to clipboard"
         onclick={() => s2pCanvas.copyCanvasToClipboard()}
@@ -693,14 +696,18 @@
       </button>
 
       <button
-        type="button" title="Select all items"
-        onclick={() => {
-            toggleSelectAll ? s2pCanvas.unselectAll() : s2pCanvas.selectAll();
-            toggleSelectAll = !toggleSelectAll;
-          }}
+        type="button" title="Download as PNG"
+        onclick={() => s2pCanvas.exportToPng()}
         class="btn btn-outline-primary">
-        <i class="bi {toggleSelectAll ? "bi-dash-square-dotted" : "bi-plus-square-dotted"}"></i></button
-      >
+        <i class="bi bi-download"></i>
+      </button>
+
+      <button
+      type="button" title="Download as Video"
+      onclick={() => s2pCanvas.exportToWebM()}
+      class="btn btn-outline-primary">
+      <i class="bi bi-camera-reels"></i>
+      </button>
     </div>
   </div>
 

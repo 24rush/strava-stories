@@ -24,7 +24,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
 
         this.gradient = new S2PGradient(splitTheme.fill, splitTheme.stroke);
         this.origGradient = new S2PGradient(splitTheme.fill, splitTheme.stroke);
-        this.gradientTextColor = new S2PGradient(splitTheme.textColor, splitTheme.textColor);        
+        this.gradientTextColor = new S2PGradient(splitTheme.textColor, splitTheme.textColor);
 
         this.angle = this.splitTheme.angle;
         this.scaleX = this.splitTheme.scaleX;
@@ -36,7 +36,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         this.set({ originX: "left", originY: "top" });
     }
 
-    get themeData(): S2PThemeSplits { 
+    get themeData(): S2PThemeSplits {
         this.splitTheme.left = this.left;
         this.splitTheme.top = this.top;
         this.splitTheme.width = this.width;
@@ -45,7 +45,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         this.splitTheme.scaleX = this.scaleX;
         this.splitTheme.scaleY = this.scaleY;
 
-        return this.splitTheme; 
+        return this.splitTheme;
     }
     get label(): string { return this.splitTheme.label; }
 
@@ -168,7 +168,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 split.average_heartrate.toFixed(0) + "",
                 {
                     width: 200,
-                    left: barLength - 6,
+                    left: barLength,
                     top: top + this.barWidth / 2,
                     originX: 'right',
                     originY: "center",
@@ -199,11 +199,13 @@ export class S2PSplits extends Group implements S2PCanvasItem {
             this.bars.push(bar);
             this.texts.push(kmLabel, speedLabel, bpmLabel, elevationLabel);
         });
-
+        
         this.add(...this.bars, ...this.texts);
         this.setCoords();
         this.left = this.splitTheme.left;
-        this.top = this.splitTheme.top;       
+        this.top = this.splitTheme.top;
+
+        this.startAnimation();
     }
 
     public getStrokeStop(idx: number): string {
@@ -279,4 +281,38 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         this.dirty = true;
         this.setCoords();
     }
+
+    public startAnimation() {   
+        this.texts.forEach((obj, i) => {
+            util.animate({
+                startValue: -100,
+                endValue: obj.left,
+                duration: 1000,
+                delay: i * 10,
+                easing: util.ease.easeOutElastic,
+                onChange: (value) => {
+                    obj.set('left', value);
+                    this.canvas?.requestRenderAll();
+                }
+            });
+        });
+
+        this.bars.forEach((obj, i) => {
+            const startWidth = obj.width;
+            obj.set('width', 0);
+
+            util.animate({
+                startValue: 0,
+                endValue: startWidth,
+                duration: 1000,
+                delay: i * 20,
+                easing: util.ease.easeOutCubic,
+                onChange: (value) => {
+                    obj.set('width', value);
+                    this.canvas?.requestRenderAll();
+                }
+            });
+        });
+    }
+
 }

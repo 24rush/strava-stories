@@ -480,9 +480,9 @@
             minute: "2-digit",
             second: "2-digit",
         });
-    }
+    } 
 
-    export function exportToPng() {
+    export function exportToPng() {        
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
 
@@ -490,7 +490,7 @@
         canvas.backgroundColor = "";
 
         unselectAll();
-
+  
         setTimeout(() => {
             canvas.lowerCanvasEl.toBlob((blob) => {
                 if (!blob) return;
@@ -502,8 +502,7 @@
                 link.click();
                 URL.revokeObjectURL(url);
             }, "image/png");
-
-            // restore
+           
             canvas.backgroundColor = originalBg;
 
             if (originalBgImg) canvas.backgroundImage = originalBgImg;
@@ -511,6 +510,87 @@
             canvas.renderAll.bind(canvas);
             canvas.requestRenderAll();
         }, 400);
+    }
+
+    export async function exportToWebM() {
+        const originalBg = canvas.backgroundColor;
+        const originalBgImg = canvas.backgroundImage;
+
+        canvas.backgroundImage = null;
+        canvas.backgroundColor = "";
+
+        unselectAll();
+
+        const blob = await exportCanvasToWebM({
+            duration: 4000,
+            fps: 60
+        });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'canvas.webm';
+        a.click();
+        URL.revokeObjectURL(url);
+
+        canvas.backgroundColor = originalBg;
+
+        if (originalBgImg) canvas.backgroundImage = originalBgImg;
+
+        canvas.renderAll.bind(canvas);
+        canvas.requestRenderAll();
+    }
+    
+    async function exportCanvasToWebM({
+            duration = 2000,     // ms
+            fps = 30,
+        } = {}) {
+
+        let canvasScale = 1;
+        
+        const src = canvas.getElement();
+        const hi = document.createElement('canvas');
+        hi.width = src.width * canvasScale;
+        hi.height = src.height * canvasScale;
+
+        const ctx = hi.getContext('2d', { alpha: true });
+        ctx?.scale(canvasScale, canvasScale);
+        ctx.imageSmoothingEnabled = true;       // enable smoothing
+        ctx.imageSmoothingQuality = 'high';     // use high-quality algorithm
+        ctx.globalCompositeOperation = 'source-over';
+        
+        const recorder = new MediaRecorder(hi.captureStream(fps), {
+            mimeType: 'video/webm;codecs=vp9'
+        });
+
+        const chunks: any[] = [];
+        recorder.ondataavailable = e => chunks.push(e.data);
+
+        recorder.start();
+
+        splits.forEach(s => s.startAnimation());
+
+        // ensure Fabric keeps rendering during recording
+        const start = performance.now();
+        function renderLoop(t: number) {
+            ctx.clearRect(0, 0, hi.width, hi.height);
+            ctx.drawImage(src, 0, 0);
+
+            if (t - start < duration) {
+                requestAnimationFrame(renderLoop);
+            } else {
+                recorder.stop();
+            }
+        }
+
+        requestAnimationFrame(renderLoop);
+
+        return new Promise(resolve => {
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm;codecs=vp9' });
+                resolve(blob);
+            };
+        });
     }
 
     export async function copyCanvasToClipboard() {
