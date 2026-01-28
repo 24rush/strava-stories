@@ -543,10 +543,10 @@
     
     async function exportCanvasToWebM({
             duration = 2000,     // ms
-            fps = 30,
+            fps = 60,
         } = {}) {
 
-        let canvasScale = 1;
+        let canvasScale = 4;
         
         const src = canvas.getElement();
         const hi = document.createElement('canvas');
@@ -555,12 +555,10 @@
 
         const ctx = hi.getContext('2d', { alpha: true });
         ctx?.scale(canvasScale, canvasScale);
-        ctx.imageSmoothingEnabled = true;       // enable smoothing
-        ctx.imageSmoothingQuality = 'high';     // use high-quality algorithm
-        ctx.globalCompositeOperation = 'source-over';
         
         const recorder = new MediaRecorder(hi.captureStream(fps), {
-            mimeType: 'video/webm;codecs=vp9'
+            mimeType: 'video/webm;codecs=vp9',
+            videoBitsPerSecond: 20_000_000
         });
 
         const chunks: any[] = [];
@@ -570,17 +568,18 @@
 
         splits.forEach(s => s.startAnimation());
 
+        let totalFrames = fps * duration / 1000;
+        let t = 0;
+
         // ensure Fabric keeps rendering during recording
         const start = performance.now();
-        function renderLoop(t: number) {
+        function renderLoop() {
             ctx.clearRect(0, 0, hi.width, hi.height);
             ctx.drawImage(src, 0, 0);
 
-            if (t - start < duration) {
-                requestAnimationFrame(renderLoop);
-            } else {
-                recorder.stop();
-            }
+            t++;
+            if (t < totalFrames) requestAnimationFrame(renderLoop);
+            else recorder.stop();
         }
 
         requestAnimationFrame(renderLoop);

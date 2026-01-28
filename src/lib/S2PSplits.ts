@@ -1,4 +1,4 @@
-import { Canvas, Gradient, Group, IText, Rect, util } from "fabric";
+import { Canvas, Gradient, Group, IText, Rect, Textbox, util } from "fabric";
 import { S2PCanvasItemType, type S2PCanvasItem } from "./S2PCanvasItem";
 import type { S2PThemeSplits } from "./S2PTheme";
 import type { SplitData } from "./utils/fieldmappings";
@@ -118,10 +118,9 @@ export class S2PSplits extends Group implements S2PCanvasItem {
             const top =
                 this.splitTheme.top + index * (this.barWidth + this.barGap);
 
-            const kmLabel = new IText(
+            const kmLabel = new Textbox(
                 (index == speeds.length - 1) ? (split.distance / 1000).toFixed(2) : `${index + 1}`,
-                {
-                    width: 200,
+                {                    
                     left: 0,
                     top: top + this.barWidth / 2,
                     originX: 'right',
@@ -130,7 +129,8 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     fontStyle: this.splitTheme.fontStyle,
                     fontFamily: this.splitTheme.fontFamily,
                     fill: this.gradientTextColor.fillGradient,
-                    selectable: false
+                    selectable: false,  
+                    objectCaching: true,                  
                 }
             );
 
@@ -145,13 +145,13 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 stroke: this.gradient.strokeGradient,
                 strokeWidth: this.splitTheme.strokeWidth,
                 selectable: false,
-                objectCaching: false
+                objectCaching: true
             });
 
-            const speedLabel = new IText(
+            const speedLabel = new Textbox(
                 Converters.mpsToPace(split.average_speed) + " /km",
                 {
-                    width: 200,
+                    width: 100,
                     left: 12,
                     top: top + this.barWidth / 2,
                     originX: 'left',
@@ -160,14 +160,14 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
                     fill: this.gradientTextColor.fillGradient,
-                    selectable: false
+                    selectable: false,
+                    objectCaching: true,  
                 }
             );
 
-            const bpmLabel = new IText(
+            const bpmLabel = new Textbox(
                 split.average_heartrate.toFixed(0) + "",
-                {
-                    width: 200,
+                {                    
                     left: barLength,
                     top: top + this.barWidth / 2,
                     originX: 'right',
@@ -176,14 +176,15 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
                     fill: this.gradientTextColor.fillGradient,
-                    selectable: false
+                    selectable: false,
+                    objectCaching: true,  
                 }
             );
 
-            const elevationLabel = new IText(
+            const elevationLabel = new Textbox(
                 split.elevation_difference.toFixed(0) + " m",
                 {
-                    width: 200,
+                    width: 100,
                     left: barLength + 6,
                     top: top + this.barWidth / 2,
                     originX: 'left',
@@ -192,7 +193,8 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
                     fill: this.gradientTextColor.fillGradient,
-                    selectable: false
+                    selectable: false,
+                    objectCaching: true,  
                 }
             );
 
@@ -292,6 +294,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 easing: util.ease.easeOutElastic,
                 onChange: (value) => {
                     obj.set('left', value);
+                    obj.dirty = true;
                     this.canvas?.requestRenderAll();
                 }
             });
@@ -309,6 +312,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 easing: util.ease.easeOutCubic,
                 onChange: (value) => {
                     obj.set('width', value);
+                    obj.dirty = true;
                     this.canvas?.requestRenderAll();
                 }
             });
