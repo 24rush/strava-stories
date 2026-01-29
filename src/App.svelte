@@ -13,7 +13,7 @@
   let source: DataSource = new DataSource();
   let data_fetched = $state(false);
 
-  let strava_default_url = "https://www.strava.com/activities/14134698093";
+  let strava_default_url = "https://www.strava.com/activities/17157958853";
   let url_ok: boolean = true;
 
   let themes: any = {};
@@ -27,6 +27,7 @@
     "15174937862": "15174937862.txt",
     "14134698093": "14134698093.txt",
     '17045340809': '17045340809.txt',
+    '17157958853': '17157958853.json'
   };
 
   function extractStravaUrl(url: string): string | undefined {
@@ -45,11 +46,15 @@
     if (activityId && activityId in localActivities) {
       const response = await fetch("data/" + localActivities[activityId]);
       const strava_data = await response.text();
+
+      if (localActivities[activityId]?.includes('.json'))
+        return strava_data;
+
       const dataMatch = strava_data.match(
         /<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/,
       );
 
-      return dataMatch ? dataMatch[1] : "";
+      return dataMatch ? dataMatch[1] : undefined;
     }
 
     return undefined;
@@ -69,7 +74,11 @@
         .replace(/&amp;/g, "&");
 
       const jsonData = JSON.parse(jsonText);
-      source.loadFromRawNoApi(jsonData.props.pageProps.activity);
+
+      if ('props' in jsonData)
+        source.loadFromRawNoApi(jsonData.props.pageProps.activity);
+      else 
+        source.loadFromRaw(jsonData);
       
       s2pFieldData.refresh();
       data_fetched = true;
@@ -225,14 +234,14 @@
           aria-expanded={field_data_is_open}
           onclick={() => (field_data_is_open = !field_data_is_open)}
           aria-controls="fieldData"
-          type="button">Manually enter values</button
+          type="button">Edit values manually</button
         >
       </div>
 
       <S2PFieldData
         bind:this={s2pFieldData}
         id={"fieldData"}
-        selectedField={FieldMappings.FieldNames[0] ?? ""}
+        selectedField={FieldMappings.FieldNames[1] ?? ""}
         fieldMappings={FieldMappings.getFieldMapping()}
         getValueForField={(fieldName: string) => source.getValue(fieldName)}
         setValueForField={(fieldName: string, value: string | undefined) => {
