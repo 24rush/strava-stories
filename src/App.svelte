@@ -13,6 +13,7 @@
   let source: DataSource = new DataSource();
   let data_fetched = $state(false);
 
+  let S2P_STRAVA_API_URL = "https://strava-auth.vercel.app";
   let strava_default_url = "https://www.strava.com/activities/17157958853";
   let url_ok: boolean = true;
 
@@ -26,8 +27,8 @@
   const localActivities: Record<string, string> = {
     "15174937862": "15174937862.txt",
     "14134698093": "14134698093.txt",
-    '17045340809': '17045340809.txt',
-    '17157958853': '17157958853.json'
+    '17157958853': '17157958853.json',
+    '17045340809': '17045340809.json'
   };
 
   function extractStravaUrl(url: string): string | undefined {
@@ -87,7 +88,7 @@
       return;
     }
 
-    await fetch("https://strava-auth.vercel.app/api/activity", {
+    await fetch(S2P_STRAVA_API_URL + "/api/activity", {
       method: "GET",
       credentials: "include",
       headers: {
@@ -178,6 +179,40 @@
       console.error("Clipboard access denied", err);
     }
   }
+
+  async function retrieveLastActivity() {
+    await fetch(S2P_STRAVA_API_URL + "/api/lastactivity", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+      },
+    })
+      .then(async (res) => {
+        data_fetched = true;
+
+        if (!res.ok) {
+          const error = await res.json().catch(() => ({}));
+          throw error.error;
+        }
+        return res.json();
+      })
+      .then((strava_data) => {
+        let raw_data = strava_data;        
+        url_ok = raw_data != null;
+        data_fetched = true;
+
+        if (url_ok) {
+          source.loadFromRaw(raw_data);
+          s2pFieldData.refresh();
+          reloadTheme();
+        }
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        data_fetched = true;
+      });
+  }
+
 </script>
 
 <main>
@@ -190,7 +225,7 @@
     >
       sweat story
     </h1>
-    <span class="mb-3" style="font-style: italic; margin-top: -16px;">Strava activity to Instagram overlay</span>
+    <span class="mb-3" style="font-style: italic; margin-top: -16px; display:none;">Strava activity to Instagram overlay</span>
 
     <S2PLogin {onAthleteLoggedIn} />
 
@@ -200,10 +235,18 @@
         style="width: 100%; padding: 0px;justify-content: center; flex-direction: column;"
       >      
       {#if loggedInAthlete}
-        <span class="mb-1">URL of your Strava activity (set to <i>Everyone</i>)</span>
-        <div class="d-flex gap-1 align-items-center" style="width: 100%;">
+        <div class="d-flex align-items-center mb-2" style="flex-direction: row;">
           <button
-            class="btn btn-primary"
+            class="btn btn-primary btn-sm me-1"
+            type="button"
+            onclick={retrieveLastActivity}>Get last activity</button
+          >
+          <span class="mb-1" style="display: none;">URL of your Strava activity (set to <i>Everyone</i>)</span>                  
+        </div>
+
+        <div class="d-flex gap-1 align-items-center mb-2" style="width: 100%;">  
+          <button
+            class="btn btn-primary btn-sm"
             type="button"
             onclick={pasteFromClipboard}>Paste</button
           >
@@ -222,9 +265,7 @@
               ></i>
             {/if}
         </div>
-        {/if}
-        
-        <i>or</i>
+        {/if}              
 
         <button
           class="btn btn-sm btn-primary"

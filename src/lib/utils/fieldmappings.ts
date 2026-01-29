@@ -128,9 +128,9 @@ export class DataSource {
             case FieldId.Speed:
                 return (this.data.scalars.movingTime && this.data.scalars.distance) ? ((this.data.scalars.distance / 1000) / (this.data.scalars.movingTime / 3600)).toFixed(1) : 0;
             case FieldId.AltitudeMax:
-                return this.data.streams ? Math.ceil(Math.max(...this.data.streams.elevation)) : 0;
+                return this.data.streams && this.data.streams.elevation.length > 0 ? Math.ceil(Math.max(...this.data.streams.elevation)) : 0;
             case FieldId.AltitudeMin:
-                return this.data.streams ? Math.floor(Math.min(...this.data.streams.elevation)) : 0;
+                return this.data.streams  && this.data.streams.elevation.length > 0 ? Math.floor(Math.min(...this.data.streams.elevation)) : 0;
             case FieldId.Calories:
                 return this.data.scalars.calories;
             case FieldId.AvgHeartRate:
@@ -475,13 +475,13 @@ export class StravaData {
                 average_heartrate: data.average_heartrate
             },
             streams: {
-                location: 'latlng' in data.streams ? (data.streams.latlng.data as [[number, number]]).map(v => new LatLng(v[0], v[1])) : [],
-                elevation: 'altitude' in data.streams ? data.streams.altitude.data : [],
-                heartrate: 'heartrate' in data.streams ? data.streams.heartrate.data : []
+                location: data.streams && 'latlng' in data.streams ? (data.streams.latlng.data as [[number, number]]).map(v => new LatLng(v[0], v[1])) : [],
+                elevation: data.streams && 'altitude' in data.streams ? data.streams.altitude.data : [],
+                heartrate: data.streams && 'heartrate' in data.streams ? data.streams.heartrate.data : []
             },
             hasHeartRate: data.has_heartrate,
             name: data.name,
-            splits_metric: data.splits_metric.map((s: any) => {
+            splits_metric: data.splits_metric ? data.splits_metric.map((s: any) => {
                 return {
                     distance: s.distance,
                     elapsed_time: s.elapsed_time,
@@ -492,7 +492,7 @@ export class StravaData {
                     average_grade_adjusted_speed: s.average_grade_adjusted_speed,
                     average_heartrate: s.average_heartrate,
                 }
-            }),
+            }) : [],
             origData: undefined
         }
 

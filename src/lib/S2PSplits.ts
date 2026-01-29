@@ -178,21 +178,25 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 }
             );
 
-            const bpmLabel = new IText(
-                split.average_heartrate.toFixed(0) + "",
-                {
-                    width: 200,
-                    left: barLength,
-                    top: top + this.barWidth / 2,
-                    originX: 'right',
-                    originY: "center",
-                    fontSize: Math.round(this.barWidth * 0.6),
-                    fontFamily: this.splitTheme.fontFamily,
-                    fontStyle: this.splitTheme.fontStyle,
-                    fill: this.gradientTextColor.fillGradient,
-                    selectable: false
-                }
-            );
+            let bpmLabel = undefined;
+
+            if (split.average_heartrate) {
+                bpmLabel = new IText(
+                    split.average_heartrate.toFixed(0) + "",
+                    {
+                        width: 200,
+                        left: barLength,
+                        top: top + this.barWidth / 2,
+                        originX: 'right',
+                        originY: "center",
+                        fontSize: Math.round(this.barWidth * 0.6),
+                        fontFamily: this.splitTheme.fontFamily,
+                        fontStyle: this.splitTheme.fontStyle,
+                        fill: this.gradientTextColor.fillGradient,
+                        selectable: false
+                    }
+                );
+            }
 
             const elevationLabel = new IText(
                 split.elevation_difference.toFixed(0) + " m",
@@ -211,7 +215,9 @@ export class S2PSplits extends Group implements S2PCanvasItem {
             );
 
             this.bars.push(bar);
-            this.texts.push(kmLabel, speedLabel, bpmLabel, elevationLabel);
+            this.texts.push(kmLabel, speedLabel, elevationLabel);
+            if (bpmLabel)
+                this.texts.push(bpmLabel);
         });
 
         this.add(...this.bars, ...this.texts);
