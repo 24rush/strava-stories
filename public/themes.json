@@ -1044,36 +1044,36 @@
       {
         "id": "",
         "label": "splits_profile",
-        "top": 0.07473772610410553,
-        "left": 0.09305555555555554,
-        "width": 0.7819095446003808,
-        "height": 0.8577876602532621,
+        "top": 0.08793175946021459,
+        "left": 0.028939194277108417,
+        "width": 0.9227829008217318,
+        "height": 0.7572401307948877,
         "angle": 0,
         "fill": [
           "#E91E6380",
           "#FC520080"
         ],
         "stroke": [
-          null,
-          null
+          "#E91E63",
+          "#FC5200"
         ],
         "strokeWidth": 0,
         "scaleX": 1,
         "scaleY": 1,
-        "barWidth": 20,
-        "barGap": 2,
+        "barWidth": 14,
+        "barGap": 1,
         "rx": 0,
         "ry": 0,
         "fontFamily": "Termina Test",
         "fontStyle": "normal",
         "textColor": [
-          "#E5E7EB",
-          "#E5E7EB"
+          "#F8F8F8",
+          "#F8F8F8"
         ]
       }
     ],
-    "height_percentage": 0.7974325226080058,
-    "devicePixelRatio": 1
+    "height_percentage": 1.0699921080581112,
+    "devicePixelRatio": 3.5
   },
   {
     "name": "Run - Strava #1",
@@ -1253,7 +1253,7 @@
           "#E91E63",
           "#FC5200"
         ],
-        "strokeWidth": 1,
+        "strokeWidth": 2,
         "scaleX": 0.34196144175021803,
         "scaleY": 0.34196144175021803
       }
@@ -1804,7 +1804,7 @@
           "#FF236E",
           "#FF776D"
         ],
-        "strokeWidth": 1,
+        "strokeWidth": 2,
         "scaleX": 0.3785772746170183,
         "scaleY": 0.37857727461701823
       }
@@ -2727,7 +2727,7 @@
           "#DCBCD0",
           "#B175FF"
         ],
-        "strokeWidth": 1,
+        "strokeWidth": 3,
         "scaleX": 0.7677596223332452,
         "scaleY": 0.5247110392748817
       }
@@ -2967,7 +2967,7 @@
           "#F5E30A",
           "#0A9DF5"
         ],
-        "strokeWidth": 1,
+        "strokeWidth": 2,
         "scaleX": 0.3785772746170183,
         "scaleY": 0.37857727461701823
       },
@@ -2987,7 +2987,7 @@
           "#F5E30A",
           "#0A9DF5"
         ],
-        "strokeWidth": 1,
+        "strokeWidth": 2,
         "scaleX": 0.4457196699828896,
         "scaleY": 0.4457196699828896
       }

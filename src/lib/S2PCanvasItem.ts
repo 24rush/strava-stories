@@ -1,4 +1,4 @@
-import type { Gradient } from "fabric";
+import { util, type Gradient } from "fabric";
 import type { S2PCanvasText } from "./S2PCanvasText";
 import type { S2PCanvasPoly } from "./S2PCanvasPoly";
 import type { S2PRect } from "./S2PRect";
@@ -31,3 +31,12 @@ export interface S2PCanvasItem {
 }
 
 export type S2PCanvasObjectType = S2PCanvasText | S2PCanvasPoly | S2PRect | S2PSvg;
+
+export class S2PAnimationSettings {
+    duration: number = 1000;
+    easing: util.TEasingFunction = util.ease.defaultEasing;
+}
+
+export interface S2PAnimatedCanvasObject {
+    startAnimation(): util.TAnimation<number>[] | null;
+}

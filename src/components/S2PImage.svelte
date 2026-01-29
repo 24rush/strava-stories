@@ -7,7 +7,7 @@
   import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
   import { S2PTheme, S2PThemePoly, S2PThemeRect, S2PThemeSplits } from "../lib/S2PTheme";
   import { S2PCanvasItemType } from "../lib/S2PCanvasItem";
-  import type { FabricObject } from "fabric";
+  import { util, type FabricObject } from "fabric";
   import S2PSliderDropdown from "./S2PSliderDropdown.svelte";
   import { Fonts } from "../lib/utils/fonts";
   import type { S2PSvg } from "../lib/S2PSvg";
@@ -16,6 +16,7 @@
   import { DataSource, FieldId } from "../lib/utils/fieldmappings";
   import { decreaseHexaOpacity } from "../lib/utils/colors";
   import type { S2PSplits } from "../lib/S2PSplits";
+  import S2PAnimationEditor from "./S2PAnimationEditor.svelte";
 
   let {
         source,
@@ -56,6 +57,13 @@
 
   let toggleSelectAll: boolean = false;
   let currentSelection: FabricObject[] = [];
+
+  let hasAnimations = $state(false);
+  let maxAnimationDuration = $state(0);
+  let s2pAnimationEditor: S2PAnimationEditor;
+  let runningAnimations: (util.TAnimation<number> | null)[]  = [];
+
+  let isVideoExporting= $state(false);
 
   const isLocalhost = window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1" ||
@@ -171,26 +179,28 @@
       });
     
     if (theme_meta.splits && source.data.splits_metric) {
-      theme_meta.splits.forEach(split => {
+      theme_meta.splits.forEach(split => {        
         s2pCanvas.addSplitsCharts(source.data.splits_metric, split);
       });
     }    
     
     if (theme_meta.polys && source && source.data.streams)
       theme_meta.polys.forEach((poly: S2PThemePoly) => {
-        if (poly.label == "track_profile" && source.data.streams.location)
+        if (poly.label == "track_profile" && source.data.streams.location) {
           s2pCanvas.addPolyFromLatLngs(
             "track_profile",
             source.data.streams.location,
             poly,
-          );
+          );          
+        }
 
-        if (poly.label == "elevation_profile" && source.data.streams.elevation)
+        if (poly.label == "elevation_profile" && source.data.streams.elevation) {
           s2pCanvas.addFilledPolyFromVector(
             "elevation_profile",
             source.data.streams.elevation,
             poly,
-          );
+          );          
+        }
       });
 
     if (theme_meta.texts) {
@@ -203,7 +213,7 @@
 
       theme_meta.texts.forEach((text) => {
         if (text.label == "user") {
-          s2pCanvas.addText(text);
+          s2pCanvas.addText(text);                          
           return;
         }
 
@@ -262,6 +272,15 @@
     s2pSuggestedColors.setPickerColors();
     alignUnitsWithValues();
     s2pCanvas.resetSlidersToMedian();
+
+    let canvasObjects = s2pCanvas.getObjects();
+    hasAnimations = canvasObjects.polys.length > 0 || canvasObjects.splits.length > 0;
+    if (hasAnimations && s2pAnimationEditor) {
+      onAnimationDurationChanged(maxAnimationDuration);
+      s2pAnimationEditor.onNewLayout();
+    }
+    if (maxAnimationDuration == 0)
+      maxAnimationDuration = s2pCanvas.getMaxAnimationDuration();    
   }
 
   function onRequestRedraw() {
@@ -275,6 +294,9 @@
 
     s2pCanvas.deleteActiveObjects();
     toggleSelectAll = false;
+
+    let canvasObjects = s2pCanvas.getObjects();
+    hasAnimations = canvasObjects.polys.length > 0 || canvasObjects.splits.length > 0;
   }
 
   async function onSelectionChanged(selectedObjs: FabricObject[]) {
@@ -410,6 +432,9 @@
         left: s2pCanvas.getCanvas().width / 4,
       }
     );
+
+    hasAnimations = true;
+    onRequestRedraw();
   }
 
   function onAddElevationChart() {
@@ -432,6 +457,7 @@
       }
     );
 
+    hasAnimations = true;
     onRequestRedraw();
   }
 
@@ -455,6 +481,7 @@
       }
     );
 
+    hasAnimations = true;
     onRequestRedraw();
   }
 
@@ -469,20 +496,21 @@
       {
         ...new S2PThemeSplits(),
         label: "splits_profile",
-        barGap: 2,
-        barWidth: 20,        
+        barGap: 1,
+        barWidth: 14,        
         textColor: [colors[0] ?? null, colors[0] ?? null],
         fill: [decreaseHexaOpacity(colors[1], 0.5), decreaseHexaOpacity(colors[2], 0.5)],
         stroke: [null, null],
         strokeWidth: 0,
-        top: s2pCanvas.getCanvas().height * 0.1,
-        left: s2pCanvas.getCanvas().width * 0.1,
-        height: s2pCanvas.getCanvas().height * 0.8,
-        width: s2pCanvas.getCanvas().width * 0.8,
+        top: s2pCanvas.getCanvas().height * 0.05,
+        left: s2pCanvas.getCanvas().width * 0.05,
+        height: s2pCanvas.getCanvas().height * 0.9,
+        width: s2pCanvas.getCanvas().width * 0.9,
         fontFamily: themeMainFont.replace("Font - ", "")
       }
     );
 
+    hasAnimations = true;
     onRequestRedraw();
   }
 
@@ -599,6 +627,32 @@
     onRequestRedraw?.();
   }
 
+  function onStartAnimationRequested() {
+    let objects = s2pCanvas.getObjects();
+    [objects.polys, objects.splits].forEach(object => {      
+      object.forEach(canvasItem => {
+        let animations = canvasItem.startAnimation();
+        if (animations) runningAnimations.push(...animations)
+      })
+    });
+  }
+
+  function onAbortAnimationRequested() {
+    runningAnimations.forEach(ra => {
+      if (ra) ra.abort();
+    });
+  }
+
+  function onAnimationDurationChanged(v: number) {  
+    maxAnimationDuration = v;
+    let objects = s2pCanvas.getObjects();
+    [objects.polys, objects.splits].forEach(object => {      
+      object.forEach(canvasItem => {
+        let settings = canvasItem.animationSettings;
+        settings.duration = v;
+      })
+    });
+  }
 </script>
 
 <div
@@ -640,7 +694,7 @@
         )}
         class="btn btn-outline-primary"
       >
-        <i class="bi bi-fonts">+</i>
+        <i class="bi bi-fonts"></i>
       </button>
 
       <button
@@ -663,7 +717,7 @@
           }
         class="btn btn-outline-primary"
       >
-        <i class="bi bi-app">+</i>
+        <i class="bi bi-app"></i>
       </button>
 
       <button
@@ -703,33 +757,38 @@
       </button>
 
       <button
+      disabled={isVideoExporting || !hasAnimations}
       type="button" title="Download as Video"
-      onclick={() => s2pCanvas.exportToWebM()}
+      onclick={() => {
+        isVideoExporting = true;
+        s2pCanvas.exportToWebM().then(v => isVideoExporting = false);
+      }
+      }
       class="btn btn-outline-primary">
       <i class="bi bi-camera-reels"></i>
       </button>
     </div>
-  </div>
+  </div>  
 
   <div class="btn-group mb-1 d-flex" role="group">
     {#if hasTrackProfile }
     <button onclick={() => onAddTrackProfile()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
-      >Track profile +</button
+      >Track</button
     >
     {/if}
     {#if hasElevation }
     <button onclick={() => onAddElevationChart()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
-      >Elevation chart +</button
+      >Elevation</button
     >
     {/if}
     {#if hasHeartRate }
     <button onclick={() => onAddHeartrateChart()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
-      >Heartrate chart +</button
+      >Heartrate</button
     >
     {/if}
     {#if hasSplitsData }
     <button onclick={() => onAddSplitsChart()} class="btn btn-sm btn-outline-primary" style="flex: 1;"
-      >Splits chart +</button
+      >Splits</button
     >
     {/if}
   </div>
@@ -744,6 +803,10 @@
         />
     </div>
   </div>
+
+  {#if hasAnimations && !isVideoExporting}
+    <S2PAnimationEditor bind:this={s2pAnimationEditor} startValue={maxAnimationDuration} {onStartAnimationRequested} {onAbortAnimationRequested} {onAnimationDurationChanged}/>
+  {/if}
 
   <div class="mb-2">
     {#if canvasItemSelected && canvasItemSelected.s2pType != S2PCanvasItemType.Svg}

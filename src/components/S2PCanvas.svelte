@@ -5,7 +5,9 @@
         Group,
         Pattern,
         FabricImage,
-        ActiveSelection
+        ActiveSelection,    
+        Rect,
+        IText
     } from "fabric";
     import {
         generateXYFromLatLng,
@@ -482,6 +484,12 @@
         });
     } 
 
+    export function getMaxAnimationDuration(): number {
+        return Math.max(...[polys, splits].map(object => { 
+            return Math.max(...object.map(canvasItem => { return canvasItem.animationSettings.duration }));
+        }));
+    }
+
     export function exportToPng() {        
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
@@ -511,8 +519,40 @@
             canvas.requestRenderAll();
         }, 400);
     }
+    
+    function getCanvasObjectsBounds(padding = 0) {
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
 
-    export async function exportToWebM() {
+        [texts, rects, polys, splits, svgs].forEach(objects => objects.forEach(obj => {  
+            obj.setCoords();
+            obj.dirty = true;
+        }));
+
+        canvas.requestRenderAll();
+
+        [texts, rects, polys, splits, svgs].forEach(objects => objects.forEach(obj => {  
+            obj.setCoords();
+            const r = obj.getCoords();
+            r.forEach(p => {
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x);
+                maxY = Math.max(maxY, p.y);
+            });           
+        }));
+
+        return {
+            left: minX - padding,
+            top: minY - padding,
+            width: (maxX - minX) + padding * 2,
+            height: (maxY - minY) + padding * 2
+        };
+    }
+
+    export async function exportToWebM() { 
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
 
@@ -521,21 +561,39 @@
 
         unselectAll();
 
+        canvas.requestRenderAll();
+        const bounds = getCanvasObjectsBounds(20);
+
+        let back = new Rect({                
+            left: bounds.left,
+            top: bounds.top,
+            width: bounds.width,
+            height: bounds.height,
+            originX: "left",
+            originY: "top",
+            fill: "#0000000a",
+            selectable: false,
+            objectCaching: false
+        });
+
+        canvas.add(back);
+        canvas.sendObjectBackwards(back);
+
         const blob = await exportCanvasToWebM();
+
+        canvas.remove(back);
+        canvas.backgroundColor = originalBg;
+        if (originalBgImg) canvas.backgroundImage = originalBgImg;
+
+        canvas.renderAll.bind(canvas);
+        canvas.requestRenderAll();
 
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'canvas.webm';
         a.click();
-        URL.revokeObjectURL(url);
-
-        canvas.backgroundColor = originalBg;
-
-        if (originalBgImg) canvas.backgroundImage = originalBgImg;
-
-        canvas.renderAll.bind(canvas);
-        canvas.requestRenderAll();
+        URL.revokeObjectURL(url);  
     }
     
     async function exportCanvasToWebM() {
@@ -562,19 +620,21 @@
         recorder.ondataavailable = e => chunks.push(e.data);
         recorder.start();
 
+        let duration = getMaxAnimationDuration();
+
         splits.forEach(s => s.startAnimation());
-        let duration = Math.max(...splits.map(s => {return s.getAnimationDuration();} ));
+        polys.forEach(s => s.startAnimation());
 
-        let totalFrames = fps * duration / 1000;
-        let t = 0;
+        const start = performance.now();
 
-        function renderLoop() {
+        function renderLoop() {            
             ctx.clearRect(0, 0, hi.width, hi.height);
             ctx.drawImage(src, 0, 0);
-
-            t++;
-            if (t < totalFrames) requestAnimationFrame(renderLoop);
-            else recorder.stop();
+            
+            if (performance.now() - start < duration + 2000) 
+                requestAnimationFrame(renderLoop);
+            else 
+                recorder.stop();
         }
 
         requestAnimationFrame(renderLoop);
@@ -862,16 +922,34 @@
         return polyline;
     }
 
-    export function addSplitsCharts(split_data: SplitData[], splitTheme: S2PThemeSplits): S2PSplits {
+    export function addSplitsCharts(split_data: SplitData[], splitTheme: S2PThemeSplits): S2PSplits | undefined {
+        if (split_data.length == 0) {            
+            canvas.add(new IText(
+                "No splits data available",
+                {                    
+                    width: 500,
+                    left: canvas.width / 2,
+                    top: canvas.height / 2,
+                    originX: 'center',
+                    originY: "center",
+                    fontFamily: "Noto sans",
+                    fontSize: 16,
+                    fill: "#fff",
+                    selectable: false,
+                }
+            ));
+
+            return undefined;
+        }
+
         let splitChart = new S2PSplits(splitTheme);
         canvas.add(splitChart);
-
-        splitChart.createSplitsChart(split_data);
-    
         splits.push(splitChart);
-        canvas.sendObjectToBack(splitChart);
 
+        splitChart.createSplitsChart(split_data);                    
         adjustCanvasSize();
+
+        canvas.sendObjectToBack(splitChart);
         canvas.renderAll();
 
         return splitChart;

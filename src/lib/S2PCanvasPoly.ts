@@ -1,12 +1,13 @@
-import { Gradient, Group, Polygon, Polyline } from "fabric";
+import { Gradient, Group, Polygon, Polyline, util } from "fabric";
 import type { XYPoint } from "./geometry/polyline";
-import { type S2PCanvasItem, S2PCanvasItemType } from "./S2PCanvasItem";
+import { type S2PCanvasItem, S2PCanvasItemType, type S2PAnimatedCanvasObject, S2PAnimationSettings } from "./S2PCanvasItem";
 import { S2PGradient } from "./S2PGradient";
 import type { S2PThemePoly } from "./S2PTheme";
 
-export class S2PCanvasPoly extends Group implements S2PCanvasItem {
+export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCanvasObject {
     private polylineObj: Polyline | undefined;
     private polygonObj: Polygon | undefined;
+    private points: XYPoint[] = [];
 
     private maxWidth: number = 0;
     private maxHeight: number = 0;
@@ -15,6 +16,11 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
     private label_: string = "";
     private gradient: S2PGradient;
     private origGradient: S2PGradient;
+
+    private animationSettings_: S2PAnimationSettings = {
+        ...new S2PAnimationSettings(),
+        duration: 3000
+    };
 
     constructor(label: string, maxWidth: number, maxHeight: number, poly: S2PThemePoly) {
         super();
@@ -31,6 +37,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
 
     get label(): string { return this.label_; }
     get isPolyline(): boolean { return this.s2pType == S2PCanvasItemType.Polyline; }
+    get animationSettings(): S2PAnimationSettings { return this.animationSettings_; }
 
     public resetColor(): void {
         this.gradient = this.origGradient.clone();
@@ -76,7 +83,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
             this.polylineObj.setCoords();
         }
     }
-  
+
     get strokeWidth(): number {
         return this.polylineObj ? this.polylineObj.get("strokeWidth") : 4;
     }
@@ -95,8 +102,9 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
 
     createPolyline(points: XYPoint[]) {
         this.s2pType = S2PCanvasItemType.Polyline;
+        this.points = [...points];
 
-        this.polylineObj = new Polyline(points, {
+        this.polylineObj = new Polyline(this.points, {
             strokeWidth: 4,
             fill: null,
             objectCaching: false,
@@ -113,8 +121,9 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
 
     createFilledPolyline(points: XYPoint[]) {
         this.s2pType = S2PCanvasItemType.FilledPolyline;
+        this.points = points;
 
-        this.polylineObj = new Polyline(points, {
+        this.polylineObj = new Polyline(this.points, {
             strokeWidth: 2,
             fill: null,
             objectCaching: false
@@ -132,8 +141,9 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
             { x: points[0].x, y: this.maxHeight }, // bottom left
         );
 
-        this.polygonObj = new Polygon(fillPoints);
-        this.polygonObj.objectCaching = false;
+        this.polygonObj = new Polygon(fillPoints, {
+            objectCaching: false
+        });
 
         this.polygonObj.set('fill', this.gradient.fillGradient);
 
@@ -141,5 +151,48 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem {
         this.top = this.top_;
         this.left = this.left_;
         this.s2pType = S2PCanvasItemType.FilledPolyline;
+    }
+
+    public startAnimation(): util.TAnimation<number>[] | null {
+        const full = this.points;
+        const step = Math.ceil(full.length / 60);
+
+        if (this.s2pType == S2PCanvasItemType.Polyline) {
+            let i = step;
+            this.polylineObj?.set({ points: full.slice(0, i) });
+
+            return [util.animate({
+                startValue: i,
+                endValue: full.length,
+                duration: this.animationSettings.duration,
+                easing: this.animationSettings.easing,
+                onChange: (v: number) => {
+                    const idx = Math.floor(v);
+                    this.polylineObj?.set('points', full.slice(0, idx));
+
+                    this.canvas?.requestRenderAll();
+                }
+            })];
+        }
+
+        if (this.s2pType == S2PCanvasItemType.FilledPolyline) {
+            let i = step;
+            this.polylineObj?.set({ points: full.slice(0, i) });
+
+            return [util.animate({
+                startValue: i,
+                endValue: full.length,
+                duration: this.animationSettings.duration,
+                easing: this.animationSettings.easing,
+                onChange: (v: number) => {
+                    const idx = Math.floor(v);
+                    this.polylineObj?.set('points', full.slice(0, idx));
+
+                    this.canvas?.requestRenderAll();
+                }
+            })];
+        }
+
+        return null;
     }
 }

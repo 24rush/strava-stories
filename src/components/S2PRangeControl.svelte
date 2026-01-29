@@ -4,12 +4,14 @@
         min,
         max,
         step,
+        showValue = false,
         onValueChanged,
     }: {
         value: number;
         min: number;
         max: number;
         step: number;
+        showValue?: boolean;
         onValueChanged: (v: number) => void;
     } = $props();
 
@@ -24,11 +26,11 @@
     }
 </script>
 
-<div class="input-group" style="max-width: 200px; flex-wrap: nowrap;">
+<div class="input-group" style="flex-wrap: nowrap; width: auto;">
     <button class="btn btn-outline-primary" onclick={decrement}><i class="bi bi-dash-lg"></i></button
     >
     <input
-        style="width: 55px; height: 32px; display: none;"
+        style="flex: 0 0 auto; width: 70px; display: {showValue ? "inline" : "none"};"
         type="number"
         class="form-control text-center"
         {value}

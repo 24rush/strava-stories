@@ -840,7 +840,7 @@
                 value={canvasItemSelected.strokeWidth}
                 min={0}
                 max={20}
-                step={0.5}
+                step={1}
             />
         </div>
         <div style="display: {hasRadius ? 'flex' : 'none'};">

@@ -1,9 +1,15 @@
-import { Canvas, Gradient, Group, IText, Rect, util } from "fabric";
-import { S2PCanvasItemType, type S2PCanvasItem } from "./S2PCanvasItem";
+import { Gradient, Group, IText, Rect, util } from "fabric";
+import { S2PCanvasItemType, type S2PCanvasItem, S2PAnimationSettings } from "./S2PCanvasItem";
 import type { S2PThemeSplits } from "./S2PTheme";
 import type { SplitData } from "./utils/fieldmappings";
 import { Converters } from "./utils/converters";
 import { S2PGradient } from "./S2PGradient";
+
+export class S2PSplitsAnimationSettings extends S2PAnimationSettings {
+    duration: number = 1000;
+    barsEasing: util.TEasingFunction = util.ease.easeOutCubic;
+    textsEasing: util.TEasingFunction = util.ease.easeOutElastic;
+}
 
 export class S2PSplits extends Group implements S2PCanvasItem {
     private gradient: S2PGradient;
@@ -11,11 +17,14 @@ export class S2PSplits extends Group implements S2PCanvasItem {
     private gradientTextColor: S2PGradient;
 
     private bars: Rect[] = [];
-    private backs: Rect[] = [];
     private texts: IText[] = [];
     private splitTheme: S2PThemeSplits;
 
     private split_data: SplitData[] = [];
+    private lastLeft: number = -1;
+    private lastTop: number = -1;
+
+    private animationSettings_: S2PSplitsAnimationSettings = new S2PSplitsAnimationSettings();
 
     s2pType: S2PCanvasItemType = S2PCanvasItemType.Splits;
 
@@ -49,12 +58,13 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         return this.splitTheme;
     }
     get label(): string { return this.splitTheme.label; }
+    get animationSettings(): S2PSplitsAnimationSettings { return this.animationSettings_; }
 
     get barWidth() { return this.splitTheme.barWidth; }
     set barWidth(newValue: number) {
         this.splitTheme.barWidth = newValue;
 
-        this.createSplitsChart();
+        this.createSplitsChart(this.split_data);
         this.setDirty();
     }
 
@@ -62,7 +72,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
     set barGap(newValue: number) {
         this.splitTheme.barGap = newValue;
 
-        this.createSplitsChart();
+        this.createSplitsChart(this.split_data);
         this.setDirty();
     }
 
@@ -106,15 +116,18 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         if (!split_data || split_data.length == 0) return;
         this.split_data = split_data;
 
+        this.lastLeft = (this.lastLeft == -1) ? this.splitTheme.left : this.left;
+        this.lastTop = (this.lastTop == -1) ? this.splitTheme.top : this.top;
+
         this.removeAll();
-        this.bars = []; this.texts = []; this.backs = [];
+        this.bars = []; this.texts = [];
 
         let speeds = split_data.map(sd => { return 1000 / sd.average_speed });
         const maxPace = Math.max(...speeds);
 
         split_data.forEach((split, index) => {
             const pace = 1000 / split.average_speed;
-            let barLength = (pace / maxPace) * this.splitTheme.width - 80;
+            let barLength = (pace / maxPace) * this.splitTheme.width - 40;
 
             const top =
                 this.splitTheme.top + index * (this.barWidth + this.barGap);
@@ -134,19 +147,6 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     selectable: false,
                 }
             );
-
-            let back = new Rect({                
-                left: -30,
-                top: top,
-                width: this.splitTheme.width - 10,
-                height: this.barWidth + 1 * this.barGap,
-                originX: "left",
-                originY: "top",
-                fill: "#0000000A",
-                strokeWidth: this.splitTheme.strokeWidth,
-                selectable: false,
-                objectCaching: false
-            });
 
             let bar = new Rect({
                 left: 6,
@@ -170,7 +170,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     top: top + this.barWidth / 2,
                     originX: 'left',
                     originY: "center",
-                    fontSize: Math.round(this.barWidth * 0.65),
+                    fontSize: Math.round(this.barWidth * 0.75),
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
                     fill: this.gradientTextColor.fillGradient,
@@ -186,7 +186,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     top: top + this.barWidth / 2,
                     originX: 'right',
                     originY: "center",
-                    fontSize: Math.round(this.barWidth * 0.5),
+                    fontSize: Math.round(this.barWidth * 0.6),
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
                     fill: this.gradientTextColor.fillGradient,
@@ -202,7 +202,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     top: top + this.barWidth / 2,
                     originX: 'left',
                     originY: "center",
-                    fontSize: Math.round(this.barWidth * 0.5),
+                    fontSize: Math.round(this.barWidth * 0.6),
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
                     fill: this.gradientTextColor.fillGradient,
@@ -211,16 +211,14 @@ export class S2PSplits extends Group implements S2PCanvasItem {
             );
 
             this.bars.push(bar);
-            this.backs.push(back);
             this.texts.push(kmLabel, speedLabel, bpmLabel, elevationLabel);
         });
 
-        this.add(...this.bars, ...this.texts, ...this.backs);
-        this.setCoords();
-        this.left = this.splitTheme.left;
-        this.top = this.splitTheme.top;
+        this.add(...this.bars, ...this.texts);
 
-        this.startAnimation();
+        this.setCoords();
+        this.left = this.lastLeft;
+        this.top = this.lastTop;
     }
 
     public getStrokeStop(idx: number): string {
@@ -282,7 +280,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
     }
 
     private setDirty() {
-        [this.bars, this.backs].forEach(objs => objs.forEach(item => {
+        [this.bars].forEach(objs => objs.forEach(item => {
             item.dirty = true;
             item.setCoords();
         }));
@@ -297,41 +295,44 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         this.setCoords();
     }
 
-    public getAnimationDuration() { return 1000; }
-    public startAnimation() {
+    public startAnimation(): util.TAnimation<number>[] | null {
+        let animations: util.TAnimation<number>[] = [];
+        this.createSplitsChart();
+
         this.texts.forEach((obj, i) => {
             if ('label' in obj && obj['label'] == 'back')
                 return;
 
-            util.animate({
+            animations.push(util.animate({
                 startValue: -100,
                 endValue: obj.left,
-                duration: this.getAnimationDuration(),
+                duration: this.animationSettings.duration,
                 delay: i * 10,
-                easing: util.ease.easeOutElastic,
+                easing: this.animationSettings.textsEasing,
                 onChange: (value) => {
-                    obj.set('left', value);                    
+                    obj.set('left', value);
                     this.canvas?.requestRenderAll();
                 }
-            });
+            }));
         });
 
         this.bars.forEach((obj, i) => {
             const startWidth = obj.width;
             obj.set('width', 0);
 
-            util.animate({
+            animations.push(util.animate({
                 startValue: 0,
                 endValue: startWidth,
-                duration: this.getAnimationDuration(),
+                duration: this.animationSettings.duration,
                 delay: i * 20,
-                easing: util.ease.easeOutCubic,
+                easing: this.animationSettings.barsEasing,
                 onChange: (value) => {
-                    obj.set('width', value);                    
+                    obj.set('width', value);
                     this.canvas?.requestRenderAll();
                 }
-            });
+            }));
         });
-    }
 
+        return animations;
+    }
 }
