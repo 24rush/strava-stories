@@ -109,6 +109,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
             fill: null,
             objectCaching: false,
         });
+        this.polylineObj.objectCaching = false;
         this.polylineObj.set('stroke', this.gradient.strokeGradient);
         this.polylineObj.set('fill', this.gradient.fillGradient);
 

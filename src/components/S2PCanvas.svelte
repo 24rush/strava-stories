@@ -13,7 +13,8 @@
         generateXYFromLatLng,
         generateXYFromPoints,
     } from "../lib/geometry/polyline";
-
+    import { FFmpeg } from '@ffmpeg/ffmpeg';
+    import { fetchFile } from '@ffmpeg/util';
     import type { LatLng } from "../lib/geometry/LatLng";
     import { onMount } from "svelte";
     import { S2PCanvasText } from "../lib/S2PCanvasText";
@@ -59,14 +60,18 @@
     let rangeX: HTMLInputElement, rangeY: HTMLInputElement;
 
     let shouldShowGuides: boolean = false;
+    const mimeType = "video/webm;codecs=vp9";
 
     onMount(() => {
         canvasEl.id = `mapCanvas-${rndId}`;
+
+        FabricObject.prototype.objectCaching = false;
+
         canvas = new Canvas(canvasEl.id, {
             backgroundColor: "#fff",
             selection: false, // disable drag selection if you want ctrl-click only
             preserveObjectStacking: true, // important for multi-selection
-            enableRetinaScaling: true,
+            enableRetinaScaling: false,
         });
 
         if (
@@ -571,16 +576,15 @@
             height: bounds.height,
             originX: "left",
             originY: "top",
-            fill: "#0000000a",
+            fill: "#000",
             selectable: false,
             objectCaching: false
         });
 
         canvas.add(back);
-        canvas.sendObjectBackwards(back);
+        canvas.moveObjectTo(back, 0);        
 
-        const blob = await exportCanvasToWebM();
-
+        const blob = await exportCanvasToWebM();        
         canvas.remove(back);
         canvas.backgroundColor = originalBg;
         if (originalBgImg) canvas.backgroundImage = originalBgImg;
@@ -588,32 +592,103 @@
         canvas.renderAll.bind(canvas);
         canvas.requestRenderAll();
 
+        await convertToMp4(blob);
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'canvas.webm';
-        a.click();
+        a.download = 'strava-stories-' + formatTimeHMS(Date.now()) + '.webm';
+        //a.click();
         URL.revokeObjectURL(url);  
     }
     
+    async function convertToMp4(blob: any) {
+        let ffmpeg = new FFmpeg();
+     
+        ffmpeg.on('log', ({ message }) => {
+            console.log("FFmpeg Log:", message);
+        });
+
+        await ffmpeg.load().catch(err => {
+            console.error("FFmpeg failed to load:", err);
+        });
+
+        await ffmpeg.writeFile('input.webm', await fetchFile(blob));
+
+        // await ffmpeg.exec([
+        //     '-i', 'input.webm',
+        //     '-threads', '4',
+        //     '-c:v', 'libx264',
+        //     '-preset', 'ultrafast',
+        //     '-pix_fmt', 'yuv420p',
+        //     'output.mp4'
+        // ]);
+
+        await ffmpeg.exec([
+            '-i', 'input.webm',
+            '-vf', 'fps=30,format=yuv420p',
+            '-c:v', 'libx264',
+            '-crf', '14',
+            '-profile:v', 'high',
+            '-level', '4.2',
+            '-preset', 'slow',
+            '-movflags', '+faststart',
+            '-pix_fmt', 'yuv420p',
+            'output.mp4'
+            ]);
+
+        // await ffmpeg.exec([           
+        //     '-i', 'input.webm',
+        //     '-r', '30',
+        //     '-vf', "format=yuv420p",
+        //     //'-vf', 'setpts=N/(30*TB)',
+        //     //'-vf', 'minterpolate=fps=30:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1,format=yuva444p10le',
+        //     '-c:v', 'libx264',
+        //     '-profile:v', 'baseline',         
+        //     '-vendor', 'apl0',
+        //     '-movflags', '+faststart',
+        //     // Ensure we keep the alpha channel mapping
+        //     '-pix_fmt', "yuv420p ",//'yuva444p10le', 
+        //     // Disable Alpha-to-Black flattening
+        //     '-bits_per_mb', '4000',
+        //     // Output container must be .mov for ProRes
+        //     'output.mov'
+        //     ]);
+
+        const data = await ffmpeg.readFile('output.mp4');
+        const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/quicktime' }));
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'strava-stories-' + formatTimeHMS(Date.now()) + '.mov';
+        a.click();
+    }
+
     async function exportCanvasToWebM() {
         let canvasScale = 2;
         let fps = 30;
         
         const src = canvas.getElement();
+        const w = canvas.width;
+        const h = canvas.height;
+        canvas.setDimensions(
+            { width: w + (w % 2), height: h + (h % 2) },
+            { backstoreOnly: true }
+        );
+
         const hi = document.createElement('canvas');
         hi.width = src.width * canvasScale;
         hi.height = src.height * canvasScale;
 
-        const ctx = hi.getContext('2d', { alpha: true });
+        const ctx = hi.getContext('2d', { alpha: false });
         ctx.imageSmoothingEnabled = true;       // enable smoothing
         ctx.imageSmoothingQuality = 'high';     // use high-quality algorithm
-        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalCompositeOperation = 'source-over';    
+        ctx.globalAlpha = 1;    
         ctx?.scale(canvasScale, canvasScale);
         
         const recorder = new MediaRecorder(hi.captureStream(fps), {
-            mimeType: 'video/webm;codecs=vp9',
-            videoBitsPerSecond: 10_000_000
+            mimeType,            
+            videoBitsPerSecond: 10_000_0000
         });
 
         const chunks: any[] = [];
@@ -641,7 +716,7 @@
 
         return new Promise(resolve => {
             recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm;codecs=vp9' });
+                const blob = new Blob(chunks, { type: mimeType });
                 resolve(blob);
             };
         });
