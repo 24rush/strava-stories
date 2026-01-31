@@ -13,7 +13,7 @@
         generateXYFromLatLng,
         generateXYFromPoints,
     } from "../lib/geometry/polyline";
-    import { FFmpeg } from '@ffmpeg/ffmpeg';
+    import { FFmpeg, type FileData } from '@ffmpeg/ffmpeg';
     import { fetchFile } from '@ffmpeg/util';
     import type { LatLng } from "../lib/geometry/LatLng";
     import { onMount } from "svelte";
@@ -66,7 +66,7 @@
         canvasEl.id = `mapCanvas-${rndId}`;
 
         canvas = new Canvas(canvasEl.id, {
-            backgroundColor: "#fff",
+            backgroundColor: "#000",
             selection: false, // disable drag selection if you want ctrl-click only
             preserveObjectStacking: true, // important for multi-selection
             enableRetinaScaling: true,
@@ -561,51 +561,70 @@
         };
     }
 
+    const isMobileBrowser = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent) ||
+            navigator.maxTouchPoints > 1;
+
     export async function exportToWebM() { 
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
 
         canvas.backgroundImage = null;
         canvas.backgroundColor = "";
+        unselectAll();        
 
-        unselectAll();
+        const bounds = getCanvasObjectsBounds(20);
+        
+        let back: Rect;
+        if (isMobileBrowser) {
+            back = new Rect({                
+                left: bounds.left,
+                top: bounds.top,
+                width: bounds.width,
+                height: bounds.height,
+                originX: "left",
+                originY: "top",
+                fill: "#000",
+                selectable: false,
+                objectCaching: false
+            });
+
+           // canvas.add(back);
+           // canvas.moveObjectTo(back, 0);
+        }
 
         canvas.requestRenderAll();
-        const bounds = getCanvasObjectsBounds(20);
 
-        let back = new Rect({                
-            left: bounds.left,
-            top: bounds.top,
-            width: bounds.width,
-            height: bounds.height,
-            originX: "left",
-            originY: "top",
-            fill: "#000",
-            selectable: false,
-            objectCaching: false
-        });
+        const blob = await exportCanvasToWebM(isMobileBrowser);  
 
-        canvas.add(back);
-        canvas.moveObjectTo(back, 0);        
+        if (!isMobileBrowser) {
+            // Desktop browsers can generate transparent webm
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'strava-stories-webm-' + formatTimeHMS(Date.now()) + '.webm';
+            a.click();
+            URL.revokeObjectURL(url);  
+        }        
 
-        const blob = await exportCanvasToWebM();        
-        canvas.remove(back);
+        if (isMobileBrowser && back)
+            canvas.remove(back);
+
         canvas.backgroundColor = originalBg;
         if (originalBgImg) canvas.backgroundImage = originalBgImg;
 
         canvas.renderAll.bind(canvas);
         canvas.requestRenderAll();
 
-        await convertToMp4(blob);
-        const url = URL.createObjectURL(blob);
+        let mp4Blob = await convertWebMToMp4(blob);        
+        
+        const url = URL.createObjectURL(new Blob([mp4Blob.buffer], { type: 'video/quicktime' }));
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'strava-stories-' + formatTimeHMS(Date.now()) + '.webm';
-        //a.click();
-        URL.revokeObjectURL(url);  
+        a.download = 'strava-stories-mp4-' + formatTimeHMS(Date.now()) + '.mp4';
+        a.click();
     }
     
-    async function convertToMp4(blob: any) {
+    async function convertWebMToMp4(blob: any): Promise<FileData> {
         let ffmpeg = new FFmpeg();
      
         ffmpeg.on('log', ({ message }) => {
@@ -617,15 +636,6 @@
         });
 
         await ffmpeg.writeFile('input.webm', await fetchFile(blob));
-
-        // await ffmpeg.exec([
-        //     '-i', 'input.webm',
-        //     '-threads', '4',
-        //     '-c:v', 'libx264',
-        //     '-preset', 'ultrafast',
-        //     '-pix_fmt', 'yuv420p',
-        //     'output.mp4'
-        // ]);
 
         await ffmpeg.exec([
             '-i', 'input.webm',
@@ -640,34 +650,10 @@
             'output.mp4'
             ]);
 
-        // await ffmpeg.exec([           
-        //     '-i', 'input.webm',
-        //     '-r', '30',
-        //     '-vf', "format=yuv420p",
-        //     //'-vf', 'setpts=N/(30*TB)',
-        //     //'-vf', 'minterpolate=fps=30:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1,format=yuva444p10le',
-        //     '-c:v', 'libx264',
-        //     '-profile:v', 'baseline',         
-        //     '-vendor', 'apl0',
-        //     '-movflags', '+faststart',
-        //     // Ensure we keep the alpha channel mapping
-        //     '-pix_fmt', "yuv420p ",//'yuva444p10le', 
-        //     // Disable Alpha-to-Black flattening
-        //     '-bits_per_mb', '4000',
-        //     // Output container must be .mov for ProRes
-        //     'output.mov'
-        //     ]);
-
-        const data = await ffmpeg.readFile('output.mp4');
-        const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/quicktime' }));
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'strava-stories-' + formatTimeHMS(Date.now()) + '.mov';
-        a.click();
+        return await ffmpeg.readFile('output.mp4');
     }
 
-    async function exportCanvasToWebM() {
+    async function exportCanvasToWebM(isMobile: boolean): Promise<Blob | MediaSource> {
         let canvasScale = 2;
         let fps = 30;
         
@@ -682,11 +668,13 @@
         hi.width = src.width * canvasScale;
         hi.height = src.height * canvasScale;
 
-        const ctx = hi.getContext('2d', { alpha: false });
-        ctx.imageSmoothingEnabled = true;       // enable smoothing
-        ctx.imageSmoothingQuality = 'high';     // use high-quality algorithm
-        ctx.globalCompositeOperation = 'source-over';    
-        ctx.globalAlpha = 1;    
+        const ctx = hi.getContext('2d', { alpha: !isMobile });
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.globalCompositeOperation = 'source-over';
+        if (isMobile)
+            ctx.globalAlpha = 1;    
+
         ctx?.scale(canvasScale, canvasScale);
         
         const recorder = new MediaRecorder(hi.captureStream(fps), {
@@ -699,11 +687,10 @@
         recorder.start();
 
         let duration = getMaxAnimationDuration();
+        const start = performance.now();
 
         splits.forEach(s => s.startAnimation());
-        polys.forEach(s => s.startAnimation());
-
-        const start = performance.now();
+        polys.forEach(s => s.startAnimation());        
 
         function renderLoop() {            
             ctx.clearRect(0, 0, hi.width, hi.height);
