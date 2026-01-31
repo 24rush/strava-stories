@@ -574,24 +574,20 @@
 
         const bounds = getCanvasObjectsBounds(20);
         
-        let back: Rect;
-        if (isMobileBrowser) {
-            back = new Rect({                
-                left: bounds.left,
-                top: bounds.top,
-                width: bounds.width,
-                height: bounds.height,
-                originX: "left",
-                originY: "top",
-                fill: "#000",
-                selectable: false,
-                objectCaching: false
-            });
+        let back = new Rect({                
+            left: bounds.left,
+            top: bounds.top,
+            width: bounds.width,
+            height: bounds.height,
+            originX: "left",
+            originY: "top",
+            fill: "#000",
+            selectable: false,
+            objectCaching: false
+        });
 
-           // canvas.add(back);
-           // canvas.moveObjectTo(back, 0);
-        }
-
+        canvas.add(back);
+        canvas.moveObjectTo(back, 0);        
         canvas.requestRenderAll();
 
         const blob = await exportCanvasToWebM(isMobileBrowser);  
@@ -605,9 +601,8 @@
             a.click();
             URL.revokeObjectURL(url);  
         }        
-
-        if (isMobileBrowser && back)
-            canvas.remove(back);
+        
+        canvas.remove(back);
 
         canvas.backgroundColor = originalBg;
         if (originalBgImg) canvas.backgroundImage = originalBgImg;
