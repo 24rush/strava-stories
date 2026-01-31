@@ -209,11 +209,11 @@
         onRequestRedraw?.();
     }
 
-    function barWidthChanged(newValue: number) {
+    function barHeightChanged(newValue: number) {
         currentSelection.forEach((obj) => {
             if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Splits) {
                 let s2pObject = obj as S2PSplits;
-                s2pObject.barWidth = newValue;
+                s2pObject.barHeight = newValue;
             }
         });
 
@@ -233,7 +233,11 @@
 
     function fontWeightChanged(newValue: number) {
         currentSelection.forEach((obj) => {
-            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Text) {
+            if (
+                "s2pType" in obj &&
+                (obj.s2pType == S2PCanvasItemType.Text ||
+                    obj.s2pType == S2PCanvasItemType.Splits)
+            ) {
                 let s2pObject = obj as S2PCanvasText;
                 s2pObject.set("fontWeight", newValue);
             }
@@ -611,6 +615,7 @@
 
         <span
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            canvasItemSelected instanceof S2PSplits ||
             currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
@@ -629,7 +634,7 @@
             style="display: {canvasItemSelected instanceof S2PSplits
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
-            class="font-emp">Bar width</span
+            class="font-emp">Bar height</span
         >
 
         <span
@@ -778,6 +783,7 @@
 
         <div
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
+            canvasItemSelected instanceof S2PSplits ||
             currentSelection.length > 1
                 ? 'flex'
                 : 'none'};"
@@ -812,8 +818,8 @@
                 : 'none'};"
         >
             <S2PRangeControl
-                onValueChanged={barWidthChanged}
-                value={canvasItemSelected.barWidth}
+                onValueChanged={barHeightChanged}
+                value={canvasItemSelected.barHeight}
                 min={0}
                 max={100}
                 step={0.5}

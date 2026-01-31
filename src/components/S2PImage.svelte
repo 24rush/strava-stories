@@ -141,8 +141,10 @@
         t.splits.forEach((splitTheme) => {
           splitTheme.left *= canvasWidth;
           splitTheme.top *= canvasHeight;
-          splitTheme.width *= canvasWidth;
-          splitTheme.height *= canvasHeight;
+          splitTheme.width *= (canvasWidth);
+          splitTheme.height *= (canvasHeight);
+          splitTheme.barHeight *= (canvasHeight / splitTheme.scaleY);
+          splitTheme.barGap *= (canvasHeight / splitTheme.scaleY);
         });
     });
   }
@@ -497,7 +499,7 @@
         ...new S2PThemeSplits(),
         label: "splits_profile",
         barGap: 1,
-        barWidth: 14,        
+        barHeight: 20,        
         textColor: [colors[0] ?? null, colors[0] ?? null],
         fill: [decreaseHexaOpacity(colors[1], 0.5), decreaseHexaOpacity(colors[2], 0.5)],
         stroke: [null, null],
@@ -604,6 +606,7 @@
     s2pCanvas.getObjects().polys.forEach((p) => updatePolyColor(p, type, color));
     s2pCanvas.getObjects().splits.forEach((s) => updateRectColor(s, type, color));
 
+    if (polyProp) polyProp.onChanged();
     onRequestRedraw();
   }
 

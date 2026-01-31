@@ -65,13 +65,11 @@
     onMount(() => {
         canvasEl.id = `mapCanvas-${rndId}`;
 
-        FabricObject.prototype.objectCaching = false;
-
         canvas = new Canvas(canvasEl.id, {
             backgroundColor: "#fff",
             selection: false, // disable drag selection if you want ctrl-click only
             preserveObjectStacking: true, // important for multi-selection
-            enableRetinaScaling: false,
+            enableRetinaScaling: true,
         });
 
         if (
@@ -501,21 +499,27 @@
 
         canvas.backgroundImage = null;
         canvas.backgroundColor = "";
-
+    
         unselectAll();
   
         setTimeout(() => {
-            canvas.lowerCanvasEl.toBlob((blob) => {
-                if (!blob) return;
-                const url = URL.createObjectURL(blob);
+            const scale = 2;
+
+            const dataURL = canvas.toDataURL({
+                format: "png",
+                multiplier: scale,
+                enableRetinaScaling: true
+            });
+
+            if (dataURL) {
                 const link = document.createElement("a");
-                link.href = url;
+                link.href = dataURL;
                 link.download =
                     "strava-stories-" + formatTimeHMS(Date.now()) + ".png";
                 link.click();
-                URL.revokeObjectURL(url);
-            }, "image/png");
-           
+                URL.revokeObjectURL(dataURL);
+            }
+
             canvas.backgroundColor = originalBg;
 
             if (originalBgImg) canvas.backgroundImage = originalBgImg;
@@ -671,8 +675,7 @@
         const w = canvas.width;
         const h = canvas.height;
         canvas.setDimensions(
-            { width: w + (w % 2), height: h + (h % 2) },
-            { backstoreOnly: true }
+            { width: w + (w % 2), height: h + (h % 2) },            
         );
 
         const hi = document.createElement('canvas');
@@ -818,7 +821,9 @@
                 left: split.left / canvas.width,
                 top: split.top / canvas.height,
                 width: (split.width * split.scaleX) / canvas.width,
-                height: (split.height * split.scaleY) / canvas.height,            
+                height: (split.height * split.scaleY) / canvas.height,
+                barHeight: (split.barHeight * split.scaleY) / canvas.height,
+                barGap: (split.barGap * split.scaleY) / canvas.height,        
             });
         });
 

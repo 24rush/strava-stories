@@ -1,6 +1,6 @@
 import { Gradient, Group, IText, Rect, util } from "fabric";
 import { S2PCanvasItemType, type S2PCanvasItem, S2PAnimationSettings } from "./S2PCanvasItem";
-import type { S2PThemeSplits } from "./S2PTheme";
+import { S2PThemeSplits } from "./S2PTheme";
 import type { SplitData } from "./utils/fieldmappings";
 import { Converters } from "./utils/converters";
 import { S2PGradient } from "./S2PGradient";
@@ -8,7 +8,7 @@ import { S2PGradient } from "./S2PGradient";
 export class S2PSplitsAnimationSettings extends S2PAnimationSettings {
     duration: number = 1000;
     barsEasing: util.TEasingFunction = util.ease.easeOutCubic;
-    textsEasing: util.TEasingFunction = util.ease.easeOutElastic;
+    textsEasing: util.TEasingFunction = util.ease.easeOutCubic;
 }
 
 export class S2PSplits extends Group implements S2PCanvasItem {
@@ -30,7 +30,10 @@ export class S2PSplits extends Group implements S2PCanvasItem {
 
     constructor(splitTheme: S2PThemeSplits) {
         super()
-        this.splitTheme = structuredClone(splitTheme);
+        this.splitTheme = {
+            ...new S2PThemeSplits(),
+            ...splitTheme
+        }
 
         this.gradient = new S2PGradient(splitTheme.fill, splitTheme.stroke);
         this.origGradient = new S2PGradient(splitTheme.fill, splitTheme.stroke);
@@ -60,9 +63,9 @@ export class S2PSplits extends Group implements S2PCanvasItem {
     get label(): string { return this.splitTheme.label; }
     get animationSettings(): S2PSplitsAnimationSettings { return this.animationSettings_; }
 
-    get barWidth() { return this.splitTheme.barWidth; }
-    set barWidth(newValue: number) {
-        this.splitTheme.barWidth = newValue;
+    get barHeight() { return this.splitTheme.barHeight; }
+    set barHeight(newValue: number) {
+        this.splitTheme.barHeight = newValue;
 
         this.createSplitsChart(this.split_data);
         this.setDirty();
@@ -89,7 +92,6 @@ export class S2PSplits extends Group implements S2PCanvasItem {
     }
 
     get fontFamily() { return this.splitTheme.fontFamily };
-
     set fontFamily(newFontFamily: string) {
         this.splitTheme.fontFamily = newFontFamily;
 
@@ -101,7 +103,6 @@ export class S2PSplits extends Group implements S2PCanvasItem {
     }
 
     get fontStyle() { return this.splitTheme.fontStyle };
-
     set fontStyle(newFontStyle: string) {
         this.splitTheme.fontStyle = newFontStyle;
 
@@ -109,6 +110,14 @@ export class S2PSplits extends Group implements S2PCanvasItem {
             item.fontStyle = newFontStyle;
         }));
 
+        this.setDirty();
+    }
+
+    get fontWeight(): string | number { return this.splitTheme.fontWeight; }
+    set fontWeight(weight: number) {
+        this.splitTheme.fontWeight = weight;
+
+        this.texts.forEach(text => text.fontWeight = weight);
         this.setDirty();
     }
 
@@ -127,22 +136,23 @@ export class S2PSplits extends Group implements S2PCanvasItem {
 
         split_data.forEach((split, index) => {
             const pace = 1000 / split.average_speed;
-            let barLength = (pace / maxPace) * this.splitTheme.width - 40;
+            let barLength = (pace / maxPace - 0.1) * this.splitTheme.width;
 
             const top =
-                this.splitTheme.top + index * (this.barWidth + this.barGap);
+                this.splitTheme.top + index * (this.barHeight + this.barGap);
 
             const kmLabel = new IText(
                 (index == speeds.length - 1) ? (split.distance / 1000).toFixed(2) : `${index + 1}`,
                 {
                     width: 200,
                     left: 0,
-                    top: top + this.barWidth / 2,
+                    top: top + this.barHeight / 2,
                     originX: 'right',
                     originY: "center",
-                    fontSize: Math.round(this.barWidth * 0.5),
+                    fontSize: Math.round(this.barHeight * 0.5),
                     fontStyle: this.splitTheme.fontStyle,
                     fontFamily: this.splitTheme.fontFamily,
+                    fontWeight: this.splitTheme.fontWeight,
                     fill: this.gradientTextColor.fillGradient,
                     selectable: false,
                 }
@@ -152,7 +162,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 left: 6,
                 top: top,
                 width: barLength,
-                height: this.barWidth,
+                height: this.barHeight,
                 originX: "left",
                 originY: "top",
                 fill: this.gradient.fillGradient,
@@ -167,14 +177,16 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 {
                     width: 200,
                     left: 12,
-                    top: top + this.barWidth / 2,
+                    top: top + this.barHeight / 2,
                     originX: 'left',
                     originY: "center",
-                    fontSize: Math.round(this.barWidth * 0.75),
+                    fontSize: Math.round(this.barHeight * 0.75),
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
+                    fontWeight: this.splitTheme.fontWeight,
                     fill: this.gradientTextColor.fillGradient,
-                    selectable: false
+                    selectable: false,
+                    objectCaching: false
                 }
             );
 
@@ -186,14 +198,16 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     {
                         width: 200,
                         left: barLength,
-                        top: top + this.barWidth / 2,
+                        top: top + this.barHeight / 2,
                         originX: 'right',
                         originY: "center",
-                        fontSize: Math.round(this.barWidth * 0.6),
+                        fontSize: Math.round(this.barHeight * 0.6),
                         fontFamily: this.splitTheme.fontFamily,
                         fontStyle: this.splitTheme.fontStyle,
+                        fontWeight: this.splitTheme.fontWeight,
                         fill: this.gradientTextColor.fillGradient,
-                        selectable: false
+                        selectable: false,
+                        objectCaching: false
                     }
                 );
             }
@@ -203,14 +217,16 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 {
                     width: 200,
                     left: barLength + 6,
-                    top: top + this.barWidth / 2,
+                    top: top + this.barHeight / 2,
                     originX: 'left',
                     originY: "center",
-                    fontSize: Math.round(this.barWidth * 0.6),
+                    fontSize: Math.round(this.barHeight * 0.6),
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
+                    fontWeight: this.splitTheme.fontWeight,
                     fill: this.gradientTextColor.fillGradient,
-                    selectable: false
+                    selectable: false,
+                    objectCaching: false
                 }
             );
 

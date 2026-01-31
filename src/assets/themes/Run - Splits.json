@@ -9,10 +9,10 @@
         {
             "id": "",
             "label": "splits_profile",
-            "top": 0.08793175946021459,
-            "left": 0.028939194277108417,
-            "width": 0.9227829008217318,
-            "height": 0.7572401307948877,
+            "top": 0.06838342859324767,
+            "left": 0,
+            "width": 0.9721280679720811,
+            "height": 0.8795913787734981,
             "angle": 0,
             "fill": [
                 "#E91E6380",
@@ -23,20 +23,21 @@
                 "#FC5200"
             ],
             "strokeWidth": 0,
-            "scaleX": 1,
-            "scaleY": 1,
-            "barWidth": 14,
-            "barGap": 1,
+            "scaleX": 2.0057902530857175,
+            "scaleY": 2.0057902530857175,
+            "barHeight": 0.09387142825834441,
+            "barGap": 0.004387653270112423,
             "rx": 0,
             "ry": 0,
             "fontFamily": "Termina Test",
             "fontStyle": "normal",
+            "fontWeight": 400,
             "textColor": [
-                "#F8F8F8",
-                "#F8F8F8"
+                "#E5E7EB",
+                "#E5E7EB"
             ]
         }
     ],
-    "height_percentage": 1.0699921080581112,
+    "height_percentage": 0.7559044160038592,
     "devicePixelRatio": 3.5
 }

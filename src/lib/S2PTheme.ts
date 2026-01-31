@@ -33,7 +33,7 @@ export class S2PThemePoly extends S2PThemeObject {
 }
 
 export class S2PThemeSplits extends S2PThemeObject {   
-    public barWidth: number = 15;
+    public barHeight: number = 15;
     public barGap: number = 5; 
 
     public rx: number = 0;
@@ -41,6 +41,7 @@ export class S2PThemeSplits extends S2PThemeObject {
 
     public fontFamily: string = "Kanit"; 
     public fontStyle: string = "normal";
+    public fontWeight: string | number = 400; 
 
     public textColor: (string|null)[] = ["#fff", "#fff"];
 }
