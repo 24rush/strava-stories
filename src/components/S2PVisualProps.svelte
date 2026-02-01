@@ -10,7 +10,6 @@
     import type { FabricObject } from "fabric";
     import {
         S2PCanvasItemFeature,
-        S2PCanvasItemType,
         type S2PCanvasObjectType,
     } from "../lib/S2PCanvasItem";
     import { FieldMappings, FieldName } from "../lib/utils/fieldmappings";
@@ -60,6 +59,12 @@
         canvasItemSelected
             .getProperty(S2PCanvasItemFeature.Label)
             .endsWith("_value_unit"),
+    );
+
+    let isUserField = $derived(
+        canvasItemSelected
+            .getProperty(S2PCanvasItemFeature.Label)
+            .toLowerCase() === "user",
     );
 
     let hasRadius = $derived(
@@ -223,8 +228,7 @@
     function trackStrokeChanged(newValue) {
         currentSelection.forEach((obj) => {
             if ("s2pType" in obj) {
-                let s2pObject = obj as FabricObject;
-                s2pObject.set("strokeWidth", parseInt(newValue));
+                obj.setProperty(S2PCanvasItemFeature.StrokeWidth, newValue);
             }
         });
 
@@ -234,7 +238,7 @@
 
     function barHeightChanged(newValue: number) {
         currentSelection.forEach((obj) => {
-            obj.setFeatureProp(S2PCanvasItemFeature.BarHeight, newValue);
+            obj.setProperty(S2PCanvasItemFeature.BarHeight, newValue);
         });
 
         onRequestRedraw?.();
@@ -242,7 +246,7 @@
 
     function barGapChanged(newValue: number) {
         currentSelection.forEach((obj) => {
-            obj.setFeatureProp(S2PCanvasItemFeature.BarGap, newValue);
+            obj.setProperty(S2PCanvasItemFeature.BarGap, newValue);
         });
 
         onRequestRedraw?.();
@@ -250,13 +254,8 @@
 
     function fontWeightChanged(newValue: number) {
         currentSelection.forEach((obj) => {
-            if (
-                "s2pType" in obj &&
-                (obj.s2pType == S2PCanvasItemType.Text ||
-                    obj.s2pType == S2PCanvasItemType.Splits)
-            ) {
-                let s2pObject = obj as S2PCanvasText;
-                s2pObject.set("fontWeight", newValue);
+            if ("s2pType" in obj) {
+                obj.setProperty(S2PCanvasItemFeature.FontWeight, newValue);
             }
         });
 
@@ -265,9 +264,8 @@
 
     function charSpacingChanged(newValue: number) {
         currentSelection.forEach((obj) => {
-            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Text) {
-                let s2pObject = obj as S2PCanvasText;
-                s2pObject.set("charSpacing", newValue);
+            if ("s2pType" in obj) {
+                obj.setProperty(S2PCanvasItemFeature.CharSpacing, newValue);
             }
         });
 
@@ -277,12 +275,10 @@
     //@ts-ignore
     function radiusChanged(newValue) {
         currentSelection.forEach((obj) => {
-            if ("s2pType" in obj)
-                if (obj.s2pType == S2PCanvasItemType.Rect) {
-                    let s2pObject = obj as S2PRect;
-                    s2pObject.set("rx", parseInt(newValue));
-                    s2pObject.set("ry", parseInt(newValue));
-                }
+            if ("s2pType" in obj) {
+                obj.setProperty(S2PCanvasItemFeature.Rx, parseInt(newValue));
+                obj.setProperty(S2PCanvasItemFeature.Ry, parseInt(newValue));
+            }
         });
 
         canvasItemSelected.setProperty(
@@ -337,13 +333,9 @@
 
     function fireFontFamilyChanged(event: Event) {
         currentSelection.forEach((obj) => {
-            if (
-                "s2pType" in obj &&
-                (obj.s2pType == S2PCanvasItemType.Text ||
-                    obj.s2pType == S2PCanvasItemType.Splits)
-            ) {
-                obj.set(
-                    "fontFamily",
+            if ("s2pType" in obj) {
+                obj.setProperty(
+                    S2PCanvasItemFeature.FontFamily,
                     (event.target as HTMLSelectElement).value,
                 );
             }
@@ -359,17 +351,11 @@
     function fireFontStyleChanged() {
         let currFont = canvasItemSelected.get("fontStyle");
         currentSelection.forEach((obj) => {
-            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Text) {
-                obj.set(
-                    "fontStyle",
+            if ("s2pType" in obj) {
+                obj.setProperty(
+                    S2PCanvasItemFeature.FontStyle,
                     !currFont || currFont == "normal" ? "italic" : "normal",
                 );
-
-                if (obj.s2pType == S2PCanvasItemType.Splits)
-                    (obj as S2PSplits).setProperty(
-                        S2PCanvasItemFeature.FontStyle,
-                        !currFont || currFont == "normal" ? "italic" : "normal",
-                    );
             }
         });
 
@@ -639,33 +625,32 @@
         </div>
 
         <span
-            style="display: {canvasItemSelected instanceof S2PCanvasText ||
-            canvasItemSelected instanceof S2PSplits ||
-            currentSelection.length > 1
+            style="display: {canvasItemSelected.hasProperty(
+                S2PCanvasItemFeature.FontWeight,
+            ) || currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
             class="font-emp">Font weight</span
         >
 
         <span
-            style="display: {canvasItemSelected instanceof S2PCanvasText ||
-            currentSelection.length > 1
+            style="display: {canvasItemSelected.hasProperty(
+                S2PCanvasItemFeature.CharSpacing,
+            ) || currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
             class="font-emp">Letter spacing</span
         >
 
         <span
-            style="display: {canvasItemSelected instanceof S2PSplits
+            style="display: {hasBarHeight
                 ? 'flex'
                 : 'none'}; white-space: nowrap;"
             class="font-emp">Bar height</span
         >
 
         <span
-            style="display: {canvasItemSelected instanceof S2PSplits
-                ? 'flex'
-                : 'none'}; white-space: nowrap;"
+            style="display: {hasBarGap ? 'flex' : 'none'}; white-space: nowrap;"
             class="font-emp">Bar gap</span
         >
 
@@ -682,9 +667,9 @@
     </div>
     <div class="column gap-2" style="padding-left: 0.25rem;">
         <div
-            style="display: {canvasItemSelected instanceof S2PCanvasText ||
-            canvasItemSelected instanceof S2PSplits ||
-            currentSelection.length > 1
+            style="display: {canvasItemSelected.hasProperty(
+                S2PCanvasItemFeature.FontFamily,
+            ) || currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; width: 100%; flex-direction: column;"
         >
@@ -783,7 +768,7 @@
                 <div class="form-check mt-2">
                     <input
                         id="fieldValueType"
-                        disabled={currentSelection.length > 1}
+                        disabled={isUserField || currentSelection.length > 1}
                         class="form-check-input"
                         type="checkbox"
                         role="switch"
@@ -796,7 +781,7 @@
                 <div class="form-check mt-2">
                     <input
                         id="fieldUnitType"
-                        disabled={currentSelection.length > 1}
+                        disabled={isUserField || currentSelection.length > 1}
                         class="form-check-input"
                         type="checkbox"
                         role="switch"
@@ -811,9 +796,9 @@
         </div>
 
         <div
-            style="display: {canvasItemSelected instanceof S2PCanvasText ||
-            canvasItemSelected instanceof S2PSplits ||
-            currentSelection.length > 1
+            style="display: {canvasItemSelected.hasProperty(
+                S2PCanvasItemFeature.FontWeight,
+            ) || currentSelection.length > 1
                 ? 'flex'
                 : 'none'};"
         >
@@ -827,8 +812,9 @@
         </div>
 
         <div
-            style="display: {canvasItemSelected instanceof S2PCanvasText ||
-            currentSelection.length > 1
+            style="display: {canvasItemSelected.hasProperty(
+                S2PCanvasItemFeature.CharSpacing,
+            ) || currentSelection.length > 1
                 ? 'flex'
                 : 'none'};"
         >
@@ -836,8 +822,8 @@
                 onValueChanged={charSpacingChanged}
                 value={canvasItemSelected.charSpacing ?? 0}
                 min={0}
-                max={600}
-                step={25}
+                max={900}
+                step={50}
             />
         </div>
 

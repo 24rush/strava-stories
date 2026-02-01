@@ -20,6 +20,7 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
         S2PCanvasItemFeature.FontFamily,
         S2PCanvasItemFeature.FontStyle,
         S2PCanvasItemFeature.FontWeight,
+        S2PCanvasItemFeature.CharSpacing,
         S2PCanvasItemFeature.StrokeWidth,
     ];
 

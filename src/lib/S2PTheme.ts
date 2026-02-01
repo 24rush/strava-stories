@@ -78,6 +78,9 @@ export class S2PThemeObject {
             case S2PCanvasItemFeature.StrokeWidth:
                 this.strokeWidth = val as number;
                 break;
+            case S2PCanvasItemFeature.CharSpacing:
+                this.charSpacing = val as number;
+                break;
             case S2PCanvasItemFeature.Url:
                 this.url = val as string;
                 break;

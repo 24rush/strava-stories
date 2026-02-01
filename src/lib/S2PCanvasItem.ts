@@ -17,6 +17,7 @@ export enum S2PCanvasItemFeature {
     FontFamily = "fontFamily",
     FontStyle = "fontStyle",
     FontWeight = "fontWeight",
+    CharSpacing = "charSpacing",
     StrokeWidth = "strokeWidth",
 
     Stroke = "stroke",
@@ -40,11 +41,6 @@ type stringOrNumberGetterSetter = {
     get: string | number;
 };
 
-type gradientGetterSetter = {
-    set: [v: Gradient<unknown, "linear"> | string];
-    get: Gradient<unknown, "linear"> | string;
-}
-
 export type FeatureHandlers = {
     label: stringGetterSetter,
 
@@ -58,6 +54,7 @@ export type FeatureHandlers = {
     fontFamily: stringGetterSetter,
     fontStyle: stringGetterSetter,
     fontWeight: stringOrNumberGetterSetter,
+    charSpacing: intGetterSetter,
 
     strokeWidth: intGetterSetter,
     url: stringGetterSetter,

@@ -493,6 +493,29 @@
         canvas.backgroundImage = null;
         canvas.backgroundColor = "";
     
+        const bounds = canvas.getObjects().reduce((acc, obj) => {
+            const rect = obj.getBoundingRect();
+            acc.minX = Math.min(acc.minX, rect.left);
+            acc.minY = Math.min(acc.minY, rect.top);
+            acc.maxX = Math.max(acc.maxX, rect.left + rect.width);
+            acc.maxY = Math.max(acc.maxY, rect.top + rect.height);
+            return acc;
+        },
+          { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
+        );
+
+        const width = bounds.maxX - bounds.minX;
+        const height = bounds.maxY - bounds.minY;
+
+        const original = {
+            width: canvas.width!,
+            height: canvas.height!,
+            vpt: canvas.viewportTransform?.slice(),
+        };
+
+        canvas.setViewportTransform([1, 0, 0, 1, -bounds.minX, -bounds.minY]);
+        canvas.setDimensions({width, height});  
+
         unselectAll();
   
         setTimeout(() => {
@@ -516,6 +539,8 @@
             canvas.backgroundColor = originalBg;
 
             if (originalBgImg) canvas.backgroundImage = originalBgImg;
+            canvas.setDimensions({width: original.width, height: original.height});
+            if (original.vpt) canvas.setViewportTransform(original.vpt);  
 
             canvas.renderAll.bind(canvas);
             canvas.requestRenderAll();
@@ -715,8 +740,8 @@
         let theme: S2PTheme = new S2PTheme("default");
 
         texts.forEach((text) => {
-            let text_meta: S2PThemeObject = 
-                new S2PThemeObject({         
+            let text_meta = 
+            {         
                 label: text.label,
                 left: text.left / canvas.width,
                 top: text.top / canvas.height,
@@ -732,16 +757,14 @@
                 stroke: [text.getStrokeStop(0), text.getStrokeStop(1)],
                 strokeWidth: text.strokeWidth,
                 fill: [text.getFillStop(0), text.getFillStop(1)],
-            });
+            };
 
             if (!text.label.includes("_value")) text_meta.value = text.text;
-
-            theme.texts.push(text_meta);
+            theme.texts.push(text_meta as any);
         });
 
         polys.forEach((poly) => {
-            theme.polys.push(
-                new S2PThemeObject({
+            theme.polys.push({
                 label: poly.label,
                 left: poly.left / canvas.width,
                 top: poly.top / canvas.height,
@@ -751,8 +774,7 @@
                 fill: [poly.getFillStop(0), poly.getFillStop(1)],
                 scaleX: poly.scaleX,
                 scaleY: poly.scaleY,
-            })
-        )
+            } as any)
         });
 
         svgs.forEach((svgGroup) => {
@@ -773,8 +795,7 @@
         });
 
         rects.forEach((rect) => {
-            theme.rects.push(
-                new S2PThemeObject({
+            theme.rects.push({
                     left: rect.left / canvas.width,
                     top: rect.top / canvas.height,
                     rx: rect.rx,
@@ -787,11 +808,11 @@
                     stroke: [rect.getStrokeStop(0), rect.getStrokeStop(1)],
                     strokeWidth: rect.strokeWidth,
                     angle: rect.angle,
-            })
+            } as any
         )});
 
         splits.forEach(split => {
-            theme.splits.push(new S2PThemeObject({
+            theme.splits.push({
                 ...split.themeData,
                 left: split.left / canvas.width,
                 top: split.top / canvas.height,
@@ -799,7 +820,7 @@
                 height: (split.height * split.scaleY) / canvas.height,
                 barHeight: (split.barHeight * split.scaleY) / canvas.height,
                 barGap: (split.barGap * split.scaleY) / canvas.height,        
-            }))
+            } as any)
         });
 
         theme.height_percentage = canvas.height / canvas.width;
@@ -809,7 +830,6 @@
     }
 
     function setCheckeredBackground() {
-        // Create checkered pattern tile using a temporary canvas
         const tileSize = 32;
         const patternCanvas = document.createElement("canvas");
         patternCanvas.width = patternCanvas.height = tileSize;
@@ -819,7 +839,7 @@
 
         // Draw checker pattern (2 colors)
         ctx.fillStyle = "#187AFF"; // grid color
-        let gridStrokeWidth = 1;
+        let gridStrokeWidth = 0.5;
         ctx.fillRect(
             0,
             0,
