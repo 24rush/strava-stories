@@ -88,10 +88,14 @@
                 }
             }
 
-            const now = Math.floor(Date.now() / 1000);
+            const now = Math.floor(Date.now() / 1000);            
 
             loggedInAthlete =
                 auth && auth.expiresAt > now + CLOCK_SKEW_BUFFER ? true : false;
+
+            if (!loggedInAthlete) {
+                localStorage.removeItem(STORAGE_KEY_AUTH);
+            }
 
             // loggedInAthlete = {
             //   "id": 200976954,

@@ -94,8 +94,8 @@ export class DataSource {
         this.setFieldValueInData(fieldName, value);
     }
 
-    public getValueForField(fieldName: string): string | number | undefined {
-        switch (fieldName) {
+    public getValueForField(fieldId: string): string | number | undefined {
+        switch (fieldId) {
             case FieldId.Distance:
                 if (this.data.activityKind.sportType == "Swim")
                     return this.data.scalars.distance ? (this.data.scalars.distance) : 0;
@@ -133,19 +133,19 @@ export class DataSource {
                 return this.data.streams  && this.data.streams.elevation.length > 0 ? Math.floor(Math.min(...this.data.streams.elevation)) : 0;
             case FieldId.Calories:
                 return this.data.scalars.calories;
-            case FieldId.AvgHeartRate:
-                return this.data.scalars.average_heartrate ? Math.ceil(this.data.scalars.average_heartrate) : undefined;
-            case FieldId.MaxHeartRate:
-                return this.data.scalars.max_heartrate ? Math.ceil(this.data.scalars.max_heartrate) : undefined;
-            case FieldId.Name:
-                return this.data.name;
+            case FieldId.AvgHeartRate:                
+            case FieldId.MaxHeartRate:                
             case FieldId.AvgPower:
             case FieldId.MaxPower:
+                return this.data.scalars[fieldId] ? Math.ceil(this.data.scalars[fieldId] ?? 0) : undefined;
+            case FieldId.Name:
+                return this.data.name;
+
             case FieldId.TotalActiveDays:
             case FieldId.TotalDistance:
             case FieldId.TotalTime:
             case FieldId.TotalElevation:
-                return this.getValue(fieldName);
+                return this.getValue(fieldId);
             default:
                 return undefined;
         }
@@ -402,7 +402,9 @@ export class StravaData {
         elevationGain: number,
         calories: number | undefined,
         average_heartrate: number | undefined,
-        max_heartrate: number | undefined
+        max_heartrate: number | undefined,
+        avgpower: number | undefined,
+        maxpower: number | undefined
     }
     streams: {
         location: LatLng[],
@@ -422,7 +424,9 @@ export class StravaData {
             elevationGain: 0,
             calories: undefined,
             average_heartrate: undefined,
-            max_heartrate: undefined
+            max_heartrate: undefined,
+            avgpower: undefined,
+            maxpower: undefined
         }
         this.streams = {
             location: [],
@@ -446,6 +450,8 @@ export class StravaData {
                 calories: undefined,
                 average_heartrate: undefined,
                 max_heartrate: undefined,
+                avgpower: undefined,
+                maxpower: undefined
             },
             streams: {
                 location: data.streams.location,
@@ -470,9 +476,11 @@ export class StravaData {
                 distance: data.distance,
                 movingTime: data.moving_time,
                 elevationGain: data.total_elevation_gain,
-                calories: data.calories,
+                calories: data.calories ?? data.kilojoules,
                 max_heartrate: data.max_heartrate,
-                average_heartrate: data.average_heartrate
+                average_heartrate: data.weighted_average_watts,
+                maxpower: data.max_watts,
+                avgpower: data.average_watts,
             },
             streams: {
                 location: data.streams && 'latlng' in data.streams ? (data.streams.latlng.data as [[number, number]]).map(v => new LatLng(v[0], v[1])) : [],
