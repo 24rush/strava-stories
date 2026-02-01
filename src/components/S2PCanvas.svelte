@@ -488,7 +488,7 @@
     } 
 
     export function getMaxAnimationDuration(): number {
-        return Math.max(...[polys, splits].map(object => { 
+        return Math.max(0, ...[polys, splits].map(object => { 
             return Math.max(...object.map(canvasItem => { return canvasItem.animationSettings.duration }));
         }));
     }
@@ -683,7 +683,7 @@
 
         let duration = getMaxAnimationDuration();
         const start = performance.now();
-
+        
         splits.forEach(s => s.startAnimation());
         polys.forEach(s => s.startAnimation());        
 

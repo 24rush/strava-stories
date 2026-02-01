@@ -164,7 +164,10 @@
   }
 
   function _loadTheme(theme_meta: S2PTheme | undefined) {
-    s2pCanvas.clear();
+    onAbortAnimationRequested();
+    hasAnimations = false;
+
+    s2pCanvas.clear();    
     hasHeartRate = source.data.hasHeartRate && source.data.streams.heartrate.length > 0;
     hasTrackProfile = source.data.streams.location.length > 0;
     hasElevation = source.data.streams.elevation.length > 0;
@@ -633,20 +636,23 @@
   function onStartAnimationRequested() {
     let objects = s2pCanvas.getObjects();
     [objects.polys, objects.splits].forEach(object => {      
-      object.forEach(canvasItem => {
+      object.forEach(canvasItem => {        
         let animations = canvasItem.startAnimation();
         if (animations) runningAnimations.push(...animations)
       })
     });
   }
 
-  function onAbortAnimationRequested() {
+  function onAbortAnimationRequested() {    
     runningAnimations.forEach(ra => {
-      if (ra) ra.abort();
+      if (ra)
+        ra.abort();      
     });
+
+    runningAnimations = [];
   }
 
-  function onAnimationDurationChanged(v: number) {  
+  function onAnimationDurationChanged(v: number) {      
     maxAnimationDuration = v;
     let objects = s2pCanvas.getObjects();
     [objects.polys, objects.splits].forEach(object => {      
@@ -763,12 +769,17 @@
       disabled={isVideoExporting || !hasAnimations}
       type="button" title="Download as Video"
       onclick={() => {
+        onAbortAnimationRequested();
         isVideoExporting = true;
         s2pCanvas.exportToWebM().then(v => isVideoExporting = false);
-      }
+       }
       }
       class="btn btn-outline-primary">
-      <i class="bi bi-camera-reels"></i>
+        {#if !isVideoExporting}    
+          <i class="bi bi-camera-reels"></i>
+        {:else}      
+          <i class="bi spinner"></i>
+        {/if}
       </button>
     </div>
   </div>  
@@ -897,4 +908,20 @@
   #btnGroup > button {
     flex: 1;
   }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ccc;
+    border-top-color: #000;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
 </style>

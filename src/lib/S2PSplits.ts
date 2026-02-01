@@ -332,6 +332,8 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 delay: i * 10,
                 easing: this.animationSettings.textsEasing,
                 onChange: (value) => {
+                    if (isNaN(value)) return;
+
                     obj.set('left', value);
                     this.canvas?.requestRenderAll();
                 }
@@ -349,6 +351,8 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 delay: i * 20,
                 easing: this.animationSettings.barsEasing,
                 onChange: (value) => {
+                    if (isNaN(value)) return;
+
                     obj.set('width', value);
                     this.canvas?.requestRenderAll();
                 }

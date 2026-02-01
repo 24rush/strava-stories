@@ -112,6 +112,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
         this.polylineObj.objectCaching = false;
         this.polylineObj.set('stroke', this.gradient.strokeGradient);
         this.polylineObj.set('fill', this.gradient.fillGradient);
+        this.polylineObj.set({ points: [this.points[0]] });
 
         this.add(this.polylineObj);
 
@@ -122,7 +123,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
 
     createFilledPolyline(points: XYPoint[]) {
         this.s2pType = S2PCanvasItemType.FilledPolyline;
-        this.points = points;
+        this.points = [...points];
 
         this.polylineObj = new Polyline(this.points, {
             strokeWidth: 2,
@@ -130,6 +131,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
             objectCaching: false
         });
         this.polylineObj.set('stroke', this.gradient.strokeGradient);
+        this.polylineObj.set({ points: [this.points[0]] });
 
         let fillPoints = [...points];
         fillPoints.push(
@@ -158,42 +160,22 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
         const full = this.points;
         const step = Math.ceil(full.length / 60);
 
-        if (this.s2pType == S2PCanvasItemType.Polyline) {
-            let i = step;
-            this.polylineObj?.set({ points: full.slice(0, i) });
+        let i = step;
+        this.polylineObj?.set({ points: full.slice(0, i) });
 
-            return [util.animate({
-                startValue: i,
-                endValue: full.length,
-                duration: this.animationSettings.duration,
-                easing: this.animationSettings.easing,
-                onChange: (v: number) => {
-                    const idx = Math.floor(v);
-                    this.polylineObj?.set('points', full.slice(0, idx));
+        return [util.animate({
+            startValue: i,
+            endValue: full.length,
+            duration: this.animationSettings.duration,
+            easing: this.animationSettings.easing,
+            onChange: (v: number) => {
+                if (isNaN(v)) return;
 
-                    this.canvas?.requestRenderAll();
-                }
-            })];
-        }
+                const idx = Math.floor(v);
+                this.polylineObj?.set('points', full.slice(0, idx));
 
-        if (this.s2pType == S2PCanvasItemType.FilledPolyline) {
-            let i = step;
-            this.polylineObj?.set({ points: full.slice(0, i) });
-
-            return [util.animate({
-                startValue: i,
-                endValue: full.length,
-                duration: this.animationSettings.duration,
-                easing: this.animationSettings.easing,
-                onChange: (v: number) => {
-                    const idx = Math.floor(v);
-                    this.polylineObj?.set('points', full.slice(0, idx));
-
-                    this.canvas?.requestRenderAll();
-                }
-            })];
-        }
-
-        return null;
+                this.canvas?.requestRenderAll();
+            }
+        })];
     }
 }
