@@ -1,15 +1,17 @@
 import { FabricObject, Gradient, Group, util } from "fabric";
-import { S2PCanvasItemType, type S2PCanvasItem } from "./S2PCanvasItem";
-import { S2PThemeSvg } from "./S2PTheme";
+import { S2PCanvasItemType, type S2PCanvasItem, type FeatureHandlers, S2PCanvasItemFeature, PropertyExtender } from "./S2PCanvasItem";
+import { S2PThemeObject } from "./S2PTheme";
 
 export class S2PSvg extends Group implements S2PCanvasItem {
-
     s2pType: S2PCanvasItemType = S2PCanvasItemType.Svg;
 
-    private url_: string = "";
+    private svgTheme: S2PThemeObject | undefined;
 
-    constructor(objects: (FabricObject | null)[], options: Record<string, any>, themeSvgProps?: S2PThemeSvg) {
+    constructor(objects: (FabricObject | null)[], options: Record<string, any>, themeSvgProps?: S2PThemeObject) {
         super();
+        PropertyExtender.attachPropertiesTyped(this, this.featureList);
+
+        this.svgTheme = new S2PThemeObject(themeSvgProps ?? {});
 
         if (!objects) return;
 
@@ -57,9 +59,34 @@ export class S2PSvg extends Group implements S2PCanvasItem {
         super.add(svgGroup);
     }
 
-    get url() { return this.url_; }
-    set url(value: string) { this.url_ = value; }
+    private featureList: S2PCanvasItemFeature[] = [
+        S2PCanvasItemFeature.Label,        
+        S2PCanvasItemFeature.Url,
+    ];
 
+    hasProperty(feature: S2PCanvasItemFeature): boolean {
+        return this.featureList.includes(feature);
+    }
+    
+    getProperty<K extends keyof FeatureHandlers>(
+        property: K
+    ): FeatureHandlers[K]['get'] {
+        if (!this.svgTheme || !this.hasProperty(property as S2PCanvasItemFeature))
+            throw `Unsupported property ${property}, should not be called`;
+
+        return this.svgTheme[property];
+    }
+
+   setProperty<K extends keyof FeatureHandlers>(
+        property: K,
+        ...args: FeatureHandlers[K]['set']
+    ) {
+        if (!this.svgTheme || !this.hasProperty(property as S2PCanvasItemFeature))
+            throw 'Unsupported property, should not be called';
+
+        this.svgTheme.setProperty(property, ...args);
+    }
+    
     public getStrokeStop(idx: number): string | null {
         return null;
     }

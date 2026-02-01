@@ -21,10 +21,7 @@
     import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
     import {
         S2PTheme,
-        S2PThemePoly,
-        S2PThemeRect,
-        S2PThemeSplits,
-        S2PThemeText,
+        S2PThemeObject,
     } from "../lib/S2PTheme";
     import { S2PRect } from "../lib/S2PRect";
     import type { S2PSvg } from "../lib/S2PSvg";
@@ -320,7 +317,7 @@
         adjustCanvasSize();
     }
 
-    export function addText(textProps: S2PThemeText): S2PCanvasText {
+    export function addText(textProps: S2PThemeObject): S2PCanvasText {
         let s2pCanvasText = new S2PCanvasText(textProps, canvas);
         s2pCanvasText.setPosition(textProps.left, textProps.top);
 
@@ -344,16 +341,14 @@
         text: string,
         left: number,
         top: number,
-        textPropsCopy?: S2PThemeText,
+        textPropsCopy?: S2PThemeObject,
     ): S2PCanvasText {
-        let textProps: S2PThemeText | undefined = textPropsCopy;
+        let textProps: S2PThemeObject | undefined = textPropsCopy;
 
         if (!textProps && texts.length > 0)
-            textProps = {
-                ...(texts[texts.length - 1]?.textProps ?? new S2PThemeText()),
-            };
+            textProps = new S2PThemeObject(texts[texts.length - 1]?.textProps ?? {});            
 
-        if (!textProps) textProps = new S2PThemeText();
+        if (!textProps) textProps = new S2PThemeObject({});
 
         textProps.value = text;
         textProps.left = left;
@@ -365,7 +360,7 @@
         return textObj;
     }
 
-    export function addRect(rectProps: S2PThemeRect) : S2PRect {
+    export function addRect(rectProps: S2PThemeObject) : S2PRect {
         let rect = new S2PRect(rectProps);
         rect.on("scaling", function () {
             const scaleX = rect.scaleX;
@@ -417,10 +412,8 @@
             | S2PSvg
             | S2PRect
             | FabricObject,
-    ) {
-        if ("id" in delItem)
-            texts = texts.filter((text) => text.id !== delItem.id);
-
+    ) {        
+        texts = texts.filter((text) => text !== delItem);
         svgs = svgs.filter((svg) => svg != delItem);
         polys = polys.filter((poly) => poly != delItem);
         rects = rects.filter((rect) => rect != delItem);
@@ -722,9 +715,8 @@
         let theme: S2PTheme = new S2PTheme("default");
 
         texts.forEach((text) => {
-            let text_meta: S2PThemeText = {
-                ...new S2PThemeText(),
-                id: text.id,
+            let text_meta: S2PThemeObject = 
+                new S2PThemeObject({         
                 label: text.label,
                 left: text.left / canvas.width,
                 top: text.top / canvas.height,
@@ -740,7 +732,7 @@
                 stroke: [text.getStrokeStop(0), text.getStrokeStop(1)],
                 strokeWidth: text.strokeWidth,
                 fill: [text.getFillStop(0), text.getFillStop(1)],
-            };
+            });
 
             if (!text.label.includes("_value")) text_meta.value = text.text;
 
@@ -748,8 +740,8 @@
         });
 
         polys.forEach((poly) => {
-            theme.polys.push({
-                ...new S2PThemePoly(),
+            theme.polys.push(
+                new S2PThemeObject({
                 label: poly.label,
                 left: poly.left / canvas.width,
                 top: poly.top / canvas.height,
@@ -759,7 +751,8 @@
                 fill: [poly.getFillStop(0), poly.getFillStop(1)],
                 scaleX: poly.scaleX,
                 scaleY: poly.scaleY,
-            });
+            })
+        )
         });
 
         svgs.forEach((svgGroup) => {
@@ -780,33 +773,33 @@
         });
 
         rects.forEach((rect) => {
-            theme.rects.push({
-                ...new S2PThemeRect(),
-                left: rect.left / canvas.width,
-                top: rect.top / canvas.height,
-                rx: rect.rx,
-                ry: rect.ry,
-                scaleX: rect.scaleX,
-                scaleY: rect.scaleY,
-                width: (rect.width * rect.scaleX) / canvas.width,
-                height: (rect.height * rect.scaleY) / canvas.height,
-                fill: [rect.getFillStop(0), rect.getFillStop(1)],
-                stroke: [rect.getStrokeStop(0), rect.getStrokeStop(1)],
-                strokeWidth: rect.strokeWidth,
-                angle: rect.angle,
-            });
-        });
+            theme.rects.push(
+                new S2PThemeObject({
+                    left: rect.left / canvas.width,
+                    top: rect.top / canvas.height,
+                    rx: rect.rx,
+                    ry: rect.ry,
+                    scaleX: rect.scaleX,
+                    scaleY: rect.scaleY,
+                    width: (rect.width * rect.scaleX) / canvas.width,
+                    height: (rect.height * rect.scaleY) / canvas.height,
+                    fill: [rect.getFillStop(0), rect.getFillStop(1)],
+                    stroke: [rect.getStrokeStop(0), rect.getStrokeStop(1)],
+                    strokeWidth: rect.strokeWidth,
+                    angle: rect.angle,
+            })
+        )});
 
         splits.forEach(split => {
-            theme.splits.push({
-                ...split.themeData,                     
+            theme.splits.push(new S2PThemeObject({
+                ...split.themeData,
                 left: split.left / canvas.width,
                 top: split.top / canvas.height,
                 width: (split.width * split.scaleX) / canvas.width,
                 height: (split.height * split.scaleY) / canvas.height,
                 barHeight: (split.barHeight * split.scaleY) / canvas.height,
                 barGap: (split.barGap * split.scaleY) / canvas.height,        
-            });
+            }))
         });
 
         theme.height_percentage = canvas.height / canvas.width;
@@ -914,7 +907,7 @@
     export function addFilledPolyFromVector(
         label: string,
         elevations: number[],
-        poly: S2PThemePoly,
+        poly: S2PThemeObject,
     ): Group | undefined {
         if (!elevations.length) return;
 
@@ -948,7 +941,7 @@
     export function addPolyFromLatLngs(
         label: string,
         trackPoints: LatLng[],
-        poly: S2PThemePoly,
+        poly: S2PThemeObject,
     ): Group | undefined {
         if (!trackPoints.length) return;
 
@@ -984,7 +977,7 @@
         return polyline;
     }
 
-    export function addSplitsCharts(split_data: SplitData[], splitTheme: S2PThemeSplits): S2PSplits | undefined {
+    export function addSplitsCharts(split_data: SplitData[], splitTheme: S2PThemeObject): S2PSplits | undefined {
         if (split_data.length == 0) {            
             canvas.add(new IText(
                 "No splits data available",

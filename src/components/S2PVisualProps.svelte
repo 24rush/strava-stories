@@ -9,6 +9,7 @@
     import type { S2PSvg } from "../lib/S2PSvg";
     import type { FabricObject } from "fabric";
     import {
+        S2PCanvasItemFeature,
         S2PCanvasItemType,
         type S2PCanvasObjectType,
     } from "../lib/S2PCanvasItem";
@@ -18,19 +19,11 @@
     let {
         onRequestRedraw,
         onFieldMappingChanged,
-        hasFill,
-        hasStroke,
-        hasStrokeWidth,
-        hasRadius,
         currentSelection,
         canvasItemSelected,
     }: {
         onRequestRedraw?: () => void;
         onFieldMappingChanged: (canvasText: S2PCanvasText) => void;
-        hasFill: boolean;
-        hasStroke: boolean;
-        hasStrokeWidth: boolean;
-        hasRadius: boolean;
         currentSelection: FabricObject[];
         canvasItemSelected: S2PCanvasPoly | S2PCanvasText | S2PSvg | S2PRect;
     } = $props();
@@ -58,9 +51,38 @@
     const Fill: number = 0;
     const Stroke: number = 1;
 
-    let isValueField = $derived(canvasItemSelected.label.endsWith("_value"));
+    let isValueField = $derived(
+        canvasItemSelected
+            .getProperty(S2PCanvasItemFeature.Label)
+            .endsWith("_value"),
+    );
     let isUnitField = $derived(
-        canvasItemSelected.label.endsWith("_value_unit"),
+        canvasItemSelected
+            .getProperty(S2PCanvasItemFeature.Label)
+            .endsWith("_value_unit"),
+    );
+
+    let hasRadius = $derived(
+        canvasItemSelected.hasProperty(S2PCanvasItemFeature.Rx) ||
+            currentSelection.length > 1,
+    );
+    let hasBarHeight = $derived(
+        canvasItemSelected.hasProperty(S2PCanvasItemFeature.BarHeight),
+    );
+    let hasBarGap = $derived(
+        canvasItemSelected.hasProperty(S2PCanvasItemFeature.BarGap),
+    );
+    let hasStrokeWidth = $derived(
+        canvasItemSelected.hasProperty(S2PCanvasItemFeature.StrokeWidth) ||
+            currentSelection.length > 1,
+    );
+    let hasStroke = $derived(
+        canvasItemSelected.hasProperty(S2PCanvasItemFeature.Stroke) ||
+            currentSelection.length > 1,
+    );
+    let hasFill = $derived(
+        canvasItemSelected.hasProperty(S2PCanvasItemFeature.Fill) ||
+            currentSelection.length > 1,
     );
 
     onMount(() => {
@@ -180,6 +202,7 @@
             FieldName.AvgPower,
             FieldName.MaxPower,
 
+            FieldName.Pace,
             FieldName.Text,
         ];
 
@@ -211,10 +234,7 @@
 
     function barHeightChanged(newValue: number) {
         currentSelection.forEach((obj) => {
-            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Splits) {
-                let s2pObject = obj as S2PSplits;
-                s2pObject.barHeight = newValue;
-            }
+            obj.setFeatureProp(S2PCanvasItemFeature.BarHeight, newValue);
         });
 
         onRequestRedraw?.();
@@ -222,10 +242,7 @@
 
     function barGapChanged(newValue: number) {
         currentSelection.forEach((obj) => {
-            if ("s2pType" in obj && obj.s2pType == S2PCanvasItemType.Splits) {
-                let s2pObject = obj as S2PSplits;
-                s2pObject.barGap = newValue;
-            }
+            obj.setFeatureProp(S2PCanvasItemFeature.BarGap, newValue);
         });
 
         onRequestRedraw?.();
@@ -268,8 +285,14 @@
                 }
         });
 
-        canvasItemSelected.set("rx", parseInt(newValue));
-        canvasItemSelected.set("ry", parseInt(newValue));
+        canvasItemSelected.setProperty(
+            S2PCanvasItemFeature.Rx,
+            parseInt(newValue),
+        );
+        canvasItemSelected.setProperty(
+            S2PCanvasItemFeature.Ry,
+            parseInt(newValue),
+        );
 
         onRequestRedraw?.();
     }
@@ -283,20 +306,20 @@
         let fieldId = FieldMappings.fieldNameToId(e.target.value);
 
         if (fieldId) {
-            (canvasItemSelected as S2PCanvasText).label = fieldId;
-            onFieldMappingChanged(canvasItemSelected as S2PCanvasText);
+            canvasItemSelected.label = fieldId;
+            onFieldMappingChanged(canvasItemSelected);
         }
     }
 
     function updateFieldLabel(add: boolean, suffix: string) {
-        let oldLabelStripped = (canvasItemSelected as S2PCanvasText).label
+        let oldLabelStripped = canvasItemSelected.label
             .replace("_value_unit", "")
             .replace("_value", "");
 
-        (canvasItemSelected as S2PCanvasText).label = oldLabelStripped;
+        canvasItemSelected.label = oldLabelStripped;
 
         if (add) {
-            (canvasItemSelected as S2PCanvasText).label += suffix;
+            canvasItemSelected.label += suffix;
         }
 
         onFieldMappingChanged(canvasItemSelected as S2PCanvasText);
@@ -326,8 +349,8 @@
             }
         });
 
-        canvasItemSelected.set(
-            "fontFamily",
+        canvasItemSelected.setProperty(
+            S2PCanvasItemFeature.FontFamily,
             (event.target as HTMLSelectElement).value,
         );
         onRequestRedraw?.();
@@ -343,13 +366,15 @@
                 );
 
                 if (obj.s2pType == S2PCanvasItemType.Splits)
-                    (obj as S2PSplits).fontStyle =
-                        !currFont || currFont == "normal" ? "italic" : "normal";
+                    (obj as S2PSplits).setProperty(
+                        S2PCanvasItemFeature.FontStyle,
+                        !currFont || currFont == "normal" ? "italic" : "normal",
+                    );
             }
         });
 
-        canvasItemSelected.set(
-            "fontStyle",
+        canvasItemSelected.setProperty(
+            S2PCanvasItemFeature.FontStyle,
             !currFont || currFont == "normal" ? "italic" : "normal",
         );
 
@@ -667,20 +692,24 @@
                 <select
                     class="form-select"
                     bind:this={selectFontFamily}
-                    value={canvasItemSelected.fontFamily}
+                    value={canvasItemSelected.getProperty(
+                        S2PCanvasItemFeature.FontFamily,
+                    )}
                     onchange={fireFontFamilyChanged}
                 >
                 </select>
                 <button
                     type="button"
-                    class="btn ms-2 btn-outline-secondary {canvasItemSelected.fontStyle !=
-                    'normal'
+                    class="btn ms-2 btn-outline-secondary {canvasItemSelected.getProperty(
+                        S2PCanvasItemFeature.FontStyle,
+                    ) != 'normal'
                         ? 'active'
                         : ''}"
                     data-bs-toggle="button"
                     onclick={fireFontStyleChanged}
-                    aria-pressed={canvasItemSelected.fontStyle != "normal"}
-                    ><i class="bi bi-type-italic"></i></button
+                    aria-pressed={canvasItemSelected.getProperty(
+                        S2PCanvasItemFeature.FontStyle,
+                    ) != "normal"}><i class="bi bi-type-italic"></i></button
                 >
             </div>
         </div>
@@ -812,28 +841,24 @@
             />
         </div>
 
-        <div
-            style="display: {canvasItemSelected instanceof S2PSplits
-                ? 'flex'
-                : 'none'};"
-        >
+        <div style="display: {hasBarHeight ? 'flex' : 'none'};">
             <S2PRangeControl
                 onValueChanged={barHeightChanged}
-                value={canvasItemSelected.barHeight}
+                value={canvasItemSelected.getProperty(
+                    S2PCanvasItemFeature.BarHeight,
+                )}
                 min={0}
                 max={100}
                 step={0.5}
             />
         </div>
 
-        <div
-            style="display: {canvasItemSelected instanceof S2PSplits
-                ? 'flex'
-                : 'none'};"
-        >
+        <div style="display: {hasBarGap ? 'flex' : 'none'};">
             <S2PRangeControl
                 onValueChanged={barGapChanged}
-                value={canvasItemSelected.barGap}
+                value={canvasItemSelected.getProperty(
+                    S2PCanvasItemFeature.BarGap,
+                )}
                 min={0}
                 max={200}
                 step={1}
@@ -852,7 +877,7 @@
         <div style="display: {hasRadius ? 'flex' : 'none'};">
             <S2PRangeControl
                 onValueChanged={radiusChanged}
-                value={canvasItemSelected.rx}
+                value={canvasItemSelected.getProperty(S2PCanvasItemFeature.Rx)}
                 min={0}
                 max={canvasItemSelected.width}
                 step={5}

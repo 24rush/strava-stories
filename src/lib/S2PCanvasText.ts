@@ -1,13 +1,9 @@
 import { Canvas, FabricObject, Gradient, IText, Line } from 'fabric'
-import { type S2PCanvasItem, S2PCanvasItemType } from './S2PCanvasItem';
-import { S2PThemeText } from './S2PTheme';
+import { type S2PCanvasItem, S2PCanvasItemType, S2PCanvasItemFeature, type FeatureHandlers, PropertyExtender } from './S2PCanvasItem';
+import { S2PThemeObject } from './S2PTheme';
 import { S2PGradient } from './S2PGradient';
 
 export class S2PCanvasText extends IText implements S2PCanvasItem {
-    private label_: string;
-
-    private id_ = `${Math.random().toString(36).slice(2, 9)}`;
-
     private shouldShowGuides = false;
     private vGuide: Line;
     private hGuide: Line;
@@ -16,7 +12,27 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
     private gradient: S2PGradient;
     private origGradient: S2PGradient;
 
-    constructor(textProps: S2PThemeText, canvasRef: Canvas) {
+    private textTheme: S2PThemeObject;
+
+    private themeProperties: S2PCanvasItemFeature[] = [
+        S2PCanvasItemFeature.Label,
+
+        S2PCanvasItemFeature.FontFamily,
+        S2PCanvasItemFeature.FontStyle,
+        S2PCanvasItemFeature.FontWeight,
+        S2PCanvasItemFeature.StrokeWidth,
+    ];
+
+    private fabricProperties: S2PCanvasItemFeature[] = [
+        S2PCanvasItemFeature.Stroke,
+        S2PCanvasItemFeature.Fill,
+    ];
+
+    hasProperty(feature: S2PCanvasItemFeature): boolean {
+        return this.themeProperties.includes(feature) || this.fabricProperties.includes(feature);
+    }
+
+    constructor(textProps: S2PThemeObject, canvasRef: Canvas) {
         let originalCharSpacing = textProps.charSpacing ?? 0;
         let dpr = window.devicePixelRatio;
 
@@ -34,10 +50,12 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
             scaleX: textProps.scaleX,
             scaleY: textProps.scaleY
         });
-        this.canvasRef = canvasRef;
 
-        this.id_ = (!textProps.id || textProps.id == "") ? this.id_ : textProps.id;
-        this.label_ = textProps.label;
+        PropertyExtender.attachPropertiesTyped(this, this.themeProperties);
+
+        this.canvasRef = canvasRef;
+        this.textTheme = new S2PThemeObject(textProps);
+
         this.s2pType = S2PCanvasItemType.Text;
         this.objectCaching = false;
 
@@ -74,6 +92,19 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
         this.initDimensions();
     }
 
+    getProperty<K extends keyof FeatureHandlers>(
+        property: K
+    ): FeatureHandlers[K]['get'] {
+        return this.textTheme[property];
+    }
+
+    setProperty<K extends keyof FeatureHandlers>(
+        property: K,
+        ...args: FeatureHandlers[K]['set']
+    ) {
+        this.textTheme.setProperty(property, ...args);
+    }
+
     public resetColor(): void {
         this.gradient = this.origGradient.clone();
         this.set("fill", this.fillGradient);
@@ -103,33 +134,27 @@ export class S2PCanvasText extends IText implements S2PCanvasItem {
 
     s2pType: S2PCanvasItemType = S2PCanvasItemType.Text;
 
-    get id(): string { return this.id_; }
-    set id(value: string) { this.id_ = value; }
-
-    get label(): string { return this.label_; }
-    set label(value: string) { this.label_ = value; }
-
     get auxItems(): FabricObject[] {
         return [this.vGuide, this.hGuide];
     }
 
-    get textProps(): S2PThemeText {
-        return {
-            ...new S2PThemeText(),
-            fontSize: this.fontSize,
-            fontFamily: this.fontFamily,
-            fontWeight: this.fontWeight,
-            fontStyle: this.fontStyle,
-            charSpacing: this.charSpacing,
+    get textProps(): S2PThemeObject {
+        return new S2PThemeObject(
+            {
+                fontSize: this.fontSize,
+                fontFamily: this.fontFamily,
+                fontWeight: this.fontWeight,
+                fontStyle: this.fontStyle,
+                charSpacing: this.charSpacing,
 
-            scaleX: this.scaleX,
-            scaleY: this.scaleY,
-            angle: this.angle,
+                scaleX: this.scaleX,
+                scaleY: this.scaleY,
+                angle: this.angle,
 
-            fill: this.gradient.fill_,
-            stroke: this.gradient.stroke_,
-            strokeWidth: this.strokeWidth
-        };
+                fill: this.gradient.fill_,
+                stroke: this.gradient.stroke_,
+                strokeWidth: this.strokeWidth
+            });
     }
 
     showGuides() {

@@ -1,6 +1,6 @@
 import { Gradient, Group, IText, Rect, util } from "fabric";
-import { S2PCanvasItemType, type S2PCanvasItem, S2PAnimationSettings } from "./S2PCanvasItem";
-import { S2PThemeSplits } from "./S2PTheme";
+import { S2PCanvasItemType, type S2PCanvasItem, S2PAnimationSettings, S2PCanvasItemFeature, type FeatureHandlers, type S2PAnimatedCanvasObject, PropertyExtender } from "./S2PCanvasItem";
+import { S2PThemeObject } from "./S2PTheme";
 import type { SplitData } from "./utils/fieldmappings";
 import { Converters } from "./utils/converters";
 import { S2PGradient } from "./S2PGradient";
@@ -11,14 +11,14 @@ export class S2PSplitsAnimationSettings extends S2PAnimationSettings {
     textsEasing: util.TEasingFunction = util.ease.easeOutCubic;
 }
 
-export class S2PSplits extends Group implements S2PCanvasItem {
+export class S2PSplits extends Group implements S2PCanvasItem, S2PAnimatedCanvasObject {
     private gradient: S2PGradient;
     private origGradient: S2PGradient;
     private gradientTextColor: S2PGradient;
 
     private bars: Rect[] = [];
     private texts: IText[] = [];
-    private splitTheme: S2PThemeSplits;
+    private splitTheme: S2PThemeObject;
 
     private split_data: SplitData[] = [];
     private lastLeft: number = -1;
@@ -28,12 +28,11 @@ export class S2PSplits extends Group implements S2PCanvasItem {
 
     s2pType: S2PCanvasItemType = S2PCanvasItemType.Splits;
 
-    constructor(splitTheme: S2PThemeSplits) {
+    constructor(splitTheme: S2PThemeObject) {
         super()
-        this.splitTheme = {
-            ...new S2PThemeSplits(),
-            ...splitTheme
-        }
+        PropertyExtender.attachPropertiesTyped(this, this.themeProperties);
+
+        this.splitTheme = new S2PThemeObject(splitTheme);
 
         this.gradient = new S2PGradient(splitTheme.fill, splitTheme.stroke);
         this.origGradient = new S2PGradient(splitTheme.fill, splitTheme.stroke);
@@ -49,7 +48,100 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         this.set({ originX: "left", originY: "top" });
     }
 
-    get themeData(): S2PThemeSplits {
+    private themeProperties: S2PCanvasItemFeature[] = [
+        S2PCanvasItemFeature.Label,
+
+        S2PCanvasItemFeature.Rx,
+        S2PCanvasItemFeature.Ry,
+        S2PCanvasItemFeature.BarHeight,
+        S2PCanvasItemFeature.BarGap,
+        S2PCanvasItemFeature.FontFamily,
+        S2PCanvasItemFeature.FontStyle,
+        S2PCanvasItemFeature.FontWeight,
+        S2PCanvasItemFeature.StrokeWidth
+    ];
+
+    private fabricProperties: S2PCanvasItemFeature[] = [
+        S2PCanvasItemFeature.Stroke,
+        S2PCanvasItemFeature.Fill,
+    ];
+
+    hasProperty(feature: S2PCanvasItemFeature): boolean {
+        return this.themeProperties.includes(feature) || this.fabricProperties.includes(feature);
+    }
+
+    getProperty<K extends keyof FeatureHandlers>(
+        property: K
+    ): FeatureHandlers[K]['get'] {
+        if (!this.hasProperty(property as S2PCanvasItemFeature))
+            throw `Unsupported property ${property}, should not be called`;
+
+        return this.splitTheme[property];
+    }
+
+    setProperty<K extends keyof FeatureHandlers>(
+        property: K,
+        ...args: FeatureHandlers[K]['set']
+    ) {
+        if (!this.hasProperty(property as S2PCanvasItemFeature))
+            throw 'Unsupported property, should not be called';
+
+        this.splitTheme.setProperty(property, ...args);
+
+        switch (property) {            
+            case S2PCanvasItemFeature.Rx:
+            case S2PCanvasItemFeature.Ry:
+                const [rx] = args;
+
+                this.bars.forEach(bar => {
+                    bar.set('rx', rx);
+                    bar.set('ry', rx);
+                });
+
+                this.setDirty();
+                break;
+            case S2PCanvasItemFeature.BarHeight:
+                this.createSplitsChart(this.split_data);
+                this.setDirty();
+                break;
+            case S2PCanvasItemFeature.BarGap:
+                this.createSplitsChart(this.split_data);
+                this.setDirty();
+                break;
+            case S2PCanvasItemFeature.FontFamily:
+                const [newFontFamily] = args;
+                [this.texts].forEach(objects => objects.forEach((item, index) => {
+                    item.fontFamily = newFontFamily as string;
+                }));
+        
+                this.setDirty();
+                break;
+            case S2PCanvasItemFeature.FontStyle:
+                const [newFontStyle] = args;
+
+                [this.texts].forEach(objects => objects.forEach((item, index) => {
+                    item.fontStyle = newFontStyle as string;
+                }));
+        
+                this.setDirty();
+                break;
+            case S2PCanvasItemFeature.FontWeight:
+                const [weight] = args;
+
+                this.texts.forEach(text => text.fontWeight = weight);
+                this.setDirty();
+                break;
+            case S2PCanvasItemFeature.StrokeWidth:
+                const [width] = args;
+
+                this.splitTheme.strokeWidth = width as number;
+                this.bars.forEach(bar => bar.strokeWidth = width as number);
+                this.setDirty();
+                break;
+        }
+    }
+
+    get themeData(): S2PThemeObject {
         this.splitTheme.left = this.left;
         this.splitTheme.top = this.top;
         this.splitTheme.width = this.width;
@@ -60,67 +152,9 @@ export class S2PSplits extends Group implements S2PCanvasItem {
 
         return this.splitTheme;
     }
-    get label(): string { return this.splitTheme.label; }
+
     get animationSettings(): S2PSplitsAnimationSettings { return this.animationSettings_; }
-
-    get barHeight() { return this.splitTheme.barHeight; }
-    set barHeight(newValue: number) {
-        this.splitTheme.barHeight = newValue;
-
-        this.createSplitsChart(this.split_data);
-        this.setDirty();
-    }
-
-    get barGap() { return this.splitTheme.barGap; }
-    set barGap(newValue: number) {
-        this.splitTheme.barGap = newValue;
-
-        this.createSplitsChart(this.split_data);
-        this.setDirty();
-    }
-
-    get rx(): number { return this.splitTheme.rx; }
-    set rx(radius: number) {
-        this.splitTheme.rx = radius;
-
-        this.bars.forEach(bar => {
-            bar.set('rx', radius);
-            bar.set('ry', radius);
-        });
-
-        this.setDirty();
-    }
-
-    get fontFamily() { return this.splitTheme.fontFamily };
-    set fontFamily(newFontFamily: string) {
-        this.splitTheme.fontFamily = newFontFamily;
-
-        [this.texts].forEach(objects => objects.forEach((item, index) => {
-            item.fontFamily = newFontFamily;
-        }));
-
-        this.setDirty();
-    }
-
-    get fontStyle() { return this.splitTheme.fontStyle };
-    set fontStyle(newFontStyle: string) {
-        this.splitTheme.fontStyle = newFontStyle;
-
-        [this.texts].forEach(objects => objects.forEach((item, index) => {
-            item.fontStyle = newFontStyle;
-        }));
-
-        this.setDirty();
-    }
-
-    get fontWeight(): string | number { return this.splitTheme.fontWeight; }
-    set fontWeight(weight: number) {
-        this.splitTheme.fontWeight = weight;
-
-        this.texts.forEach(text => text.fontWeight = weight);
-        this.setDirty();
-    }
-
+ 
     public createSplitsChart(split_data: SplitData[] = this.split_data) {
         if (!split_data || split_data.length == 0) return;
         this.split_data = split_data;
@@ -138,18 +172,21 @@ export class S2PSplits extends Group implements S2PCanvasItem {
             const pace = 1000 / split.average_speed;
             let barLength = (pace / maxPace - 0.1) * this.splitTheme.width;
 
+            let barHeight = this.getProperty(S2PCanvasItemFeature.BarHeight);
+            let barGap = this.getProperty(S2PCanvasItemFeature.BarGap);
+
             const top =
-                this.splitTheme.top + index * (this.barHeight + this.barGap);
+                this.splitTheme.top + index * (barHeight + barGap);
 
             const kmLabel = new IText(
                 (index == speeds.length - 1) ? (split.distance / 1000).toFixed(2) : `${index + 1}`,
                 {
                     width: 200,
                     left: 0,
-                    top: top + this.barHeight / 2,
+                    top: top + barHeight / 2,
                     originX: 'right',
                     originY: "center",
-                    fontSize: Math.round(this.barHeight * 0.5),
+                    fontSize: Math.round(barHeight * 0.5),
                     fontStyle: this.splitTheme.fontStyle,
                     fontFamily: this.splitTheme.fontFamily,
                     fontWeight: this.splitTheme.fontWeight,
@@ -162,7 +199,7 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 left: 6,
                 top: top,
                 width: barLength,
-                height: this.barHeight,
+                height: barHeight,
                 originX: "left",
                 originY: "top",
                 fill: this.gradient.fillGradient,
@@ -177,10 +214,10 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 {
                     width: 200,
                     left: 12,
-                    top: top + this.barHeight / 2,
+                    top: top + barHeight / 2,
                     originX: 'left',
                     originY: "center",
-                    fontSize: Math.round(this.barHeight * 0.75),
+                    fontSize: Math.round(barHeight * 0.75),
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
                     fontWeight: this.splitTheme.fontWeight,
@@ -198,10 +235,10 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                     {
                         width: 200,
                         left: barLength,
-                        top: top + this.barHeight / 2,
+                        top: top + barHeight / 2,
                         originX: 'right',
                         originY: "center",
-                        fontSize: Math.round(this.barHeight * 0.6),
+                        fontSize: Math.round(barHeight * 0.6),
                         fontFamily: this.splitTheme.fontFamily,
                         fontStyle: this.splitTheme.fontStyle,
                         fontWeight: this.splitTheme.fontWeight,
@@ -217,10 +254,10 @@ export class S2PSplits extends Group implements S2PCanvasItem {
                 {
                     width: 200,
                     left: barLength + 6,
-                    top: top + this.barHeight / 2,
+                    top: top + barHeight / 2,
                     originX: 'left',
                     originY: "center",
-                    fontSize: Math.round(this.barHeight * 0.6),
+                    fontSize: Math.round(barHeight * 0.6),
                     fontFamily: this.splitTheme.fontFamily,
                     fontStyle: this.splitTheme.fontStyle,
                     fontWeight: this.splitTheme.fontWeight,
@@ -289,18 +326,6 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         this.setDirty();
     }
 
-    set strokeWidth(width: number) {
-        if (!this.bars) return;
-
-        this.splitTheme.strokeWidth = width;
-        this.bars.forEach(bar => bar.strokeWidth = width);
-        this.setDirty();
-    }
-
-    get strokeWidth(): number {
-        return this.splitTheme.strokeWidth;
-    }
-
     private setDirty() {
         [this.bars].forEach(objs => objs.forEach(item => {
             item.dirty = true;
@@ -317,14 +342,12 @@ export class S2PSplits extends Group implements S2PCanvasItem {
         this.setCoords();
     }
 
-    public startAnimation(): util.TAnimation<number>[] | null {
+    public startAnimation(): util.TAnimation<number>[] | null {        
         let animations: util.TAnimation<number>[] = [];
+
         this.createSplitsChart();
 
         this.texts.forEach((obj, i) => {
-            if ('label' in obj && obj['label'] == 'back')
-                return;
-
             animations.push(util.animate({
                 startValue: -100,
                 endValue: obj.left,

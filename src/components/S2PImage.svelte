@@ -5,18 +5,18 @@
   import { S2PCanvasText } from "../lib/S2PCanvasText";
   import S2PVisualProps from "./S2PVisualProps.svelte";
   import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
-  import { S2PTheme, S2PThemePoly, S2PThemeRect, S2PThemeSplits } from "../lib/S2PTheme";
+  import { S2PTheme, S2PThemeObject} from "../lib/S2PTheme";
   import { S2PCanvasItemType } from "../lib/S2PCanvasItem";
   import { util, type FabricObject } from "fabric";
   import S2PSliderDropdown from "./S2PSliderDropdown.svelte";
   import { Fonts } from "../lib/utils/fonts";
-  import type { S2PSvg } from "../lib/S2PSvg";
   import type { S2PRect } from "../lib/S2PRect";
   import S2PSuggestedColors from "./S2PSuggestedColors.svelte";
   import { DataSource, FieldId } from "../lib/utils/fieldmappings";
   import { decreaseHexaOpacity } from "../lib/utils/colors";
   import type { S2PSplits } from "../lib/S2PSplits";
   import S2PAnimationEditor from "./S2PAnimationEditor.svelte";
+  import { S2PSvg } from "../lib/S2PSvg";
 
   let {
         source,
@@ -44,11 +44,6 @@
     | undefined = $state(undefined);
 
   let polyProp: S2PVisualProps;
-
-  let hasFill: boolean = $state(false);
-  let hasStroke: boolean = $state(false);
-  let hasStrokeWidth: boolean = $state(false);
-  let hasRadius: boolean = $state(false);
 
   let hasHeartRate = $state(false);
   let hasTrackProfile = $state(false);
@@ -109,7 +104,7 @@
       let canvasHeight = canvasWidth * t.height_percentage;
 
       if (t.polys)
-        t.polys.forEach((poly: S2PThemePoly) => {
+        t.polys.forEach((poly: S2PThemeObject) => {
           poly.left *= canvasWidth;
           poly.top *= canvasHeight;
         });
@@ -190,7 +185,7 @@
     }    
     
     if (theme_meta.polys && source && source.data.streams)
-      theme_meta.polys.forEach((poly: S2PThemePoly) => {
+      theme_meta.polys.forEach((poly: S2PThemeObject) => {
         if (poly.label == "track_profile" && source.data.streams.location) {
           s2pCanvas.addPolyFromLatLngs(
             "track_profile",
@@ -309,63 +304,19 @@
 
     if (!selectedObjs || !selectedObjs.length) {
       canvasItemSelected = undefined;
-      if (polyProp) polyProp.onChanged();
-
-      return;
     }
+    else {
+      let idxText = selectedObjs.findIndex(o => o instanceof S2PCanvasText);
+      idxText = idxText != -1 ? idxText : 0;
 
-    let idxText = selectedObjs.findIndex(o => o instanceof S2PCanvasText);
-    idxText = idxText != -1 ? idxText : 0;
-
-    if (selectedObjs[idxText] && "s2pType" in selectedObjs[idxText]) {
-      switch (selectedObjs[idxText].s2pType) {
-        case S2PCanvasItemType.Text: {
-          hasFill = hasStroke = hasStrokeWidth = true;
-          hasRadius = false;
-          canvasItemSelected = selectedObjs[idxText] as S2PCanvasText;
-          break;
-        }
-        case S2PCanvasItemType.Polyline:
-        case S2PCanvasItemType.FilledPolyline: {
-          hasFill = hasStroke = hasStrokeWidth = true;
-          hasRadius = false;
-          canvasItemSelected = selectedObjs[idxText] as S2PCanvasPoly;
-          break;
-        }
-        case S2PCanvasItemType.Svg: {
-          hasFill = hasStroke = hasStrokeWidth = false;
-          hasRadius = false;
-          canvasItemSelected = selectedObjs[idxText] as S2PSvg;
-          break;
-        }
-        case S2PCanvasItemType.Rect: {
-          hasFill = hasStroke = hasStrokeWidth = true;
-          hasRadius = true;
-          canvasItemSelected = selectedObjs[idxText] as S2PRect;
-          break;
-        }
-        case S2PCanvasItemType.Splits: {
-          hasFill = hasStroke = hasStrokeWidth = true;
-          hasRadius = true;
-          canvasItemSelected = selectedObjs[idxText] as S2PSplits;
-
-          break;
-        }
-      }
-    }
-
-    if (currentSelection.length > 1) {
-      hasFill = hasStroke = hasStrokeWidth = true;
-      hasRadius = true;
+      if (selectedObjs[idxText] && ("s2pType" in selectedObjs[idxText])) {
+        canvasItemSelected = selectedObjs[idxText];      
+      }    
     }
 
     await tick();
     if (polyProp)
       polyProp.onChanged();
-  }
-
-  function dump() {
-    s2pCanvas.dump();
   }
 
   export function reloadTheme(themeIdx?: number) {
@@ -412,6 +363,7 @@
         .then(() =>
           requestAnimationFrame(() => {
             s2pCanvas.setFontFamily(fontFamily);
+            alignUnitsWithValues();
             onRequestRedraw();
           }
           )
@@ -426,16 +378,15 @@
 
     s2pCanvas.addPolyFromLatLngs(
       "track_profile",
-      source.data.streams.location,
-      {
-        ...new S2PThemePoly(),
+      source.data.streams.location,      
+      new S2PThemeObject({
         stroke: [colors[1] ?? null, colors[2] ?? null],
         fill: [null, null],
         scaleX: 0.5,
         scaleY: 0.5,
         top: s2pCanvas.getCanvas().height / 4,
         left: s2pCanvas.getCanvas().width / 4,
-      }
+      })
     );
 
     hasAnimations = true;
@@ -450,16 +401,15 @@
 
     s2pCanvas.addFilledPolyFromVector(
       "elevation_profile",
-      source.data.streams.elevation,
-      {
-        ...new S2PThemePoly(),
+      source.data.streams.elevation,      
+      new S2PThemeObject({
         scaleX: 0.5,
         scaleY: 0.5,
         stroke: [colors[1] ?? null, colors[2] ?? null],
-        fill: [decreaseHexaOpacity(colors[1], 0.5), decreaseHexaOpacity(colors[2], 0.5)],
+        fill: [decreaseHexaOpacity(colors[1], 0.4), decreaseHexaOpacity(colors[2], 0.4)],
         top: s2pCanvas.getCanvas().height / 4,
         left: s2pCanvas.getCanvas().width / 4,
-      }
+      })
     );
 
     hasAnimations = true;
@@ -474,17 +424,16 @@
 
     s2pCanvas.addFilledPolyFromVector(
       "heartrate_profile",
-      source.data.streams.heartrate,
-      {
-        ...new S2PThemePoly(),
+      source.data.streams.heartrate,      
+      new S2PThemeObject({
         scaleX: 0.5,
         scaleY: 0.5,
         stroke: [colors[1] ?? null, colors[2] ?? null],
-        fill: [decreaseHexaOpacity(colors[1], 0.5), decreaseHexaOpacity(colors[2], 0.5)],
+        fill: [decreaseHexaOpacity(colors[1], 0.4), decreaseHexaOpacity(colors[2], 0.4)],
         top: s2pCanvas.getCanvas().height / 4,
         left: s2pCanvas.getCanvas().width / 4,
       }
-    );
+    ));
 
     hasAnimations = true;
     onRequestRedraw();
@@ -497,22 +446,22 @@
     let colors = s2pSuggestedColors.getCurrentColors();
 
     s2pCanvas.addSplitsCharts(     
-      source.data.splits_metric,
-      {
-        ...new S2PThemeSplits(),
-        label: "splits_profile",
-        barGap: 1,
-        barHeight: 20,        
-        textColor: [colors[0] ?? null, colors[0] ?? null],
-        fill: [decreaseHexaOpacity(colors[1], 0.5), decreaseHexaOpacity(colors[2], 0.5)],
-        stroke: [null, null],
-        strokeWidth: 0,
-        top: s2pCanvas.getCanvas().height * 0.05,
-        left: s2pCanvas.getCanvas().width * 0.05,
-        height: s2pCanvas.getCanvas().height * 0.9,
-        width: s2pCanvas.getCanvas().width * 0.9,
-        fontFamily: themeMainFont.replace("Font - ", "")
+      source.data.splits_metric,    
+        new S2PThemeObject({
+          label: "splits_profile",
+          barGap: 1,
+          barHeight: 20,        
+          textColor: [colors[0] ?? null, colors[0] ?? null],
+          fill: [decreaseHexaOpacity(colors[1], 0.4), decreaseHexaOpacity(colors[2], 0.4)],
+          stroke: [null, null],
+          strokeWidth: 0,
+          top: s2pCanvas.getCanvas().height * 0.05,
+          left: s2pCanvas.getCanvas().width * 0.05,
+          height: s2pCanvas.getCanvas().height * 0.9,
+          width: s2pCanvas.getCanvas().width * 0.9,
+          fontFamily: themeMainFont.replace("Font - ", "")
       }
+    )        
     );
 
     hasAnimations = true;
@@ -540,7 +489,7 @@
       if (text.label === "user")
         return;
 
-      let value = source.getValueForField(text.label.replace("_value", ""));
+      let value = source.getValueForField(text.label.replace("_value", ""))?.toString();
       let unit = source.getUnitForField(text.label.replace("_value_unit", ""));
 
       if (text.label.includes("_value_unit"))
@@ -710,8 +659,8 @@
         type="button"
         onclick={() => {
             let colors = s2pSuggestedColors.getCurrentColors();
-            s2pCanvas.addRect({
-                ...new S2PThemeRect(),
+            s2pCanvas.addRect(
+              new S2PThemeObject({
                 left: 100,
                 top: 100,
                 width: 300,
@@ -721,7 +670,7 @@
                 strokeWidth: 1,
                 rx: 10,
                 ry: 10,
-              });
+              }));
             }
           }
         class="btn btn-outline-primary"
@@ -823,17 +772,13 @@
   {/if}
 
   <div class="mb-2">
-    {#if canvasItemSelected && canvasItemSelected.s2pType != S2PCanvasItemType.Svg}
+    {#if canvasItemSelected && !(canvasItemSelected instanceof S2PSvg)}
       <S2PVisualProps
         bind:this={polyProp}
         {canvasItemSelected}
         {currentSelection}
         {onRequestRedraw}
         onFieldMappingChanged={updateTextsValue}
-        {hasFill}
-        {hasStroke}
-        {hasStrokeWidth}
-        {hasRadius}
       />
     {/if}
   </div>
@@ -894,7 +839,7 @@
 
           <div class="d-flex mb-2" style="justify-content: space-between; align-items: baseline;">
             <div><span class="me-1 font-emp">Export theme</span><i class="me-1">The theme will be dumped in the browser console</i></div>
-            <button onclick={() => dump()} class="mb-2 btn btn-primary btn-sm"
+            <button onclick={() => s2pCanvas.dump()} class="mb-2 btn btn-primary btn-sm"
               >Export</button
             >
           </div>

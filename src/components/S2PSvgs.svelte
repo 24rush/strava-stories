@@ -1,7 +1,8 @@
 <script lang="ts">
     import { loadSVGFromURL } from "fabric";
-    import { S2PThemeSvg } from "../lib/S2PTheme";
+    import { S2PThemeObject } from "../lib/S2PTheme";
     import { S2PSvg } from "../lib/S2PSvg";
+    import { S2PCanvasItemFeature } from "../lib/S2PCanvasItem";
 
     let {
         onRequestRedraw,
@@ -12,22 +13,22 @@
     } = $props();
 
     let svgUrls: string[] = [
-        "/svgs/run-sport.svg",        
+        "/svgs/run-sport.svg",
         "/svgs/road-cycling.svg",
         "/svgs/hike.svg",
         "/svgs/swim.svg",
         "/svgs/strava.svg",
         "/svgs/zwift.svg",
         "/svgs/strava_bo.svg",
-        "/svgs/strava_logo.svg"
+        "/svgs/strava_logo.svg",
     ];
 
-    export async function loadSvg(url: string, themeSvgProps?: S2PThemeSvg) {
+    export async function loadSvg(url: string, themeSvgProps?: S2PThemeObject) {
         loadSVGFromURL(url).then(({ objects, options }) => {
             if (!objects) return;
 
             let svg = new S2PSvg(objects, options, themeSvgProps);
-            svg.url = url;
+            svg.setProperty(S2PCanvasItemFeature.Url, url);
             onRequestAdd?.(svg);
             onRequestRedraw?.();
         });
@@ -43,13 +44,15 @@
                 class="btn btn-sm btn-outline-primary d-flex align-items-center"
                 style="width: 90%; height: 20px; justify-content: center; margin: 2px;"
                 onclick={(e) => {
-                    loadSvg(url, {
-                        ...new S2PThemeSvg(),
-                        top: 100,
-                        left: 100,
-                        width: 60,
-                        height: 60,
-                    });
+                    loadSvg(
+                        url,
+                        new S2PThemeObject({
+                            top: 100,
+                            left: 100,
+                            width: 60,
+                            height: 60,
+                        }),
+                    );
                 }}
             >
                 <i class="bi bi-plus"></i>
