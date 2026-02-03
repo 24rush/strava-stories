@@ -96,7 +96,7 @@ export class S2PRect extends Rect implements S2PCanvasItem {
         return this.gradient.fillGradient;
     }
     
-    private setDirty() {
+    public setDirty() {
         this.dirty = true;
         this.setCoords();                  
     }

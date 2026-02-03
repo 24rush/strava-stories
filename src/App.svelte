@@ -28,7 +28,8 @@
     "15174937862": "15174937862.txt",
     "14134698093": "14134698093.txt",
     '17157958853': '17157958853.json',
-    '17045340809': '17045340809.json'
+    '17045340809': '17045340809.json',
+    '17228475889': '17228475889.json' // indoor cycling
   };
 
   function extractStravaUrl(url: string): string | undefined {
@@ -181,6 +182,8 @@
   }
 
   async function retrieveLastActivity() {
+    data_fetched = false;
+
     await fetch(S2P_STRAVA_API_URL + "/api/lastactivity", {
       method: "GET",
       credentials: "include",
@@ -239,6 +242,7 @@
           <button
             class="btn btn-primary btn-sm me-1"
             type="button"
+            disabled={!data_fetched}
             onclick={retrieveLastActivity}>Get last activity</button
           >
           <span class="mb-1" style="display: none;">URL of your Strava activity (set to <i>Everyone</i>)</span>                  
@@ -248,6 +252,7 @@
           <button
             class="btn btn-primary btn-sm"
             type="button"
+            disabled={!data_fetched}
             onclick={pasteFromClipboard}>Paste</button
           >
           <input

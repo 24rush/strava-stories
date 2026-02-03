@@ -143,7 +143,7 @@
         <span>{operation_msg}</span>
     </div>
 {:else if !loggedInAthlete}
-    <button class="icon-btn" aria-label="Action" on:click={login}>
+    <button class="icon-btn mb-3" aria-label="Action" on:click={login}>
         <img src="/svgs/btn_strava_connect_with_orange.svg" alt="" />
     </button>
 {:else}

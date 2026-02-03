@@ -139,7 +139,9 @@ export function project(points, canvasWidth, canvasHeight) {
   }));
 }
 
-export function generateXYFromPoints(elevations: number[], maxWidth: number, maxHeight: number): { x: number; y: number }[] {
+export function generateXYFromPoints(elevations: number[], maxWidth: number, maxHeight: number, step: number = 25): { x: number; y: number }[] {
+  if (!elevations || !elevations.length) return [];
+
   const minElevation = Math.min(...elevations);
   const maxElevation = Math.max(...elevations);
 
@@ -149,16 +151,17 @@ export function generateXYFromPoints(elevations: number[], maxWidth: number, max
   const stepX = maxWidth / (elevations.length - 1);
 
   const points: { x: number; y: number }[] = [];
-  elevations.forEach((elev, i) => {
-    if (i % 25) return;
 
-    const x = i * stepX;
-
-    // Invert Y: higher elevation = higher on canvas
-    const normalized = (elev - minElevation) / elevationRange;
+  let normalizePoint = (i: number): number => {
+    const normalized = (elevations[i] - minElevation) / elevationRange;
     const y = maxHeight - 0 - normalized * maxHeight;
 
-    points.push({ x, y });
+    return y;
+  }
+
+  elevations.forEach((elev, i) => {
+    if (i % step) return;    
+    points.push({ x: i * stepX, y: normalizePoint(i) });
   });
 
   return points;
@@ -196,4 +199,31 @@ export function generateXYFromLatLng(trackPoints: LatLng[], maxWidth: number, ma
     }));
 
   return { pts: projectedPoints, width: fitWidth, height: fitHeight };
+}
+
+export function bestChunkSize(
+  lengths: number[],
+  minChunk = 1,
+  maxChunk: number
+): number {
+  if (lengths.length === 0) return minChunk;    
+
+  let best = maxChunk;
+  let bestScore = Infinity;
+
+  for (let k = maxChunk; k > minChunk; k--) {
+      let score = 0;
+
+      for (const n of lengths) {
+          const rem = n % k;
+          score += Math.min(rem, k - rem); // distance to nearest multiple
+      }
+
+      if (score < bestScore) {
+          bestScore = score;
+          best = k;
+      }
+  }
+
+  return best;
 }

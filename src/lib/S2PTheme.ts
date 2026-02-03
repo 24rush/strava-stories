@@ -1,7 +1,6 @@
 import { S2PCanvasItemFeature, type FeatureHandlers } from "./S2PCanvasItem";
 
 export class S2PThemeObject {
-    public id: string = "";
     public label: string = "user";
 
     public top: number = 0;
@@ -96,6 +95,7 @@ export class S2PTheme {
     public rects: S2PThemeObject[] = [];
     public svgs: S2PThemeObject[] = [];
     public splits: S2PThemeObject[] = [];
+    public climbs: S2PThemeObject[] = [];
 
     public height_percentage: number = 1;
     public devicePixelRatio: number = 1;

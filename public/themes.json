@@ -1,5 +1,47 @@
 [
   {
+    "name": "Cycling - Climbs",
+    "ignore": false,
+    "texts": [],
+    "polys": [],
+    "rects": [],
+    "svgs": [],
+    "climbs": [
+      {
+        "label": "climbs_profile",
+        "top": 0.15,
+        "left": 0.15,
+        "width": 0.9721280679720811,
+        "height": 0.8795913787734981,
+        "angle": 0,
+        "fill": [
+          "#E91E6380",
+          "#FC520080"
+        ],
+        "stroke": [
+          "#E91E63",
+          "#FC5200"
+        ],
+        "strokeWidth": 0,
+        "scaleX": 1.0057902530857175,
+        "scaleY": 1.0057902530857175,
+        "barHeight": 0.06,
+        "barGap": 0.03,
+        "rx": 0,
+        "ry": 0,
+        "fontFamily": "Termina Test",
+        "fontStyle": "normal",
+        "fontWeight": 400,
+        "textColor": [
+          "#E5E7EB",
+          "#E5E7EB"
+        ]
+      }
+    ],
+    "height_percentage": 0.7559044160038592,
+    "devicePixelRatio": 3.5
+  },
+  {
     "name": "Cycling - Indoor #1",
     "ignore": false,
     "texts": [

@@ -14,6 +14,7 @@
     } from "../lib/S2PCanvasItem";
     import { FieldMappings, FieldName } from "../lib/utils/fieldmappings";
     import { S2PSplits } from "../lib/S2PSplits";
+    import { S2PClimbs } from "../lib/S2PClimbs";
 
     let {
         onRequestRedraw,
@@ -540,14 +541,14 @@
     >
         <div
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
-            canvasItemSelected instanceof S2PSplits ||
+            canvasItemSelected instanceof S2PSplits || canvasItemSelected instanceof S2PClimbs || 
             currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; width: 100%; flex-direction: column;"
         >
             <input
                 disabled={currentSelection.length > 1 ||
-                    canvasItemSelected instanceof S2PSplits}
+                    canvasItemSelected instanceof S2PSplits || canvasItemSelected instanceof S2PClimbs}
                 bind:this={inputTextField}
                 value={canvasItemSelected.text}
                 oninput={fireTextChanged}

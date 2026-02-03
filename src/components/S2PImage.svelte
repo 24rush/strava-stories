@@ -17,6 +17,7 @@
   import type { S2PSplits } from "../lib/S2PSplits";
   import S2PAnimationEditor from "./S2PAnimationEditor.svelte";
   import { S2PSvg } from "../lib/S2PSvg";
+  import type { S2PClimbs } from "../lib/S2PClimbs";
 
   let {
         source,
@@ -141,6 +142,16 @@
           splitTheme.barHeight *= (canvasHeight / splitTheme.scaleY);
           splitTheme.barGap *= (canvasHeight / splitTheme.scaleY);
         });
+
+      if (t.climbs)
+        t.climbs.forEach((climbTheme) => {
+          climbTheme.left *= canvasWidth;
+          climbTheme.top *= canvasHeight;
+          climbTheme.width *= (canvasWidth);
+          climbTheme.height *= (canvasHeight);
+          climbTheme.barHeight *= (canvasHeight / climbTheme.scaleY);
+          climbTheme.barGap *= (canvasHeight / climbTheme.scaleY);
+        });
     });
   }
 
@@ -178,6 +189,12 @@
         height: canvasHeight,
       });
     
+    if (theme_meta.climbs) {
+      theme_meta.climbs.forEach(climb => {        
+        s2pCanvas.addClimbsCharts(source.data, climb);
+      });
+    }  
+
     if (theme_meta.splits && source.data.splits_metric) {
       theme_meta.splits.forEach(split => {        
         s2pCanvas.addSplitsCharts(source.data.splits_metric, split);
@@ -274,7 +291,7 @@
     s2pCanvas.resetSlidersToMedian();
 
     let canvasObjects = s2pCanvas.getObjects();
-    hasAnimations = canvasObjects.polys.length > 0 || canvasObjects.splits.length > 0;
+    hasAnimations = canvasObjects.polys.length > 0 || canvasObjects.splits.length > 0 || canvasObjects.climbs.length > 0;
     if (hasAnimations && s2pAnimationEditor) {
       onAnimationDurationChanged(maxAnimationDuration);
       s2pAnimationEditor.onNewLayout();
@@ -480,6 +497,8 @@
     objects.texts.forEach(t => t.resetColor());
     objects.rects.forEach(r => r.resetColor());
     objects.polys.forEach(p => p.resetColor());
+    objects.splits.forEach(s => s.resetColor());
+    objects.climbs.forEach(c => c.resetColor());
 
     onRequestRedraw();
   }
@@ -542,7 +561,7 @@
       p.setFillStop(gradientIndex, moreAlphaColorStr);
   }
 
-  function updateRectColor(r: S2PRect | S2PSplits, gradientIndex: number, color: any) {
+  function updateRectColor(r: S2PRect | S2PSplits | S2PClimbs, gradientIndex: number, color: any) {
     let colorStr = color.toHEXA().toString();
     let moreAlphaColorStr = decreaseHexaOpacity(colorStr, 0.5);
 
@@ -557,6 +576,7 @@
     s2pCanvas.getObjects().rects.forEach((r) => updateRectColor(r, type, color));
     s2pCanvas.getObjects().polys.forEach((p) => updatePolyColor(p, type, color));
     s2pCanvas.getObjects().splits.forEach((s) => updateRectColor(s, type, color));
+    s2pCanvas.getObjects().climbs.forEach((c) => updateRectColor(c, type, color));
 
     if (polyProp) polyProp.onChanged();
     onRequestRedraw();
@@ -575,18 +595,18 @@
         t.setFillStop(1, isUnit ? moreAlphaColorStr : colorStr);
     });    
 
-    canvasObjs.splits.forEach((s) => {   
+    [canvasObjs.splits, canvasObjs.climbs].forEach((objs) => objs.forEach(s => {   
       s.setTextGradient(colorStr);
-    });
+    }));
 
     onRequestRedraw?.();
   }
 
   function onStartAnimationRequested() {
     let objects = s2pCanvas.getObjects();
-    [objects.polys, objects.splits].forEach(object => {      
-      object.forEach(canvasItem => {        
-        let animations = canvasItem.startAnimation();
+    [objects.polys, objects.splits, objects.climbs].forEach(object => {      
+      object.forEach(async canvasItem => {        
+        let animations = await canvasItem.startAnimation();
         if (animations) runningAnimations.push(...animations)
       })
     });
@@ -604,7 +624,7 @@
   function onAnimationDurationChanged(v: number) {      
     maxAnimationDuration = v;
     let objects = s2pCanvas.getObjects();
-    [objects.polys, objects.splits].forEach(object => {      
+    [objects.polys, objects.splits, objects.climbs].forEach(object => {      
       object.forEach(canvasItem => {
         let settings = canvasItem.animationSettings;
         settings.duration = v;

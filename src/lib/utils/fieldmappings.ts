@@ -390,6 +390,21 @@ export type SplitData = {
     average_heartrate: number;
 }
 
+export class ClimbData {
+    elapsed_time: number = 0;
+    average_speed: number = 0;
+    average_grade_adjusted_speed: number = 0;
+    average_heartrate: number = 0;
+    average_power: number = 0;
+
+    elevation_difference: number = 0;
+    category: string = "-";
+    length: number = 0;
+    avgGradient: number = 0;
+    startIndex: number = 0;
+    endIndex: number = 0;
+}
+
 export class StravaData {
     origData: StravaData | undefined;
 
@@ -410,6 +425,8 @@ export class StravaData {
         location: LatLng[],
         elevation: number[],
         heartrate: number[],
+        time: number[],
+        distance: number[],
     }
 
     splits_metric: SplitData[]
@@ -432,6 +449,8 @@ export class StravaData {
             location: [],
             elevation: [],
             heartrate: [],
+            time: [],
+            distance: [],
         }
         this.hasHeartRate = false;
         this.name = "";
@@ -456,7 +475,9 @@ export class StravaData {
             streams: {
                 location: data.streams.location,
                 elevation: data.streams.elevation,
-                heartrate: []
+                heartrate: [],
+                time: [],
+                distance: [],
             },
             hasHeartRate: false,
             name: data.name,
@@ -485,7 +506,9 @@ export class StravaData {
             streams: {
                 location: data.streams && 'latlng' in data.streams ? (data.streams.latlng.data as [[number, number]]).map(v => new LatLng(v[0], v[1])) : [],
                 elevation: data.streams && 'altitude' in data.streams ? data.streams.altitude.data : [],
-                heartrate: data.streams && 'heartrate' in data.streams ? data.streams.heartrate.data : []
+                heartrate: data.streams && 'heartrate' in data.streams ? data.streams.heartrate.data : [],
+                time: data.streams && 'time' in data.streams ? data.streams.time.data : [],
+                distance: data.streams && 'distance' in data.streams ? data.streams.distance.data : [],
             },
             hasHeartRate: data.has_heartrate,
             name: data.name,

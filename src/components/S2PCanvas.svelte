@@ -25,8 +25,9 @@
     } from "../lib/S2PTheme";
     import { S2PRect } from "../lib/S2PRect";
     import type { S2PSvg } from "../lib/S2PSvg";
-    import type { SplitData } from "../lib/utils/fieldmappings";
+    import type { SplitData, StravaData } from "../lib/utils/fieldmappings";
     import { S2PSplits } from "../lib/S2PSplits";
+    import { S2PClimbs } from "../lib/S2PClimbs";
 
     let {
         onSelectionChanged,
@@ -43,6 +44,7 @@
     let texts: S2PCanvasText[] = [];
     let rects: S2PRect[] = [];
     let splits: S2PSplits[] = [];
+    let climbs: S2PClimbs[] = [];
     let svgs: S2PSvg[] = [];
 
     let rndId = `${Math.random().toString(36).slice(2, 9)}`;
@@ -240,15 +242,16 @@
         rects: S2PRect[];
         polys: S2PCanvasPoly[];
         splits: S2PSplits[];
+        climbs: S2PClimbs[];
         svgs: S2PSvg[];
     };
 
     export function getObjects(): S2PCanvasObjects {
-        return { texts: texts, rects: rects, polys: polys, svgs: svgs, splits: splits };
+        return { texts, rects, polys, splits, climbs, svgs };
     }
 
     export function setFontFamily(fontFamily: string) {
-        [texts, splits].forEach(obj => obj.forEach((t) => {
+        [texts, splits, climbs].forEach(obj => obj.forEach((t) => {
             t.set("fontFamily", fontFamily);
         }));        
     }
@@ -305,6 +308,7 @@
         rects = [];
         svgs = [];
         splits = [];
+        climbs = [];
         selected = [];
 
         canvas.requestRenderAll();
@@ -418,6 +422,7 @@
         polys = polys.filter((poly) => poly != delItem);
         rects = rects.filter((rect) => rect != delItem);
         splits = splits.filter((split) => split != delItem);
+        climbs = climbs.filter((climb) => climb != delItem);
 
         canvas.remove(delItem);
         canvas.requestRenderAll();
@@ -481,7 +486,7 @@
     } 
 
     export function getMaxAnimationDuration(): number {
-        return Math.max(0, ...[polys, splits].map(object => { 
+        return Math.max(0, ...[polys, splits, climbs].map(object => { 
             return Math.max(...object.map(canvasItem => { return canvasItem.animationSettings.duration }));
         }));
     }
@@ -553,14 +558,14 @@
         let maxX = -Infinity;
         let maxY = -Infinity;
 
-        [texts, rects, polys, splits, svgs].forEach(objects => objects.forEach(obj => {  
+        [texts, rects, polys, splits, svgs, climbs].forEach(objects => objects.forEach(obj => {  
             obj.setCoords();
             obj.dirty = true;
         }));
 
         canvas.requestRenderAll();
 
-        [texts, rects, polys, splits, svgs].forEach(objects => objects.forEach(obj => {  
+        [texts, rects, polys, splits, svgs,climbs].forEach(objects => objects.forEach(obj => {  
             obj.setCoords();
             const r = obj.getCoords();
             r.forEach(p => {
@@ -704,6 +709,7 @@
         
         splits.forEach(s => s.startAnimation());
         polys.forEach(s => s.startAnimation());        
+        climbs.forEach(s => s.startAnimation());    
 
         function renderLoop() {            
             ctx.clearRect(0, 0, hi.width, hi.height);
@@ -823,6 +829,18 @@
             } as any)
         });
 
+        climbs.forEach(climb => {
+            theme.climbs.push({
+                ...climb.themeData,
+                left: climb.left / canvas.width,
+                top: climb.top / canvas.height,
+                width: (climb.width * climb.scaleX) / canvas.width,
+                height: (climb.height * climb.scaleY) / canvas.height,
+                barHeight: (climb.barHeight * climb.scaleY) / canvas.height,
+                barGap: (climb.barGap * climb.scaleY) / canvas.height,        
+            } as any)
+        });
+
         theme.height_percentage = canvas.height / canvas.width;
         theme.devicePixelRatio = window.devicePixelRatio;
 
@@ -870,7 +888,7 @@
         if (canvas.backgroundImage) return;
 
         let lastPos = 0;
-        [texts, polys, rects, svgs, splits].forEach((col) => {
+        [texts, polys, rects, svgs, splits, climbs].forEach((col) => {
             lastPos = Math.max(
                 lastPos,
                 Math.max(
@@ -1028,6 +1046,39 @@
         canvas.renderAll();
 
         return splitChart;
+    }
+
+    export function addClimbsCharts(climb_data: StravaData, climbTheme: S2PThemeObject): S2PClimbs | undefined {        
+        let climbsChart = new S2PClimbs(climbTheme, climb_data);
+
+        if (!climbsChart.hasClimbs()) {
+            canvas.add(new IText(
+                "No climb data available",
+                {                    
+                    width: 500,
+                    left: canvas.width / 2,
+                    top: canvas.height / 2,
+                    originX: 'center',
+                    originY: "center",
+                    fontFamily: "Noto sans",
+                    fontSize: 16,
+                    fill: "#fff",
+                    selectable: false,
+                }
+            ));
+
+            return undefined;
+        }
+
+        canvas.add(climbsChart);
+        climbs.push(climbsChart);
+                
+        adjustCanvasSize();
+
+        canvas.sendObjectToBack(climbsChart);
+        canvas.renderAll();
+
+        return climbsChart;
     }
 
     function sendAllRectsToBack() {

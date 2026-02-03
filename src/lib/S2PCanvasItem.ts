@@ -72,7 +72,8 @@ export enum S2PCanvasItemType {
     Text = "text",
     Rect = "rect",
     Splits = "splits",
-    Svg = "svg"
+    Svg = "svg",
+    Climbs = "climbs"
 }
 
 export class PropertyExtender {
