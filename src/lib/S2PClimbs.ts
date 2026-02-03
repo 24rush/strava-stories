@@ -61,7 +61,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
     public hasClimbs(): boolean { return this.climb_data.length > 0; }
 
     private themeProperties: S2PCanvasItemFeature[] = [
-        S2PCanvasItemFeature.Label, 
+        S2PCanvasItemFeature.Label,
         S2PCanvasItemFeature.FontFamily,
         S2PCanvasItemFeature.FontStyle,
         S2PCanvasItemFeature.FontWeight,
@@ -159,7 +159,8 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
 
         let isRide = this.strava_data?.activityKind.sportType.includes('Ride');
 
-        if (isRide) {
+        //if (isRide) 
+        {
             // Preload svgs
             for (let idx = 0; idx < this.climb_data.length; idx++) {
                 await loadSVGFromURL("/svgs/mountain.svg").then(({ objects, options }) => {
@@ -218,7 +219,8 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
 
             let rect, categLabel;
 
-            if (isRide) {
+            //if (isRide) 
+            {
                 // SVG climb category
                 const svg = this.svgs[index];
                 svg.originY = "center";
@@ -265,18 +267,19 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             let hasPower = isRide && climb.average_power;
 
             const distanceLabel = distanceLabels[index];
-            distanceLabel.top = top + (hasPower ? -barGap / 2 : +0);
+            distanceLabel.originY = "top";
+            distanceLabel.top = top - distanceLabel?.getBoundingRect().height;
             distanceLabel.left = rectBb.width + maxDistLabelWidth * 1.05;
             distanceLabel?.setCoords();
             let powerLabel;
-
+            
             if (hasPower) {
                 powerLabel = new IText(
                     climb.average_power.toFixed(0) + "W",
                     {
                         width: 200,
                         left: distanceLabel.left,
-                        top: distanceLabel.top + 0.6*distanceLabel?.getBoundingRect().height / 2,
+                        top: distanceLabel.top + distanceLabel?.getBoundingRect().height,
                         originX: 'right',
                         originY: "top",
                         fontSize: Math.round(svgBb?.height * 0.8),
@@ -308,17 +311,17 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             );
             filledPoly.createFilledPolyline(points);
             filledPoly.left = chartLeft;//(elevChartWidth - chartLengthAdjustedWidth) / 2;
-            filledPoly.top = top - 1.2*filledPoly.height / 2
+            filledPoly.top = top - 1.2 * filledPoly.height / 2
 
             // Elevation gain
             chartLeft = (filledPoly.left + elevChartWidth) * 1.02
 
             const elevationLabel = new IText(
-                climb.elevation_difference.toFixed(0) + "m",
+                '+' + climb.elevation_difference.toFixed(0) + "m",
                 {
                     width: 300,
                     left: chartLeft,
-                    top: top - barGap / 2,
+                    top: top - distanceLabel?.getBoundingRect().height / 2,
                     originX: 'left',
                     originY: "center",
                     fontSize: Math.round(svgBb?.height),
@@ -333,10 +336,10 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
                 climb.average_gradient.toFixed(0) + "%",
                 {
                     width: 200,
-                    left: chartLeft,
-                    top: distanceLabel.top + 0.6*distanceLabel?.getBoundingRect().height / 2,
-                    originX: 'left',
-                    originY: "top",
+                    left: hasPower ? chartLeft : distanceLabel.left,
+                    top: distanceLabel.top + distanceLabel?.getBoundingRect().height,
+                    originX: hasPower ? 'left' : "right",
+                    originY: hasPower ? "top" : "top",
                     fontSize: Math.round(svgBb?.height * 0.8),
                     ...fontStyle,
                     fill: this.gradientTextColor.fillGradient as TFiller,
@@ -346,7 +349,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             avgGradeLabel.setCoords();
 
             this.polys.push(filledPoly);
-            if (rect) {
+            if (rect && isRide) {
                 this.rects.push(rect);
                 this.add(rect); this.moveObjectTo(rect, 0);
             }
@@ -356,10 +359,11 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             }
 
             this.texts.push(distanceLabel, elevationLabel, avgGradeLabel);
-            if (categLabel) this.texts.push(categLabel);
+            if (categLabel && isRide) this.texts.push(categLabel);
         });
 
-        this.add(...this.svgs, ...this.texts, ...this.polys);
+        this.add(...this.texts, ...this.polys);
+        if (isRide) this.add(...this.svgs);
 
         this.left = this.lastLeft;
         this.top = this.lastTop;
