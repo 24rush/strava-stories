@@ -13,8 +13,12 @@
   let source: DataSource = new DataSource();
   let data_fetched = $state(false);
 
-  let S2P_STRAVA_API_URL = "https://strava-auth.vercel.app";
-  let strava_default_url = "https://www.strava.com/activities/17157958853";
+  const isLocalhost = window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "::1";
+
+  let S2P_STRAVA_API_URL = isLocalhost ? "http://localhost:3000": "https://strava-auth.vercel.app";
+  let strava_default_url = $state("https://www.strava.com/activities/17157958853");
   let url_ok: boolean = true;
 
   let themes: any = {};
@@ -264,7 +268,7 @@
             disabled={!data_fetched}
             oninput={onStravaUrlChanged}
             placeholder={strava_default_url}
-            value={strava_default_url}
+            bind:value={strava_default_url}
           />
             {#if !data_fetched}              
               <i
