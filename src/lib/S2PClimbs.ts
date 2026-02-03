@@ -289,7 +289,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             filledPoly.top = top - filledPoly.height + 10
 
             // Elevation gain
-            chartLeft = this.climbsTheme.width * 0.74
+            chartLeft = this.climbsTheme.width * 0.77
             let offCenter = 8;
 
             const elevationLabel = new IText(

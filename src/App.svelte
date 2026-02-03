@@ -29,7 +29,8 @@
     "14134698093": "14134698093.txt",
     '17157958853': '17157958853.json',
     '17045340809': '17045340809.json',
-    '17228475889': '17228475889.json' // indoor cycling
+    '17228475889': '17228475889.json', // indoor cycling
+    "17236220663": "17236220663.json"
   };
 
   function extractStravaUrl(url: string): string | undefined {
@@ -206,6 +207,8 @@
 
         if (url_ok) {
           source.loadFromRaw(raw_data);
+          if (raw_data['id'])
+            strava_default_url = "https://www.strava.com/activities/" + raw_data['id'];
           s2pFieldData.refresh();
           reloadTheme();
         }
