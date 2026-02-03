@@ -5,13 +5,14 @@
     "polys": [],
     "rects": [],
     "svgs": [],
+    "splits": [],
     "climbs": [
-        {            
+        {
             "label": "climbs_profile",
-            "top": 0.15,
-            "left": 0.1,
-            "width": 0.9721280679720811,
-            "height": 0.8795913787734981,
+            "top": 0.227732372899054,
+            "left": 0.05,
+            "width": 1,
+            "height": 1,
             "angle": 0,
             "fill": [
                 "#E91E6380",
@@ -22,21 +23,22 @@
                 "#FC5200"
             ],
             "strokeWidth": 0,
-            "scaleX": 1.0057902530857175,
-            "scaleY": 1.0057902530857175,
-            "barHeight": 0.06,
-            "barGap": 0.03,
+            "scaleX": 1,
+            "scaleY": 1,
+            "barHeight": 0.05,
+            "barGap": 0.02,
             "rx": 0,
             "ry": 0,
             "fontFamily": "Termina Test",
             "fontStyle": "normal",
             "fontWeight": 400,
             "textColor": [
-                "#E5E7EB",
-                "#E5E7EB"
-            ]
+                "#E8F2FF",
+                "#E8F2FF"
+            ],
+            "url": ""
         }
     ],
-    "height_percentage": 0.7559044160038592,
+    "height_percentage": 0.703459093762827,
     "devicePixelRatio": 3.5
 }
