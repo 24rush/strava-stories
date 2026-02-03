@@ -17,6 +17,7 @@ export function detectClimbs(
     let time = strava_data.streams.time;
     let distance = strava_data.streams.distance;
     let altitude = strava_data.streams.elevation;
+    let watts = strava_data.streams.watts;
 
     if (!distance || !distance.length || !altitude || !altitude.length)
         return [];
@@ -63,7 +64,8 @@ export function detectClimbs(
                         endIndex: cur.end,
                         length: cur.length,
                         elevation_difference: cur.elev,
-                        avgGradient: avg,
+                        average_gradient: avg,
+                        average_power: watts.length ? avgPowerTimeWeighted(watts, time, cur.start, cur.end) : 0,
                         category: classifyClimb(cur.length, cur.elev),
                     });
             }
@@ -80,7 +82,8 @@ export function detectClimbs(
                 endIndex: cur.end,
                 length: cur.length,
                 elevation_difference: cur.elev,
-                avgGradient: avg,
+                average_gradient: avg,
+                average_power: watts.length ? avgPowerTimeWeighted(watts, time, cur.start, cur.end) : 0,
                 category: classifyClimb(cur.length, cur.elev),
             });
     }
@@ -88,3 +91,22 @@ export function detectClimbs(
     return climbs;
 }
 
+function avgPowerTimeWeighted(
+    power: number[],
+    time: number[],
+    i0: number,
+    i1: number
+): number {
+    let sum = 0;
+    let duration = 0;
+
+    for (let i = i0 + 1; i <= i1; i++) {
+        const dt = time[i] - time[i - 1];
+        if (dt > 0 && power[i] > 0) {
+            sum += power[i] * dt;
+            duration += dt;
+        }
+    }
+
+    return duration > 0 ? sum / duration : 0;
+}

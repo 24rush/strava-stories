@@ -176,9 +176,9 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
         this.removeAll();
         this.polys = []; this.texts = []; this.svgs = []; this.rects = [];
 
-        let hasClimbCategories = this.strava_data?.activityKind.sportType.includes('Ride');
+        let isRide = this.strava_data?.activityKind.sportType.includes('Ride');
 
-        if (hasClimbCategories) {
+        if (isRide) {
             // Preload svgs
             for (let idx = 0; idx < this.climb_data.length; idx++) {
                 await loadSVGFromURL("/svgs/mountain.svg").then(({ objects, options }) => {
@@ -212,7 +212,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
 
             let rect, categLabel;
 
-            if (hasClimbCategories) {
+            if (isRide) {
                 // Background for climb category
                 rect = new S2PRect({
                     ...new S2PThemeObject({}),
@@ -272,7 +272,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             let chartLengthAdjustedWidth = (climb.length / maxClimbLength) * elevChartWidth;
 
             let points = generateXYFromPoints(this.strava_data.streams.elevation.slice(climb.startIndex, climb.endIndex),
-            chartLengthAdjustedWidth, chartElevAdjustedHeight, chartDataStepping);
+                chartLengthAdjustedWidth, chartElevAdjustedHeight, chartDataStepping);
 
             let filledPoly = new S2PCanvasPoly(
                 "",
@@ -308,7 +308,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             );
 
             const avgGradeLabel = new IText(
-                climb.avgGradient.toFixed(0) + "%",
+                climb.average_gradient.toFixed(0) + "%",
                 {
                     width: 200,
                     left: chartLeft,
@@ -322,10 +322,34 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
                 }
             );
 
+            let powerLabel;
+            chartLeft = this.climbsTheme.width * 0.87
+
+            if (isRide && climb.average_power) {
+                powerLabel = new IText(
+                    climb.average_power.toFixed(0) + "W",
+                    {
+                        width: 200,
+                        left: chartLeft,
+                        top: top,
+                        originX: 'right',
+                        originY: "center",
+                        fontSize: Math.round(barHeight * 0.5),
+                        ...fontStyle,
+                        fill: this.gradientTextColor.fillGradient as TFiller,
+                        objectCaching: false
+                    }
+                );
+            }
+
             this.polys.push(filledPoly);
             if (rect) {
                 this.rects.push(rect);
                 this.add(rect); this.moveObjectTo(rect, 0);
+            }
+
+            if (powerLabel) {
+                this.texts.push(powerLabel);
             }
 
             this.texts.push(distanceLabel, elevationLabel, avgGradeLabel);

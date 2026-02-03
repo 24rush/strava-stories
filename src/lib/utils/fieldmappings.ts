@@ -400,7 +400,7 @@ export class ClimbData {
     elevation_difference: number = 0;
     category: string = "-";
     length: number = 0;
-    avgGradient: number = 0;
+    average_gradient: number = 0;
     startIndex: number = 0;
     endIndex: number = 0;
 }
@@ -427,6 +427,7 @@ export class StravaData {
         heartrate: number[],
         time: number[],
         distance: number[],
+        watts: number[],
     }
 
     splits_metric: SplitData[]
@@ -451,6 +452,7 @@ export class StravaData {
             heartrate: [],
             time: [],
             distance: [],
+            watts: [],
         }
         this.hasHeartRate = false;
         this.name = "";
@@ -478,6 +480,7 @@ export class StravaData {
                 heartrate: [],
                 time: [],
                 distance: [],
+                watts: [],
             },
             hasHeartRate: false,
             name: data.name,
@@ -509,6 +512,7 @@ export class StravaData {
                 heartrate: data.streams && 'heartrate' in data.streams ? data.streams.heartrate.data : [],
                 time: data.streams && 'time' in data.streams ? data.streams.time.data : [],
                 distance: data.streams && 'distance' in data.streams ? data.streams.distance.data : [],
+                watts: data.streams && 'watts' in data.streams ? data.streams.watts.data : [],
             },
             hasHeartRate: data.has_heartrate,
             name: data.name,
