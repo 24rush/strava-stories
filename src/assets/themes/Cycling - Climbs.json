@@ -9,8 +9,8 @@
     "climbs": [
         {
             "label": "climbs_profile",
-            "top": 0.227732372899054,
-            "left": 0.05,
+            "top": 0.1,
+            "left": 0.1,
             "width": 1,
             "height": 1,
             "angle": 0,
@@ -25,7 +25,7 @@
             "strokeWidth": 0,
             "scaleX": 1,
             "scaleY": 1,
-            "barHeight": 0.05,
+            "barHeight": 0.07,
             "barGap": 0.02,
             "rx": 0,
             "ry": 0,

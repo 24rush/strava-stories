@@ -166,7 +166,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
                 await loadSVGFromURL("/svgs/mountain.svg").then(({ objects, options }) => {
                     if (!objects) return;
 
-                    let svgDim = 14;
+                    let svgDim = this.climbsTheme.height / 6 * 0.3;
                     let svg = new S2PSvg(objects, options, { ...new S2PThemeObject({}), width: svgDim, height: svgDim } as S2PThemeObject);
                     svg.setProperty(S2PCanvasItemFeature.Url, "/svgs/mountain.svg");
                     this.svgs.push(svg);
@@ -182,26 +182,41 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             fontWeight: this.climbsTheme.fontWeight,
         }
 
-        let elevChartWidth = this.climbsTheme.width / 2.3;
-        let elevChartHeight = this.climbsTheme.barHeight;
-        let maxElevGain = Math.max(...this.climb_data.map(c => { return c.elevation_difference }), 0);
-        let maxClimbLength = Math.max(...this.climb_data.map(c => { return c.length }), 0);
+        let chartDataStepping = 1;//bestChunkSize(this.climb_data.map(a => a.endIndex - a.startIndex), 2, 16);
+        let elevProfileWidth = this.climbsTheme.width * 0.8;
+        let elevProfileHeight = this.climbsTheme.height / 6;
+        let points = generateXYFromPoints(this.strava_data.streams.elevation,
+            elevProfileWidth, elevProfileHeight, chartDataStepping);
 
-        let chartDataStepping = 25;//bestChunkSize(this.climb_data.map(a => a.endIndex - a.startIndex), 2, 16);
+        let filledPoly = new S2PCanvasPoly(
+            "",
+            elevProfileWidth,
+            elevProfileHeight,
+            {
+                ...new S2PThemeObject({}),
+                fill: this.climbsTheme.fill,
+                stroke: this.climbsTheme.stroke
+            } as S2PThemeObject,
+        );
 
-        let svgBb = this.svgs[0]?.getBoundingRect();
+        filledPoly.createSlicedFilledPolyline(points,
+            this.climb_data.map(cd => { return { start: cd.startIndex, end: cd.endIndex, highlight: true }; }));
 
-        let distanceLabels: IText[] = [];
+        let fontSizeLarge = barHeight * 0.6, fontSizeSmall = barHeight * 0.55;
+
+        let distanceLabels: IText[] = [], powerLabels: IText[] = [],
+            elevGainLabels: IText[] = [], avgGradientLabels: IText[] = [];
+
         this.climb_data.forEach(climb => {
+            let hasPower = isRide && climb.average_power;
+
             let distanceLabel = new IText(
                 climb.length > 1000 ? (climb.length / 1000).toFixed(1) + "km" : (climb.length).toFixed(0) + "m",
                 {
-                    left: 0,
-                    top: 0,
                     width: 200,
                     originX: 'right',
                     originY: "center",
-                    fontSize: Math.round(svgBb?.height),
+                    fontSize: fontSizeLarge,
                     ...fontStyle,
                     fill: this.gradientTextColor.fillGradient as TFiller,
                     objectCaching: false
@@ -209,13 +224,68 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             );
             distanceLabel.setCoords();
             distanceLabels.push(distanceLabel);
+
+            let elevationLabel = new IText(
+                '+' + climb.elevation_difference.toFixed(0) + "m",
+                {
+                    width: 300,
+                    originX: 'right',
+                    originY: "center",
+                    fontSize: fontSizeLarge,
+                    ...fontStyle,
+                    fill: this.gradientTextColor.fillGradient as TFiller,
+                    objectCaching: false
+                }
+            );
+            elevationLabel.setCoords();
+            elevGainLabels.push(elevationLabel);
+
+            let avgGradeLabel = new IText(
+                climb.average_gradient.toFixed(0) + "%",
+                {
+                    width: 200,
+                    originX: 'right',
+                    originY: "center",
+                    fontSize: fontSizeLarge,
+                    ...fontStyle,
+                    fill: this.gradientTextColor.fillGradient as TFiller,
+                    objectCaching: false
+                }
+            );
+            avgGradeLabel.setCoords();
+            avgGradientLabels.push(avgGradeLabel);
+
+            let powerLabel;
+            if (hasPower) {
+                powerLabel = new IText(
+                    climb.average_power.toFixed(0) + "W",
+                    {
+                        width: 200,
+                        originX: 'right',
+                        originY: "center",
+                        fontSize: fontSizeLarge,
+                        ...fontStyle,
+                        fill: this.gradientTextColor.fillGradient as TFiller,
+                        objectCaching: false
+                    }
+                );
+                powerLabel.setCoords();
+                powerLabels.push(powerLabel);
+            }
         });
 
-        let maxDistLabelWidth = Math.max(0, ...distanceLabels.map(l => { return l.getBoundingRect().width; }));
+        let maxLabelWidth = (arr: IText[]): number => {
+            return Math.max(0, ...arr.map(l => { return l.getBoundingRect().width; }));
+        }
+
+        let distLabelsMax = maxLabelWidth(distanceLabels);
+        let elevGainLabelsMax = maxLabelWidth(elevGainLabels);
+        let powerLabelsMax = maxLabelWidth(powerLabels);
+        let avgGradientLabelsMax = maxLabelWidth(avgGradientLabels);
 
         this.climb_data.forEach((climb, index) => {
             let chartLeft = 0;
-            const top = index * (svgBb.height * 2 + barGap);
+            const top = 1.5 * fontSizeLarge + filledPoly.top + filledPoly.height + index * (barHeight + barGap);
 
             let rect, categLabel;
 
@@ -236,23 +306,23 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
                     ...new S2PThemeObject({}),
                     left: 0,
                     top: top,
-                    width: svgBb.width * 2.7,
+                    width: svg?.getBoundingRect().width * 2.7,
                     rx: 4,
                     ry: 4,
-                    height: svgBb.height * 2
+                    height: svg?.getBoundingRect().height * 2
                 } as S2PThemeObject);
                 rect.originY = "center";
                 rect.fill = this.gradient.fillGradient as TFiller;
                 rect.stroke = this.gradient.strokeGradient as TFiller;
 
                 categLabel = new IText(
-                    "HC", //climb.category,
+                    climb.category,
                     {
                         left: rect.getBoundingRect().width * 0.69,
                         top: top,
                         originX: 'center',
                         originY: "center",
-                        fontSize: Math.round(svgBb.height * 0.8),
+                        fontSize: fontSizeLarge,
                         ...fontStyle,
                         fill: this.gradientTextColor.fillGradient as TFiller,
                     }
@@ -261,115 +331,55 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
                 rect.setCoords(); categLabel.setCoords();
             }
 
+            let spacingPerc = 1.1;
             let rectBb = rect?.getBoundingRect();
+            chartLeft = isRide ? (rectBb.width + distLabelsMax * spacingPerc) : rectBb.width;
 
             // Length
-            let hasPower = isRide && climb.average_power;
-
             const distanceLabel = distanceLabels[index];
-            distanceLabel.originY = "top";
-            distanceLabel.top = top - distanceLabel?.getBoundingRect().height;
-            distanceLabel.left = rectBb.width + maxDistLabelWidth * 1.05;
-            distanceLabel?.setCoords();
+            distanceLabel.top = top;
+            distanceLabel.left = chartLeft;
+
+            chartLeft += elevGainLabelsMax * spacingPerc;
+
+            const elevationLabel = elevGainLabels[index];
+            elevationLabel.left = chartLeft;
+            elevationLabel.top = top;
+
+            chartLeft = filledPoly.left + filledPoly.width;
+
             let powerLabel;
-            
-            if (hasPower) {
-                powerLabel = new IText(
-                    climb.average_power.toFixed(0) + "W",
-                    {
-                        width: 200,
-                        left: distanceLabel.left,
-                        top: distanceLabel.top + distanceLabel?.getBoundingRect().height,
-                        originX: 'right',
-                        originY: "top",
-                        fontSize: Math.round(svgBb?.height * 0.8),
-                        ...fontStyle,
-                        fill: this.gradientTextColor.fillGradient as TFiller,
-                        objectCaching: false
-                    }
-                );
-                powerLabel.setCoords();
+            if (powerLabels[index]) {
+                powerLabel = powerLabels[index];
+                powerLabel.left = chartLeft;
+                powerLabel.top = top;
             }
 
-            // Elevation profile
-            chartLeft = distanceLabel.left;
-            let chartElevAdjustedHeight = (climb.elevation_difference / maxElevGain) * elevChartHeight;
-            let chartLengthAdjustedWidth = (climb.length / maxClimbLength) * elevChartWidth;
+            chartLeft = powerLabel ? powerLabel.left - (powerLabelsMax * spacingPerc) : chartLeft;
 
-            let points = generateXYFromPoints(this.strava_data.streams.elevation.slice(climb.startIndex, climb.endIndex),
-                chartLengthAdjustedWidth, chartElevAdjustedHeight, chartDataStepping);
-
-            let filledPoly = new S2PCanvasPoly(
-                "",
-                elevChartWidth,
-                chartElevAdjustedHeight,
-                {
-                    ...new S2PThemeObject({}),
-                    fill: this.climbsTheme.fill,
-                    stroke: this.climbsTheme.stroke
-                } as S2PThemeObject,
-            );
-            filledPoly.createFilledPolyline(points);
-            filledPoly.left = chartLeft;//(elevChartWidth - chartLengthAdjustedWidth) / 2;
-            filledPoly.top = top - 1.2 * filledPoly.height / 2
-
-            // Elevation gain
-            chartLeft = (filledPoly.left + elevChartWidth) * 1.02
-
-            const elevationLabel = new IText(
-                '+' + climb.elevation_difference.toFixed(0) + "m",
-                {
-                    width: 300,
-                    left: chartLeft,
-                    top: top - distanceLabel?.getBoundingRect().height / 2,
-                    originX: 'left',
-                    originY: "center",
-                    fontSize: Math.round(svgBb?.height),
-                    ...fontStyle,
-                    fill: this.gradientTextColor.fillGradient as TFiller,
-                    objectCaching: false
-                }
-            );
-            elevationLabel.setCoords();
-
-            const avgGradeLabel = new IText(
-                climb.average_gradient.toFixed(0) + "%",
-                {
-                    width: 200,
-                    left: hasPower ? chartLeft : distanceLabel.left,
-                    top: distanceLabel.top + distanceLabel?.getBoundingRect().height,
-                    originX: hasPower ? 'left' : "right",
-                    originY: hasPower ? "top" : "top",
-                    fontSize: Math.round(svgBb?.height * 0.8),
-                    ...fontStyle,
-                    fill: this.gradientTextColor.fillGradient as TFiller,
-                    objectCaching: false
-                }
-            );
-            avgGradeLabel.setCoords();
+            const avgGradeLabel = avgGradientLabels[index];
+            avgGradeLabel.left = chartLeft;
+            avgGradeLabel.top = top;
 
             this.polys.push(filledPoly);
-            if (rect && isRide) {
-                this.rects.push(rect);
-                this.add(rect); this.moveObjectTo(rect, 0);
-            }
-
-            if (powerLabel) {
-                this.texts.push(powerLabel);
+            if (isRide) {
+                if (rect) this.rects.push(rect);
+                if (powerLabel) this.texts.push(powerLabel);
+                if (categLabel) this.texts.push(categLabel);
             }
 
             this.texts.push(distanceLabel, elevationLabel, avgGradeLabel);
-            if (categLabel && isRide) this.texts.push(categLabel);
         });
 
         this.add(...this.texts, ...this.polys);
-        if (isRide) this.add(...this.svgs);
+        if (isRide) {
+            this.add(...this.svgs);
+            this.add(...this.rects); 
+            this.rects.forEach(r => this.moveObjectTo(r, 0));
+        }
 
         this.left = this.lastLeft;
         this.top = this.lastTop;
-        let scale = 0.9 * Math.min(this.canvas?.width / this.width, this.canvas?.height / this.height);
-        this.scaleX = scale;
-        this.scaleY = scale;
         this.setCoords();
         this.canvas?.requestRenderAll();
     }
