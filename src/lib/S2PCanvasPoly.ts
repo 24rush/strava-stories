@@ -220,7 +220,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
             return polygonObj;
         }
 
-        let lastSectionEnd = 0;
+        let lastSectionEnd = -1;
         for (let i = 0; i < sections.length; i++) {
             if (!sections[i]) continue;
 
@@ -245,7 +245,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
             lastSectionEnd = sectionEnd;
         }
 
-        if (lastSectionEnd < fillPoints.length) {
+        if (lastSectionEnd < fillPoints.length -1) {
             this.polygonObjs?.push(createPolygonForSection({
                 start: lastSectionEnd + 1,
                 end: fillPoints.length - 1,
