@@ -493,6 +493,9 @@ export class StravaData {
         return newThis;
     }
 
+    static reduceAcc(arr: any[], step: number = 25) {
+        return arr.filter((_, index) => index % step === 0);
+    }
     static loadFromRaw(data: any): StravaData {
         let newThis: StravaData = {
             activityKind: { sportType: data.sport_type },
@@ -507,12 +510,12 @@ export class StravaData {
                 avgpower: data.average_watts,
             },
             streams: {
-                location: data.streams && 'latlng' in data.streams ? (data.streams.latlng.data as [[number, number]]).map(v => new LatLng(v[0], v[1])) : [],
-                elevation: data.streams && 'altitude' in data.streams ? data.streams.altitude.data : [],
-                heartrate: data.streams && 'heartrate' in data.streams ? data.streams.heartrate.data : [],
-                time: data.streams && 'time' in data.streams ? data.streams.time.data : [],
-                distance: data.streams && 'distance' in data.streams ? data.streams.distance.data : [],
-                watts: data.streams && 'watts' in data.streams ? data.streams.watts.data : [],
+                location: data.streams && 'latlng' in data.streams ? (this.reduceAcc(data.streams.latlng.data) as [[number, number]]).map(v => new LatLng(v[0], v[1])) : [],
+                elevation: data.streams && 'altitude' in data.streams ? this.reduceAcc(data.streams.altitude.data) : [],
+                heartrate: data.streams && 'heartrate' in data.streams ? this.reduceAcc(data.streams.heartrate.data) : [],
+                time: data.streams && 'time' in data.streams ? this.reduceAcc(data.streams.time.data) : [],
+                distance: data.streams && 'distance' in data.streams ? this.reduceAcc(data.streams.distance.data) : [],
+                watts: data.streams && 'watts' in data.streams ? this.reduceAcc(data.streams.watts.data) : [],
             },
             hasHeartRate: data.has_heartrate,
             name: data.name,

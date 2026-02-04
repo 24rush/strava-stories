@@ -24,6 +24,7 @@ export enum S2PCanvasItemFeature {
     Fill = "fill",
 
     Url = "url",
+    Kgs = "kgs",
 }
 
 type intGetterSetter = {
@@ -58,6 +59,7 @@ export type FeatureHandlers = {
 
     strokeWidth: intGetterSetter,
     url: stringGetterSetter,
+    kgs: stringGetterSetter,
 };
 
 type Props = {

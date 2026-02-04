@@ -663,7 +663,7 @@
   <div id="btnGroup" class="btn-group mb-2 d-flex" role="group">
     <div class="btn-group" style="flex: 2;">
       <button
-        type="button"
+        type="button" title="Add text"
         onclick={e => s2pCanvas.addTextAtPos(
           "text",
           s2pCanvas.getCanvas().width / 2,
@@ -676,7 +676,7 @@
       </button>
 
       <button
-        type="button"
+        type="button" title="Add rectangle"
         onclick={() => {
             let colors = s2pSuggestedColors.getCurrentColors();
             s2pCanvas.addRect(

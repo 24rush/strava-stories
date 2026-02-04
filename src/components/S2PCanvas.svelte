@@ -130,17 +130,23 @@
         canvas.upperCanvasEl.style.touchAction = "auto";
 
         let isDragging = false;
+        let startY = 0, startHeight = 0;
 
-        const startDrag = () => {
+        const startDrag = (e: any) => {
             isDragging = true;
+            startY = e.clientY;
+            startHeight = container.getBoundingClientRect().height;
+
             document.body.style.userSelect = "none"; // prevent text highlighting
         };
 
         const doDrag = (clientY: number) => {
             if (!isDragging) return;
+            const delta = clientY - startY;
+         
             setCanvasSize(
                 undefined,
-                clientY - container.getBoundingClientRect().top,
+                Math.max(50, startHeight + delta),
             );
         };
 
@@ -150,13 +156,13 @@
         };
 
         // Desktop events
-        resizer.addEventListener("mousedown", (e) => startDrag());
+        resizer.addEventListener("mousedown", (e) => startDrag(e));
         document.addEventListener("mousemove", (e) => doDrag(e.clientY));
         document.addEventListener("mouseup", stopDrag);
 
         // Mobile events
         resizer.addEventListener("touchstart", (e) => {
-            startDrag();
+            startDrag(e);
         });
         document.addEventListener("touchmove", (e) => {
             if (!e || !e.touches.length || !e.touches[0]) return;
@@ -253,6 +259,7 @@
     export function setFontFamily(fontFamily: string) {
         [texts, splits, climbs].forEach(obj => obj.forEach((t) => {
             t.set("fontFamily", fontFamily);
+            t.setCoords();
         }));        
     }
 

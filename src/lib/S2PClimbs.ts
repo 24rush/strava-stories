@@ -31,6 +31,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
 
     private strava_data: StravaData | undefined = undefined;
     private climb_data: ClimbData[] = [];
+    private user_kgs: string = "";
 
     private animationSettings_: S2PClimbsAnimationSettings = new S2PClimbsAnimationSettings();
 
@@ -71,6 +72,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
     private fabricProperties: S2PCanvasItemFeature[] = [
         S2PCanvasItemFeature.Stroke,
         S2PCanvasItemFeature.Fill,
+        S2PCanvasItemFeature.Kgs,
     ];
 
     hasProperty(feature: S2PCanvasItemFeature): boolean {
@@ -98,6 +100,11 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
                 this.setDirty();
                 break;
             case S2PCanvasItemFeature.BarGap:
+                this.createClimbsChart();
+                this.setDirty();
+                break;
+            case S2PCanvasItemFeature.Kgs:        
+                this.user_kgs = args.toString();
                 this.createClimbsChart();
                 this.setDirty();
                 break;
@@ -258,7 +265,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             let powerLabel;
             if (hasPower) {
                 powerLabel = new IText(
-                    climb.average_power.toFixed(0) + "W",
+                    this.user_kgs ? (climb.average_power / parseInt(this.user_kgs)).toFixed(1) + "W/kg" : climb.average_power.toFixed(0) + "W",
                     {
                         width: 200,
                         originX: 'right',

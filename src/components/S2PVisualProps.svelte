@@ -47,6 +47,7 @@
     let selectFieldMapping: HTMLSelectElement;
 
     let inputTextField: HTMLInputElement;
+    let userKgs = $state("");
 
     const Fill: number = 0;
     const Stroke: number = 1;
@@ -541,14 +542,16 @@
     >
         <div
             style="display: {canvasItemSelected instanceof S2PCanvasText ||
-            canvasItemSelected instanceof S2PSplits || canvasItemSelected instanceof S2PClimbs || 
+            canvasItemSelected instanceof S2PSplits ||
+            canvasItemSelected instanceof S2PClimbs ||
             currentSelection.length > 1
                 ? 'flex'
                 : 'none'}; width: 100%; flex-direction: column;"
         >
             <input
                 disabled={currentSelection.length > 1 ||
-                    canvasItemSelected instanceof S2PSplits || canvasItemSelected instanceof S2PClimbs}
+                    canvasItemSelected instanceof S2PSplits ||
+                    canvasItemSelected instanceof S2PClimbs}
                 bind:this={inputTextField}
                 value={canvasItemSelected.text}
                 oninput={fireTextChanged}
@@ -664,6 +667,14 @@
         <span
             style="display: {hasRadius ? 'flex' : 'none'};white-space: nowrap;"
             class="me-1 font-emp">Radius</span
+        >
+        <span
+            style="display: {canvasItemSelected.hasProperty(
+                S2PCanvasItemFeature.Kgs,
+            )
+                ? 'flex'
+                : 'none'};white-space: nowrap;"
+            class="me-1 font-emp">User kgs</span
         >
     </div>
     <div class="column gap-2" style="padding-left: 0.25rem;">
@@ -869,6 +880,25 @@
                 max={canvasItemSelected.width}
                 step={5}
             />
+        </div>
+        <div
+            style="display: {canvasItemSelected.hasProperty(
+                S2PCanvasItemFeature.Kgs,
+            )
+                ? 'flex'
+                : 'none'}; width: 100%; flex-direction: row;"
+        >
+            <input bind:value={userKgs} type="number" class="form-control me-2" />
+            <button
+                class="btn btn-primary"
+                onclick={() =>
+                    canvasItemSelected.setProperty(
+                        S2PCanvasItemFeature.Kgs,
+                        userKgs,
+                    )}
+            >
+                Set
+            </button>
         </div>
     </div>
 </div>
