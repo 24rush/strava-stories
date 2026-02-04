@@ -54,7 +54,9 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
 
         this.gradient = new S2PGradient(poly.fill, poly.stroke);
         this.origGradient = new S2PGradient(poly.fill, poly.stroke);
-        let decrOpacityColors = [decreaseHexaOpacity(poly.fill[0]), decreaseHexaOpacity(poly.fill[1])];
+
+        if (!poly.fill) poly.fill = [null, null];
+        let decrOpacityColors = [decreaseHexaOpacity(poly.fill[0], 0.3), decreaseHexaOpacity(poly.fill[1], 0.3)];
         this.unhighlightGradient = new S2PGradient(decrOpacityColors, decrOpacityColors);
     }
 
@@ -198,7 +200,7 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
         let fillPoints = [...points];
 
         let createPolygonForSection = (sectionDef: S2PCanvasPolySection): Polygon => {
-            let polygonPoints = fillPoints.slice(sectionDef.start, sectionDef.end);
+            let polygonPoints = fillPoints.slice(sectionDef.start, sectionDef.end + 1);
 
             polygonPoints.push(
                 {
@@ -220,24 +222,24 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
             return polygonObj;
         }
 
-        let lastSectionEnd = -1;
+        let lastSectionEnd = 0;
         for (let i = 0; i < sections.length; i++) {
             if (!sections[i]) continue;
 
-            let sectionStart = sections[i].start;
+            let sectionStart = sections[i]?.start;
             let sectionEnd = sections[i]?.end;
 
-            if (sectionStart != lastSectionEnd && lastSectionEnd < fillPoints.length - 1) {
+            if (sectionStart - lastSectionEnd > 1) {
                 this.polygonObjs?.push(createPolygonForSection({
-                    start: lastSectionEnd + 1,
+                    start: lastSectionEnd,
                     end: sectionStart,
                     highlight: false
                 }));
             }
 
-            if (sectionEnd - sectionStart - 1 > 0)
+            if (sectionEnd - sectionStart > 0)
                 this.polygonObjs?.push(createPolygonForSection({
-                    start: sectionStart + 1,
+                    start: sectionStart,
                     end: sectionEnd,
                     highlight: sections[i]?.highlight
                 }));
@@ -245,9 +247,9 @@ export class S2PCanvasPoly extends Group implements S2PCanvasItem, S2PAnimatedCa
             lastSectionEnd = sectionEnd;
         }
 
-        if (lastSectionEnd < fillPoints.length -1) {
+        if (fillPoints.length - lastSectionEnd > 1) {
             this.polygonObjs?.push(createPolygonForSection({
-                start: lastSectionEnd + 1,
+                start: lastSectionEnd,
                 end: fillPoints.length - 1,
                 highlight: false
             }));

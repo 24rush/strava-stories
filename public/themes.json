@@ -2343,7 +2343,7 @@
   },
   {
     "name": "Swim - Arena",
-    "ignore": false,
+    "ignore": true,
     "texts": [
       {
         "id": "es6pg72",
@@ -3226,7 +3226,7 @@
   },
   {
     "name": "Year in Sports - 2025 #1",
-    "ignore": false,
+    "ignore": true,
     "texts": [
       {
         "id": "9nrqhm6",
@@ -3530,7 +3530,7 @@
   },
   {
     "name": "Year in Sports - 2025 #2",
-    "ignore": false,
+    "ignore": true,
     "texts": [
       {
         "id": "9nrqhm6",

@@ -1,6 +1,6 @@
 {
     "name": "default",
-    "ignore": false,
+    "ignore": true,
     "texts": [
         {
             "id": "es6pg72",

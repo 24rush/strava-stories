@@ -29,12 +29,15 @@
   const appLinkRegex = /[https:\/\/]*strava\.app\.link\/[A-Za-z0-9]+$/;
   const actRegex = /https?:\/\/[www\.]*strava\.com\/activities\/(\d+)(\/.*)?/;
   const localActivities: Record<string, string> = {
-    "15174937862": "15174937862.txt",
-    "14134698093": "14134698093.txt",
-    '17157958853': '17157958853.json',
+    "15174937862": "15174937862.txt", // no climbs
+    "14134698093": "14134698093.txt", // no climbs
+    '17157958853': '17157958853.json', // trail
     '17045340809': '17045340809.json',
-    '17228475889': '17228475889.json', // indoor cycling
-    "17236220663": "17236220663.json"
+    '17228475889': '17228475889.json', // indoor cycling no power
+    "17236220663": "17236220663.json",
+    "17034180451": "17034180451.json", // indoor + power
+    "17273377883": "17273377883.json", // idem
+    "17280087698": "17280087698.json"
   };
 
   function extractStravaUrl(url: string): string | undefined {
@@ -141,6 +144,9 @@
 
   function onAthleteLoggedIn(loggedIn: boolean) {
     loggedInAthlete = loggedIn;
+
+    if (loggedInAthlete && !isLocalhost)
+      retrieveLastActivity();
   }
 
   onMount(() => {
@@ -247,7 +253,7 @@
       {#if loggedInAthlete}
         <div class="d-flex align-items-center mb-2" style="flex-direction: row;">
           <button
-            class="btn btn-primary btn-sm me-1"
+            class="btn btn-primary btn-sm me-1" style="display: none;"
             type="button"
             disabled={!data_fetched}
             onclick={retrieveLastActivity}>Get last activity</button
