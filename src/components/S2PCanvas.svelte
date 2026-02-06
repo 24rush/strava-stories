@@ -502,7 +502,7 @@
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
 
-        canvas.backgroundImage = null;
+        //canvas.backgroundImage = null;
         canvas.backgroundColor = "";
     
         const bounds = canvas.getObjects().reduce((acc, obj) => {
@@ -516,8 +516,8 @@
           { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
         );
 
-        const width = bounds.maxX - bounds.minX;
-        const height = bounds.maxY - bounds.minY;
+        const width = canvas.backgroundImage ? canvas.width : (bounds.maxX - bounds.minX);
+        const height = canvas.backgroundImage ? canvas.height : (bounds.maxY - bounds.minY);
 
         const original = {
             width: canvas.width!,
@@ -598,7 +598,7 @@
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
 
-        canvas.backgroundImage = null;
+        //canvas.backgroundImage = null;
         canvas.backgroundColor = "";
         unselectAll();        
 
