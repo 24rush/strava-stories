@@ -11,10 +11,10 @@ export default defineConfig({
       server.watcher.add("assets/themes/**");
 
       server.watcher.on("change", (path) => {
-        if (path.includes("public/themes.json"))
+        if (path.replace(/\\/g, "/").includes("public/themes.json"))
           return;
-          
-        console.log(`File changed: ${path}`);        
+
+        console.log(`File changed: ${path}`);
         exec("node src/build/combine_jsons.js src/assets/themes/ public/themes.json", (err, stdout, stderr) => {
           if (err) {
             console.error(err);

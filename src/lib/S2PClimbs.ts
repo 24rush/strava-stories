@@ -103,7 +103,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
                 this.createClimbsChart();
                 this.setDirty();
                 break;
-            case S2PCanvasItemFeature.Kgs:        
+            case S2PCanvasItemFeature.Kgs:
                 this.user_kgs = args.toString();
                 this.createClimbsChart();
                 this.setDirty();
@@ -189,11 +189,10 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
             fontWeight: this.climbsTheme.fontWeight,
         }
 
-        let chartDataStepping = 1;//bestChunkSize(this.climb_data.map(a => a.endIndex - a.startIndex), 2, 16);
         let elevProfileWidth = this.climbsTheme.width * 0.8;
         let elevProfileHeight = this.climbsTheme.height / 6;
         let points = generateXYFromPoints(this.strava_data.streams.elevation,
-            elevProfileWidth, elevProfileHeight, chartDataStepping);
+            elevProfileWidth, elevProfileHeight);
 
         let filledPoly = new S2PCanvasPoly(
             "",
@@ -381,7 +380,7 @@ export class S2PClimbs extends Group implements S2PCanvasItem, S2PAnimatedCanvas
         this.add(...this.texts, ...this.polys);
         if (isRide) {
             this.add(...this.svgs);
-            this.add(...this.rects); 
+            this.add(...this.rects);
             this.rects.forEach(r => this.moveObjectTo(r, 0));
         }
 

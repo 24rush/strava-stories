@@ -130,11 +130,11 @@ export class DataSource {
             case FieldId.AltitudeMax:
                 return this.data.streams && this.data.streams.elevation.length > 0 ? Math.ceil(Math.max(...this.data.streams.elevation)) : 0;
             case FieldId.AltitudeMin:
-                return this.data.streams  && this.data.streams.elevation.length > 0 ? Math.floor(Math.min(...this.data.streams.elevation)) : 0;
+                return this.data.streams && this.data.streams.elevation.length > 0 ? Math.floor(Math.min(...this.data.streams.elevation)) : 0;
             case FieldId.Calories:
                 return this.data.scalars.calories;
-            case FieldId.AvgHeartRate:                
-            case FieldId.MaxHeartRate:                
+            case FieldId.AvgHeartRate:
+            case FieldId.MaxHeartRate:
             case FieldId.AvgPower:
             case FieldId.MaxPower:
                 return this.data.scalars[fieldId] ? Math.ceil(this.data.scalars[fieldId] ?? 0) : undefined;

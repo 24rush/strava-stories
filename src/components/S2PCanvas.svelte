@@ -5,24 +5,21 @@
         Group,
         Pattern,
         FabricImage,
-        ActiveSelection,    
+        ActiveSelection,
         Rect,
-        IText
+        IText,
     } from "fabric";
     import {
         generateXYFromLatLng,
         generateXYFromPoints,
     } from "../lib/geometry/polyline";
-    import { FFmpeg, type FileData } from '@ffmpeg/ffmpeg';
-    import { fetchFile } from '@ffmpeg/util';
+    import { FFmpeg, type FileData } from "@ffmpeg/ffmpeg";
+    import { fetchFile } from "@ffmpeg/util";
     import type { LatLng } from "../lib/geometry/LatLng";
     import { onMount } from "svelte";
     import { S2PCanvasText } from "../lib/S2PCanvasText";
     import { S2PCanvasPoly } from "../lib/S2PCanvasPoly";
-    import {
-        S2PTheme,
-        S2PThemeObject,
-    } from "../lib/S2PTheme";
+    import { S2PTheme, S2PThemeObject } from "../lib/S2PTheme";
     import { S2PRect } from "../lib/S2PRect";
     import type { S2PSvg } from "../lib/S2PSvg";
     import type { SplitData, StravaData } from "../lib/utils/fieldmappings";
@@ -100,8 +97,8 @@
                 let bb = target.getBoundingRect();
                 rangeY.value = (bb.top + bb.height / 2).toString();
                 rangeY.lastValue = rangeY.value;
-                rangeX.value = (bb.left + bb.width / 2).toString();     
-                rangeX.lastValue = rangeX.value
+                rangeX.value = (bb.left + bb.width / 2).toString();
+                rangeX.lastValue = rangeX.value;
             } else {
                 // Clicked empty space
                 selected = [];
@@ -130,7 +127,29 @@
         canvas.upperCanvasEl.style.touchAction = "auto";
 
         let isDragging = false;
-        let startY = 0, startHeight = 0;
+
+        const scrollMargin = 40;
+        canvas.upperCanvasEl.addEventListener(
+            "touchstart",
+            (e) => {
+                if (!e.touches.length) return;
+
+                const touch = e.touches[0];
+                if (!touch) return;
+                const rect = canvas.upperCanvasEl.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+
+                if (
+                    (x < scrollMargin || x > rect.width - scrollMargin) &&
+                    !canvas.getActiveObject()
+                ) {
+                    e.stopImmediatePropagation();
+                }
+            },
+            { capture: true },
+        );
+        let startY = 0,
+            startHeight = 0;
 
         const startDrag = (e: any) => {
             isDragging = true;
@@ -143,11 +162,8 @@
         const doDrag = (clientY: number) => {
             if (!isDragging) return;
             const delta = clientY - startY;
-         
-            setCanvasSize(
-                undefined,
-                Math.max(50, startHeight + delta),
-            );
+
+            setCanvasSize(undefined, Math.max(50, startHeight + delta));
         };
 
         const stopDrag = () => {
@@ -257,10 +273,12 @@
     }
 
     export function setFontFamily(fontFamily: string) {
-        [texts, splits, climbs].forEach(obj => obj.forEach((t) => {
-            t.set("fontFamily", fontFamily);
-            t.setCoords();
-        }));        
+        [texts, splits, climbs].forEach((obj) =>
+            obj.forEach((t) => {
+                t.set("fontFamily", fontFamily);
+                t.setCoords();
+            }),
+        );
     }
 
     export function setAccentColor(color: string) {
@@ -357,7 +375,9 @@
         let textProps: S2PThemeObject | undefined = textPropsCopy;
 
         if (!textProps && texts.length > 0)
-            textProps = new S2PThemeObject(texts[texts.length - 1]?.textProps ?? {});            
+            textProps = new S2PThemeObject(
+                texts[texts.length - 1]?.textProps ?? {},
+            );
 
         if (!textProps) textProps = new S2PThemeObject({});
 
@@ -371,7 +391,7 @@
         return textObj;
     }
 
-    export function addRect(rectProps: S2PThemeObject) : S2PRect {
+    export function addRect(rectProps: S2PThemeObject): S2PRect {
         let rect = new S2PRect(rectProps);
         rect.on("scaling", function () {
             const scaleX = rect.scaleX;
@@ -423,7 +443,7 @@
             | S2PSvg
             | S2PRect
             | FabricObject,
-    ) {        
+    ) {
         texts = texts.filter((text) => text !== delItem);
         svgs = svgs.filter((svg) => svg != delItem);
         polys = polys.filter((poly) => poly != delItem);
@@ -490,34 +510,51 @@
             minute: "2-digit",
             second: "2-digit",
         });
-    } 
-
-    export function getMaxAnimationDuration(): number {
-        return Math.max(0, ...[polys, splits, climbs].map(object => { 
-            return Math.max(...object.map(canvasItem => { return canvasItem.animationSettings.duration }));
-        }));
     }
 
-    export function exportToPng() {        
+    export function getMaxAnimationDuration(): number {
+        return Math.max(
+            0,
+            ...[polys, splits, climbs].map((object) => {
+                return Math.max(
+                    ...object.map((canvasItem) => {
+                        return canvasItem.animationSettings.duration;
+                    }),
+                );
+            }),
+        );
+    }
+
+    export function exportToPng() {
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
 
         //canvas.backgroundImage = null;
         canvas.backgroundColor = "";
-    
-        const bounds = canvas.getObjects().reduce((acc, obj) => {
-            const rect = obj.getBoundingRect();
-            acc.minX = Math.min(acc.minX, rect.left);
-            acc.minY = Math.min(acc.minY, rect.top);
-            acc.maxX = Math.max(acc.maxX, rect.left + rect.width);
-            acc.maxY = Math.max(acc.maxY, rect.top + rect.height);
-            return acc;
-        },
-          { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
+
+        const bounds = canvas.getObjects().reduce(
+            (acc, obj) => {
+                const rect = obj.getBoundingRect();
+                acc.minX = Math.min(acc.minX, rect.left);
+                acc.minY = Math.min(acc.minY, rect.top);
+                acc.maxX = Math.max(acc.maxX, rect.left + rect.width);
+                acc.maxY = Math.max(acc.maxY, rect.top + rect.height);
+                return acc;
+            },
+            {
+                minX: Infinity,
+                minY: Infinity,
+                maxX: -Infinity,
+                maxY: -Infinity,
+            },
         );
 
-        const width = canvas.backgroundImage ? canvas.width : (bounds.maxX - bounds.minX);
-        const height = canvas.backgroundImage ? canvas.height : (bounds.maxY - bounds.minY);
+        const width = canvas.backgroundImage
+            ? canvas.width
+            : bounds.maxX - bounds.minX;
+        const height = canvas.backgroundImage
+            ? canvas.height
+            : bounds.maxY - bounds.minY;
 
         const original = {
             width: canvas.width!,
@@ -526,17 +563,17 @@
         };
 
         canvas.setViewportTransform([1, 0, 0, 1, -bounds.minX, -bounds.minY]);
-        canvas.setDimensions({width, height});  
+        canvas.setDimensions({ width, height });
 
         unselectAll();
-  
+
         setTimeout(() => {
             const scale = 2;
 
             const dataURL = canvas.toDataURL({
                 format: "png",
                 multiplier: scale,
-                enableRetinaScaling: true
+                enableRetinaScaling: true,
             });
 
             if (dataURL) {
@@ -551,60 +588,69 @@
             canvas.backgroundColor = originalBg;
 
             if (originalBgImg) canvas.backgroundImage = originalBgImg;
-            canvas.setDimensions({width: original.width, height: original.height});
-            if (original.vpt) canvas.setViewportTransform(original.vpt);  
+            canvas.setDimensions({
+                width: original.width,
+                height: original.height,
+            });
+            if (original.vpt) canvas.setViewportTransform(original.vpt);
 
             canvas.renderAll.bind(canvas);
             canvas.requestRenderAll();
         }, 400);
     }
-    
+
     function getCanvasObjectsBounds(padding = 0) {
         let minX = Infinity;
         let minY = Infinity;
         let maxX = -Infinity;
         let maxY = -Infinity;
 
-        [texts, rects, polys, splits, svgs, climbs].forEach(objects => objects.forEach(obj => {  
-            obj.setCoords();
-            obj.dirty = true;
-        }));
+        [texts, rects, polys, splits, svgs, climbs].forEach((objects) =>
+            objects.forEach((obj) => {
+                obj.setCoords();
+                obj.dirty = true;
+            }),
+        );
 
         canvas.requestRenderAll();
 
-        [texts, rects, polys, splits, svgs,climbs].forEach(objects => objects.forEach(obj => {  
-            obj.setCoords();
-            const r = obj.getCoords();
-            r.forEach(p => {
-                minX = Math.min(minX, p.x);
-                minY = Math.min(minY, p.y);
-                maxX = Math.max(maxX, p.x);
-                maxY = Math.max(maxY, p.y);
-            });           
-        }));
+        [texts, rects, polys, splits, svgs, climbs].forEach((objects) =>
+            objects.forEach((obj) => {
+                obj.setCoords();
+                const r = obj.getCoords();
+                r.forEach((p) => {
+                    minX = Math.min(minX, p.x);
+                    minY = Math.min(minY, p.y);
+                    maxX = Math.max(maxX, p.x);
+                    maxY = Math.max(maxY, p.y);
+                });
+            }),
+        );
 
         return {
             left: minX - padding,
             top: minY - padding,
-            width: (maxX - minX) + padding * 2,
-            height: (maxY - minY) + padding * 2
+            width: maxX - minX + padding * 2,
+            height: maxY - minY + padding * 2,
         };
     }
 
-    const isMobileBrowser = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(navigator.userAgent) ||
-            navigator.maxTouchPoints > 1;
+    const isMobileBrowser =
+        /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|Mobile/i.test(
+            navigator.userAgent,
+        ) || navigator.maxTouchPoints > 1;
 
-    export async function exportToWebM() { 
+    export async function exportToWebM() {
         const originalBg = canvas.backgroundColor;
         const originalBgImg = canvas.backgroundImage;
 
         //canvas.backgroundImage = null;
         canvas.backgroundColor = "";
-        unselectAll();        
+        unselectAll();
 
         const bounds = getCanvasObjectsBounds(20);
-        
-        let back = new Rect({                
+
+        let back = new Rect({
             left: bounds.left,
             top: bounds.top,
             width: bounds.width,
@@ -613,25 +659,26 @@
             originY: "top",
             fill: "#000",
             selectable: false,
-            objectCaching: false
+            objectCaching: false,
         });
 
         canvas.add(back);
-        canvas.moveObjectTo(back, 0);        
+        canvas.moveObjectTo(back, 0);
         canvas.requestRenderAll();
 
-        const blob = await exportCanvasToWebM(isMobileBrowser);  
+        const blob = await exportCanvasToWebM(isMobileBrowser);
 
         if (!isMobileBrowser) {
             // Desktop browsers can generate transparent webm
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            const a = document.createElement("a");
             a.href = url;
-            a.download = 'strava-stories-webm-' + formatTimeHMS(Date.now()) + '.webm';
+            a.download =
+                "strava-stories-webm-" + formatTimeHMS(Date.now()) + ".webm";
             a.click();
-            URL.revokeObjectURL(url);  
-        }        
-        
+            URL.revokeObjectURL(url);
+        }
+
         canvas.remove(back);
 
         canvas.backgroundColor = originalBg;
@@ -640,97 +687,106 @@
         canvas.renderAll.bind(canvas);
         canvas.requestRenderAll();
 
-        let mp4Blob = await convertWebMToMp4(blob);        
-        
-        const url = URL.createObjectURL(new Blob([mp4Blob.buffer], { type: 'video/quicktime' }));
-        const a = document.createElement('a');
+        let mp4Blob = await convertWebMToMp4(blob);
+
+        const url = URL.createObjectURL(
+            new Blob([mp4Blob.buffer], { type: "video/quicktime" }),
+        );
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'strava-stories-mp4-' + formatTimeHMS(Date.now()) + '.mp4';
+        a.download = "strava-stories-mp4-" + formatTimeHMS(Date.now()) + ".mp4";
         a.click();
     }
-    
+
     async function convertWebMToMp4(blob: any): Promise<FileData> {
         let ffmpeg = new FFmpeg();
-     
-        ffmpeg.on('log', ({ message }) => {
+
+        ffmpeg.on("log", ({ message }) => {
             console.log("FFmpeg Log:", message);
         });
 
-        await ffmpeg.load().catch(err => {
+        await ffmpeg.load().catch((err) => {
             console.error("FFmpeg failed to load:", err);
         });
 
-        await ffmpeg.writeFile('input.webm', await fetchFile(blob));
+        await ffmpeg.writeFile("input.webm", await fetchFile(blob));
 
         await ffmpeg.exec([
-            '-i', 'input.webm',
-            '-vf', 'fps=30,format=yuv420p',
-            '-c:v', 'libx264',
-            '-crf', '14',
-            '-profile:v', 'high',
-            '-level', '4.2',
-            '-preset', 'slow',
-            '-movflags', '+faststart',
-            '-pix_fmt', 'yuv420p',
-            'output.mp4'
-            ]);
+            "-i",
+            "input.webm",
+            "-vf",
+            "fps=30,format=yuv420p",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "14",
+            "-profile:v",
+            "high",
+            "-level",
+            "4.2",
+            "-preset",
+            "slow",
+            "-movflags",
+            "+faststart",
+            "-pix_fmt",
+            "yuv420p",
+            "output.mp4",
+        ]);
 
-        return await ffmpeg.readFile('output.mp4');
+        return await ffmpeg.readFile("output.mp4");
     }
 
-    async function exportCanvasToWebM(isMobile: boolean): Promise<Blob | MediaSource> {
+    async function exportCanvasToWebM(
+        isMobile: boolean,
+    ): Promise<Blob | MediaSource> {
         let canvasScale = 2;
         let fps = 30;
-        
+
         const src = canvas.getElement();
         const w = canvas.width;
         const h = canvas.height;
-        canvas.setDimensions(
-            { width: w + (w % 2), height: h + (h % 2) },            
-        );
+        canvas.setDimensions({ width: w + (w % 2), height: h + (h % 2) });
 
-        const hi = document.createElement('canvas');
+        const hi = document.createElement("canvas");
         hi.width = src.width * canvasScale;
         hi.height = src.height * canvasScale;
 
-        const ctx = hi.getContext('2d', { alpha: !isMobile });
+        const ctx = hi.getContext("2d", { alpha: !isMobile });
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.globalCompositeOperation = 'source-over';
-        if (isMobile)
-            ctx.globalAlpha = 1;    
+        ctx.imageSmoothingQuality = "high";
+        ctx.globalCompositeOperation = "source-over";
+        if (isMobile) ctx.globalAlpha = 1;
 
         ctx?.scale(canvasScale, canvasScale);
-        
+
         const recorder = new MediaRecorder(hi.captureStream(fps), {
-            mimeType,            
-            videoBitsPerSecond: 10_000_0000
+            mimeType,
+            videoBitsPerSecond: 10_000_0000,
         });
 
         const chunks: any[] = [];
-        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.ondataavailable = (e) => chunks.push(e.data);
         recorder.start();
 
         let duration = getMaxAnimationDuration();
         const start = performance.now();
-        
-        splits.forEach(s => s.startAnimation());
-        polys.forEach(s => s.startAnimation());        
-        climbs.forEach(s => s.startAnimation());    
 
-        function renderLoop() {            
+        splits.forEach((s) => s.startAnimation());
+        polys.forEach((s) => s.startAnimation());
+        climbs.forEach((s) => s.startAnimation());
+
+        function renderLoop() {
             ctx.clearRect(0, 0, hi.width, hi.height);
             ctx.drawImage(src, 0, 0);
-            
-            if (performance.now() - start < duration + 2000) 
+
+            if (performance.now() - start < duration + 2000)
                 requestAnimationFrame(renderLoop);
-            else 
-                recorder.stop();
+            else recorder.stop();
         }
 
         requestAnimationFrame(renderLoop);
 
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             recorder.onstop = () => {
                 const blob = new Blob(chunks, { type: mimeType });
                 resolve(blob);
@@ -744,17 +800,16 @@
 
         await navigator.clipboard.write([
             new ClipboardItem({
-            'image/png': blob
-            })
-        ]);        
+                "image/png": blob,
+            }),
+        ]);
     }
 
     export function dump() {
         let theme: S2PTheme = new S2PTheme("default");
 
         texts.forEach((text) => {
-            let text_meta = 
-            {         
+            let text_meta = {
                 label: text.label,
                 left: text.left / canvas.width,
                 top: text.top / canvas.height,
@@ -787,7 +842,7 @@
                 fill: [poly.getFillStop(0), poly.getFillStop(1)],
                 scaleX: poly.scaleX,
                 scaleY: poly.scaleY,
-            } as any)
+            } as any);
         });
 
         svgs.forEach((svgGroup) => {
@@ -809,22 +864,22 @@
 
         rects.forEach((rect) => {
             theme.rects.push({
-                    left: rect.left / canvas.width,
-                    top: rect.top / canvas.height,
-                    rx: rect.rx,
-                    ry: rect.ry,
-                    scaleX: rect.scaleX,
-                    scaleY: rect.scaleY,
-                    width: (rect.width * rect.scaleX) / canvas.width,
-                    height: (rect.height * rect.scaleY) / canvas.height,
-                    fill: [rect.getFillStop(0), rect.getFillStop(1)],
-                    stroke: [rect.getStrokeStop(0), rect.getStrokeStop(1)],
-                    strokeWidth: rect.strokeWidth,
-                    angle: rect.angle,
-            } as any
-        )});
+                left: rect.left / canvas.width,
+                top: rect.top / canvas.height,
+                rx: rect.rx,
+                ry: rect.ry,
+                scaleX: rect.scaleX,
+                scaleY: rect.scaleY,
+                width: (rect.width * rect.scaleX) / canvas.width,
+                height: (rect.height * rect.scaleY) / canvas.height,
+                fill: [rect.getFillStop(0), rect.getFillStop(1)],
+                stroke: [rect.getStrokeStop(0), rect.getStrokeStop(1)],
+                strokeWidth: rect.strokeWidth,
+                angle: rect.angle,
+            } as any);
+        });
 
-        splits.forEach(split => {
+        splits.forEach((split) => {
             theme.splits.push({
                 ...split.themeData,
                 left: split.left / canvas.width,
@@ -832,11 +887,11 @@
                 width: (split.width * split.scaleX) / canvas.width,
                 height: (split.height * split.scaleY) / canvas.height,
                 barHeight: (split.barHeight * split.scaleY) / canvas.height,
-                barGap: (split.barGap * split.scaleY) / canvas.height,        
-            } as any)
+                barGap: (split.barGap * split.scaleY) / canvas.height,
+            } as any);
         });
 
-        climbs.forEach(climb => {
+        climbs.forEach((climb) => {
             theme.climbs.push({
                 ...climb.themeData,
                 left: climb.left / canvas.width,
@@ -844,8 +899,8 @@
                 width: (climb.width * climb.scaleX) / canvas.width,
                 height: (climb.height * climb.scaleY) / canvas.height,
                 barHeight: (climb.barHeight * climb.scaleY) / canvas.height,
-                barGap: (climb.barGap * climb.scaleY) / canvas.height,        
-            } as any)
+                barGap: (climb.barGap * climb.scaleY) / canvas.height,
+            } as any);
         });
 
         theme.height_percentage = canvas.height / canvas.width;
@@ -940,7 +995,7 @@
     }
 
     function moveObjects(objects: FabricObject[], dx: number, dy: number) {
-        objects.forEach((obj) => {        
+        objects.forEach((obj) => {
             obj.left = (obj.left ?? 0) + dx;
             obj.top = (obj.top ?? 0) + dy;
             obj.setCoords();
@@ -1022,22 +1077,24 @@
         return polyline;
     }
 
-    export function addSplitsCharts(split_data: SplitData[], splitTheme: S2PThemeObject): S2PSplits | undefined {
-        if (split_data.length == 0) {            
-            canvas.add(new IText(
-                "No splits data available",
-                {                    
+    export function addSplitsCharts(
+        split_data: SplitData[],
+        splitTheme: S2PThemeObject,
+    ): S2PSplits | undefined {
+        if (split_data.length == 0) {
+            canvas.add(
+                new IText("No splits data available", {
                     width: 500,
                     left: canvas.width / 2,
                     top: canvas.height / 2,
-                    originX: 'center',
+                    originX: "center",
                     originY: "center",
                     fontFamily: "Noto sans",
                     fontSize: 16,
                     fill: "#fff",
                     selectable: false,
-                }
-            ));
+                }),
+            );
 
             return undefined;
         }
@@ -1046,7 +1103,7 @@
         canvas.add(splitChart);
         splits.push(splitChart);
 
-        splitChart.createSplitsChart(split_data);                    
+        splitChart.createSplitsChart(split_data);
         adjustCanvasSize();
 
         canvas.sendObjectToBack(splitChart);
@@ -1055,31 +1112,33 @@
         return splitChart;
     }
 
-    export function addClimbsCharts(climb_data: StravaData, climbTheme: S2PThemeObject): S2PClimbs | undefined {        
+    export function addClimbsCharts(
+        climb_data: StravaData,
+        climbTheme: S2PThemeObject,
+    ): S2PClimbs | undefined {
         let climbsChart = new S2PClimbs(climbTheme, climb_data);
 
         if (!climbsChart.hasClimbs()) {
-            canvas.add(new IText(
-                "No climb data available",
-                {                    
+            canvas.add(
+                new IText("No climb data available", {
                     width: 500,
                     left: canvas.width / 2,
                     top: canvas.height / 2,
-                    originX: 'center',
+                    originX: "center",
                     originY: "center",
                     fontFamily: "Noto sans",
                     fontSize: 16,
                     fill: "#fff",
                     selectable: false,
-                }
-            ));
+                }),
+            );
 
             return undefined;
         }
 
         canvas.add(climbsChart);
         climbs.push(climbsChart);
-                
+
         adjustCanvasSize();
 
         canvas.sendObjectToBack(climbsChart);
@@ -1100,7 +1159,7 @@
             return sorted.length % 2 === 0
                 ? (sorted[mid - 1] + sorted[mid]) / 2
                 : sorted[mid];
-        }
+        };
 
         const objects = canvas.getObjects();
 
@@ -1132,7 +1191,11 @@
             if (!event || !event.target) return;
             const value = Number(event.target.value);
 
-            moveObjects(selected.length == 0 ? canvas.getObjects() : selected, 0, value - rangeY.lastValue);                        
+            moveObjects(
+                selected.length == 0 ? canvas.getObjects() : selected,
+                0,
+                value - rangeY.lastValue,
+            );
             rangeY.lastValue = value;
 
             unselectAll();
@@ -1151,28 +1214,32 @@
         class="form-range horizontal-slider mb-2"
         style="touch-action: none; "
         oninput={(event) => {
-          if (!event || !event.target) return;
+            if (!event || !event.target) return;
             const value = Number(event.target.value);
 
-            moveObjects(selected.length == 0 ? canvas.getObjects() : selected, value - rangeX.lastValue, 0);                        
+            moveObjects(
+                selected.length == 0 ? canvas.getObjects() : selected,
+                value - rangeX.lastValue,
+                0,
+            );
 
             if (selected.length > 0) {
-                selected.forEach(obj => {
-                    obj.set('hasControls', false);
-                    obj.set('hasBorders', false);
-                });  
+                selected.forEach((obj) => {
+                    obj.set("hasControls", false);
+                    obj.set("hasBorders", false);
+                });
             }
-            
-            rangeX.lastValue = value;            
+
+            rangeX.lastValue = value;
         }}
         onchange={(event) => {
             rangeX.lastValue = Number(event.target.value);
 
             canvas.setActiveObject(selected[0]);
-            selected.forEach(obj => {
-                obj.set('hasControls', true);
-                obj.set('hasBorders', true);
-            });    
+            selected.forEach((obj) => {
+                obj.set("hasControls", true);
+                obj.set("hasBorders", true);
+            });
 
             canvas.requestRenderAll();
         }}
@@ -1182,10 +1249,10 @@
         class="btn btn-sm btn-primary mb-1"
         id="resizer"
         bind:this={resizer}
-        style="text-align: center;">
+        style="text-align: center;"
+    >
         <i class="bi bi-arrows-vertical"></i>
     </button>
-
 </div>
 
 <style>
@@ -1215,7 +1282,7 @@
         transform-origin: top left;
         transform: rotate(90deg) translateY(-100%);
 
-        top: 0;        
+        top: 0;
         left: -10px;
     }
 

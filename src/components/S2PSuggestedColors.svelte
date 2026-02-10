@@ -136,7 +136,7 @@
 <div class="d-flex" style="flex-direction: column;">
     <button
         type="button"
-        class="btn btn-sm btn-primary"
+        class="btn btn-sm btn-primary mb-2"
         onclick={() => {
             if (backgroundImgAdded) {
                 s2pCanvas.removeBackground();
@@ -164,7 +164,6 @@
             style="display: none;"
         />
     </button>
-    <i class="mb-2">(it will not be exported in final image)</i>
 
     <div class="d-flex gap-2 mb-2" style="flex-direction: column;">
         <div
