@@ -1,13 +1,13 @@
 import { ColorCombos } from "./picker";
+import { getColorSync, getPaletteSync, type Color } from 'colorthief';
 
 type Triple = [number, number, number]
 
 export class ColorSuggestions {
-    private readonly colorThief = new ColorThief();
     private readonly NO_OF_COLORS = 5;
 
-    private dominantHsl: Triple;
-    private paletteHsl: Triple[] = [];
+    private dominantHsl: Triple = [0, 0, 0];
+    private paletteHsl: Triple[] | undefined = [];
 
     private defaultColorSet: string[][] = [];
     private suggestedColors: string[][] = [];
@@ -22,14 +22,15 @@ export class ColorSuggestions {
                 "#E8F2FF",
                 "#F8F8F8",][Math.floor(Math.random() * 4)];
 
-            this.defaultColorSet.push([textColor, color[0], color[1]]);
+            if (textColor)
+                this.defaultColorSet.push([textColor, color[0], color[1]]);
         });
     }
 
     public generateColorsFromImage(img: any): string[][] {
         if (img) {
-            this.dominantHsl = this.rgbToHsl(this.colorThief.getColor(img));
-            this.paletteHsl = this.colorThief.getPalette(img, this.NO_OF_COLORS).map((rgb: Triple) => this.rgbToHsl(rgb));
+            this.dominantHsl = this.rgbToHsl(getColorSync(img)?.array());
+            this.paletteHsl = getPaletteSync(img, { colorCount: this.NO_OF_COLORS })?.map((value: Color, index: number, array: Color[]) => this.rgbToHsl(value.array()));
 
             let getCrazyColorSet = (hsl: Triple) => {
                 let colorsForHsl: string[] = [];
@@ -40,10 +41,12 @@ export class ColorSuggestions {
                 return colorsForHsl;
             }
 
-            for (let i = 0; i < this.paletteHsl.length; i++) {                
-                let hsl = this.higherContrastHsl(this.paletteHsl[i]);
-                //colors.push(getCrazyColorSet(hsl));         
-                this.suggestedColors.push(getCrazyColorSet(this.complementaryHsl(hsl)));
+            if (this.paletteHsl) {
+                for (let i = 0; i < this.paletteHsl.length; i++) {
+                    let hsl = this.higherContrastHsl(this.paletteHsl[i] ?? [0, 0, 0]);
+                    //colors.push(getCrazyColorSet(hsl));         
+                    this.suggestedColors.push(getCrazyColorSet(this.complementaryHsl(hsl)));
+                }
             }
 
             this.suggestedColors.push(getCrazyColorSet(this.dominantHsl));
@@ -52,7 +55,9 @@ export class ColorSuggestions {
         return this.suggestedColors;
     }
 
-    private rgbToHsl(color: Triple): Triple {
+    private rgbToHsl(color: Triple | undefined): Triple {
+        if (!color) return [0, 0, 0];
+
         let [r, g, b] = color;
 
         r /= 255; g /= 255; b /= 255;
